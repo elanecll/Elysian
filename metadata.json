@@ -1,0 +1,7 @@
+{
+  "name": "Elysian Spa & Wellness",
+  "description": "Facial, body massage, and hot stone massage sanctuary for relaxation, rejuvenation, and renewal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

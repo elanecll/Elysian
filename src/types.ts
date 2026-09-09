@@ -1,0 +1,69 @@
+export type PageTab = 'home' | 'treatments' | 'experience' | 'shop' | 'basket' | 'reviews' | 'location';
+
+export interface Product {
+  id: string;
+  category: 'all' | 'tropic' | 'daily' | 'serums' | 'body' | 'collections';
+  brandType: 'tropic';
+  name: string;
+  brand: string;
+  tagline: string;
+  price: string;
+  numericPrice: number;
+  description: string;
+  image: string;
+  badges: string[];
+}
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
+export interface TreatmentPriceOption {
+  duration: string;
+  priceTropic?: number;
+  priceClinicare?: number;
+  priceSingle?: number | string;
+  label?: string;
+}
+
+export interface Treatment {
+  id: string;
+  category: 'facial' | 'body-massage' | 'hot-stone' | 'packages' | 'addons';
+  title: string;
+  tagline: string;
+  duration: string;
+  priceDisplay: string;
+  priceOptions?: TreatmentPriceOption[];
+  description: string;
+  benefits: string[];
+  popular?: boolean;
+  isAddon?: boolean;
+}
+
+export interface Review {
+  id: string;
+  author: string;
+  service: string;
+  rating: number;
+  date: string;
+  comment: string;
+  avatarText: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface BookingData {
+  serviceId: string;
+  serviceTitle: string;
+  date: string;
+  timeSlot: string;
+  therapistPreference: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  notes: string;
+}
