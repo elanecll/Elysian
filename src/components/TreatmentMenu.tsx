@@ -41,15 +41,17 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
     if ((treatment.category === 'facial' || treatment.category === 'packages') && durationFilter !== 'all') {
       if (durationFilter === '30') {
         const has30 =
-          treatment.priceOptions?.some((opt) => opt.duration.toLowerCase().includes('30')) ||
-          treatment.duration.includes('30');
+          treatment.priceOptions?.some((opt) => opt.duration.toLowerCase().includes('30') || opt.duration.toLowerCase().includes('35')) ||
+          treatment.duration.includes('30') ||
+          treatment.duration.includes('35');
         return has30;
       }
       if (durationFilter === '60') {
         const has60 =
-          treatment.priceOptions?.some((opt) => opt.duration.toLowerCase().includes('60')) ||
+          treatment.priceOptions?.some((opt) => opt.duration.toLowerCase().includes('60') || opt.duration.toLowerCase().includes('45')) ||
           treatment.duration.includes('60') ||
-          treatment.duration.includes('75');
+          treatment.duration.includes('75') ||
+          treatment.duration.includes('45');
         return has60;
       }
     }

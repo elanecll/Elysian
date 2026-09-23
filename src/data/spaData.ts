@@ -179,9 +179,53 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
+  // 9. CARBOXYTHERAPY FACE MASK TREATMENT
+  {
+    id: 'carboxytherapy-face-mask-treatment',
+    category: 'facial',
+    title: 'CARBOXYTHERAPY FACE MASK TREATMENT',
+    tagline: 'OXYGENATING BOHR EFFECT • CELLULAR METABOLISM • INSTANT FIRMING',
+    duration: '30-45 mins',
+    priceDisplay: '£40',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 40, priceSingle: 40, label: '30–45 min Complete Carboxy Ritual' },
+    ],
+    description: 'An advanced non-invasive medical infusion that delivers Carbon Dioxide (CO2) directly beneath the skin surface, triggering the physiological Bohr Effect. The sudden surge of pure oxygen from deep within accelerates cellular metabolism, flushes out stagnant waste toxins, stimulates collagen synthesis, and dramatically tightens and brightens the complexion with zero downtime.',
+    benefits: [
+      'Triggers the Bohr Effect — floods skin cells with fresh oxygen & nutrients',
+      'Stimulates neocollagenesis & restores youthful skin elasticity',
+      'Visibly tightens sagging contours, jawline & shrinks dilated pores',
+      'Brightens dull, fatigued skin & reduces under-eye dark circles',
+      'Accelerates tissue healing, cellular detox & anti-inflammatory recovery',
+      'Includes double cleanse, CO2 infusion mask, active CLINICARE serum & SPF'
+    ],
+    popular: true,
+  },
 
+  // 10. CLINICARE CHEMICAL PEELING
+  {
+    id: 'cliniccare-chemical-peeling',
+    category: 'facial',
+    title: 'CLINICARE CHEMICAL PEELING',
+    tagline: 'SUPERFICIAL MEDICAL PEEL • CELLULAR TURNOVER • RADIANCE RENEWAL',
+    duration: '35-45 mins',
+    priceDisplay: '£45',
+    priceOptions: [
+      { duration: '35-45 mins', priceClinicare: 45, priceSingle: 45, label: '35–45 min Tailored Medical Peel' },
+    ],
+    description: 'Targeted Swedish superficial chemical peel tailored to your specific skin needs (GLOW for pigmentation & sun damage, PURE for blemish control & inflamed skin, or REFRESH for fine lines & laxity). Formulated with optimal concentrations of Glycolic, Mandelic, Lactic, and Salicylic acids to dissolve dead cells, unclog pores, and stimulate cellular regeneration with minimal downtime and maximum luminosity.',
+    benefits: [
+      'Gently dissolves dull surface keratin without harsh flaking or excessive trauma',
+      'Targets stubborn hyperpigmentation, melasma, age spots & uneven skin tone',
+      'Unclogs congested pores, regulates sebum & reduces acne flare-ups',
+      'Refines rough skin texture, smoothing fine lines & superficial wrinkles',
+      'Boosts absorption of active low-molecular Hyaluronic Acid & peptide serums',
+      'Includes skin prep, tailored chemical peel, neutralizing soothing mask & SPF50'
+    ],
+    popular: true,
+  },
 
-  // 10. Hot Stone Full Body Massage
+  // 11. Hot Stone Full Body Massage
   {
     id: 'hot-stone-full-body-massage',
     category: 'hot-stone',
