@@ -108,20 +108,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Controls */}
         <div className="hidden sm:flex items-center gap-3">
-          {/* Shop Boutique Button */}
-          <button
-            id="nav-shop-btn"
-            onClick={() => handleNavClick('shop')}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs tracking-wider uppercase font-medium transition-all duration-300 shadow-2xs cursor-pointer ${
-              currentPage === 'shop'
-                ? 'bg-[#BE757C] text-white border-[#BE757C]'
-                : 'border-[#BE757C]/40 text-[#4A352F] hover:text-[#BE757C] hover:border-[#BE757C] bg-white/80 hover:bg-[#FFF0F2]'
-            }`}
-          >
-            <ShoppingBag className={`w-3.5 h-3.5 ${currentPage === 'shop' ? 'text-white' : 'text-[#BE757C]'}`} />
-            <span>Shop</span>
-          </button>
-
           {/* Basket Button with Live Badge */}
           <button
             id="nav-basket-btn"
@@ -165,19 +151,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               </>
             )}
           </button>
-
-          {/* Owner CRM Portal Button */}
-          {onOpenCRM && (
-            <button
-              id="nav-crm-portal-btn"
-              onClick={onOpenCRM}
-              title="Open Private Owner CRM Portal & Sales Hub"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-[#5C423E]/30 text-[#5C423E] hover:bg-[#5C423E] hover:text-white text-xs tracking-wider uppercase font-medium transition-all shadow-2xs cursor-pointer bg-white/70"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#BE757C]" />
-              <span className="hidden xl:inline">Owner CRM</span>
-            </button>
-          )}
 
           {/* Book Appointment CTA */}
           <button
