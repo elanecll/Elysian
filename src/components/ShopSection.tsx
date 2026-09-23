@@ -112,11 +112,23 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-[#3D2B27] mt-2 mb-4">
             {activeBrand === 'cliniccare' ? (
-              <>Elysian Boutique: <span className="text-[#8C3F48]">🔬 CLINICARE Skincare Bar</span></>
+              <>
+                Elysian Boutique: <span className="text-[#8C3F48]">🔬 CLINICARE Skincare Bar</span>{' '}
+                <span className="text-[#3D2B27] font-normal">&amp;</span>{' '}
+                <span className="text-[#3F6848]">🌿 TROPIC Skincare Bar</span>
+              </>
             ) : activeBrand === 'tropic' ? (
-              <>Elysian Boutique: <span className="text-[#3F6848]">🌿 Tropic Skincare</span></>
+              <>
+                Elysian Boutique: <span className="text-[#3F6848]">🌿 TROPIC Skincare Bar</span>{' '}
+                <span className="text-[#3D2B27] font-normal">&amp;</span>{' '}
+                <span className="text-[#8C3F48]">🔬 CLINICARE Skincare Bar</span>
+              </>
             ) : (
-              <>Elysian Boutique: <span className="text-[#BE757C]">Luxury Skincare Bar</span></>
+              <>
+                Elysian Boutique: <span className="text-[#8C3F48]">🔬 CLINICARE Skincare Bar</span>{' '}
+                <span className="text-[#3D2B27] font-normal">&amp;</span>{' '}
+                <span className="text-[#3F6848]">🌿 TROPIC Skincare Bar</span>
+              </>
             )}
           </h2>
 
@@ -176,7 +188,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                     : 'text-[#5C4A45] hover:text-[#3F6848] hover:bg-[#F2F7F3]'
                 }`}
               >
-                <span>🌿 Tropic Skincare</span>
+                <span>🌿 TROPIC Skincare Bar</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                   activeBrand === 'tropic' ? 'bg-white/20 text-white' : 'bg-[#F2F7F3] text-[#3F6848]'
                 }`}>

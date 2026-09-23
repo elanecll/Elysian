@@ -296,13 +296,6 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <PageBanner
-                currentPageName="Boutique & Vouchers"
-                title="Spa Boutique & Gift Vouchers"
-                subtitle="Take the sanctuary home with Swedish CLINICARE medical cosmeceuticals, fresh handcrafted Tropic botanicals, and bespoke gift vouchers."
-                tagline="SKINCARE BOUTIQUE & GIFTING"
-                onNavigateHome={() => handleNavigate('home')}
-              />
               <ShopSection
                 onAddToCart={handleAddToCart}
                 cartCount={totalCartCount}

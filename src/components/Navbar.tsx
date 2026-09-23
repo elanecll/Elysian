@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', name: 'Home' },
     { id: 'treatments', name: 'Treatment Menu' },
     { id: 'experience', name: 'The Experience' },
-    { id: 'shop', name: 'Shop & Vouchers', isShop: true },
+    { id: 'shop', name: 'Shop', isShop: true },
     { id: 'reviews', name: 'Reviews' },
     { id: 'location', name: 'Location & FAQ' },
   ];
@@ -100,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'text-[#4A352F] hover:text-[#BE757C] after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#BE757C] hover:after:w-full after:transition-all after:duration-300'
                 }`}
               >
-                {item.name}
+                <span>{item.name}</span>
               </button>
             );
           })}
