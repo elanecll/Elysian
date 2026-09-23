@@ -62,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
                   ELYSIAN
                 </span>
                 <span className="text-[9px] tracking-[0.3em] text-[#E8BAC0] uppercase font-sans-clean block">
-                  SPA &amp; WELLNESS
+                  Beauty Spa
                 </span>
               </div>
             </div>
@@ -186,7 +186,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#BE757C] shrink-0" />
-                <a href="tel:+447707328060" className="hover:text-white">+44 7707328060</a>
+                <a href="tel:+447707328060" className="hover:text-white">+44 7707 32 8060</a>
               </p>
               <p className="flex items-center gap-2.5">
                 <MessageCircle className="w-4 h-4 text-[#BE757C] shrink-0" />

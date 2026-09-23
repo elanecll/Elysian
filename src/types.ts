@@ -2,10 +2,16 @@ export type PageTab = 'home' | 'treatments' | 'experience' | 'shop' | 'basket' |
 
 export interface Product {
   id: string;
-  category: 'all' | 'tropic' | 'daily' | 'serums' | 'body' | 'collections';
-  brandType: 'tropic';
+  category: 'all' | 'tropic' | 'clinicare' | 'daily' | 'serums' | 'body' | 'collections' | 'masks' | 'sunscreen' | 'cleansers' | string;
+  brandType: 'tropic' | 'clinicare';
   name: string;
   brand: string;
+  range?: string;
+  rangeKey?: string;
+  colorTheme?: 'blue' | 'green' | 'orange' | 'purple';
+  colorLabel?: string;
+  colorHex?: string;
+  volume?: string;
   tagline: string;
   price: string;
   numericPrice: number;

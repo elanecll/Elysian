@@ -1,6 +1,7 @@
 import { Product } from '../types';
+import { CLINICARE_PRODUCTS } from './cliniccareProducts';
 
-export const SPA_PRODUCTS: Product[] = [
+export const TROPIC_PRODUCTS: Product[] = [
   // --- 🌿 TROPIC SKINCARE PRODUCTS ---
   {
     id: 'tropic-skincare-kit-1',
@@ -250,3 +251,9 @@ export const SPA_PRODUCTS: Product[] = [
     badges: ['Hand Wash & Lotion Duo', '180ml Luxury Size', 'Lemon Myrtle & Shea 🍋'],
   },
 ];
+
+export const SPA_PRODUCTS: Product[] = [
+  ...CLINICARE_PRODUCTS,
+  ...TROPIC_PRODUCTS,
+];
+

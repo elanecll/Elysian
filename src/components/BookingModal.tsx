@@ -135,28 +135,27 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const opt60 = currentService.priceOptions?.find((o) =>
     o.duration.toLowerCase().includes('60')
   );
-  const hasDualProducts = !!(opt30 && (opt30.priceTropic !== undefined || opt30.priceClinicare !== undefined));
+  const hasMultipleDurations = !!(opt30 && opt60);
 
   // Compute active price accurately
   const getActivePrice = (): number => {
-    if (hasDualProducts) {
+    if (hasMultipleDurations) {
       const activeOpt = selectedDuration === '30' ? opt30 : opt60 || opt30;
       if (activeOpt) {
-        const price = selectedProduct === 'tropic' ? activeOpt.priceTropic : activeOpt.priceClinicare;
+        const price = activeOpt.priceClinicare ?? activeOpt.priceSingle;
         if (typeof price === 'number') return price;
       }
     }
 
     if (currentService.priceOptions && currentService.priceOptions.length > 0) {
-      const activeOpt = selectedDuration === '30' ? opt30 : opt60 || currentService.priceOptions[0];
+      const activeOpt = selectedDuration === '30' ? (opt30 || currentService.priceOptions[0]) : (opt60 || currentService.priceOptions[0]);
       if (activeOpt) {
+        if (typeof activeOpt.priceClinicare === 'number') return activeOpt.priceClinicare;
         if (typeof activeOpt.priceSingle === 'number') return activeOpt.priceSingle;
         if (typeof activeOpt.priceSingle === 'string') {
           const parsed = parseFloat(activeOpt.priceSingle.replace(/[^0-9.]/g, ''));
           if (!isNaN(parsed) && parsed > 0) return parsed;
         }
-        if (selectedProduct === 'tropic' && typeof activeOpt.priceTropic === 'number') return activeOpt.priceTropic;
-        if (selectedProduct === 'clinicare' && typeof activeOpt.priceClinicare === 'number') return activeOpt.priceClinicare;
       }
     }
 
@@ -233,8 +232,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         details: {
           serviceId: currentService.id,
           serviceTitle: currentService.title,
-          skincareProduct: hasDualProducts ? selectedProduct : undefined,
-          duration: hasDualProducts
+          skincareProduct: 'clinicare',
+          duration: hasMultipleDurations
             ? (selectedDuration === '30' ? '30 mins Express' : '60 mins Full Ritual')
             : currentService.duration,
           scheduledDate: selectedDate,
@@ -400,37 +399,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     ))}
                   </select>
                   
-                  {/* Dual Product Formulation & Duration Selector if applicable */}
-                  {hasDualProducts && (
+                  {/* Clinicare Formulation & Duration Selector if applicable */}
+                  {hasMultipleDurations && (
                     <div className="mt-3 p-3.5 bg-[#FFF5F7] rounded-xl border border-[#F0D0D5] space-y-3">
-                      <div>
-                        <span className="block text-[11px] font-bold uppercase tracking-wider text-[#3D2B27] mb-1.5 font-sans-clean">
-                          Skincare Product Line:
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#3D2B27]">
+                          <span className="p-1 rounded bg-[#BE757C] text-white text-[10px]">🔬</span>
+                          Formulation: CLINICARE Medical Cosmeceuticals
                         </span>
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedProduct('tropic')}
-                            className={`p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
-                              selectedProduct === 'tropic'
-                                ? 'bg-emerald-800 text-white border-emerald-700 shadow-2xs'
-                                : 'bg-white text-emerald-950 border-emerald-200 hover:bg-emerald-50'
-                            }`}
-                          >
-                            <span>🌿</span> Product Tropic
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedProduct('clinicare')}
-                            className={`p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
-                              selectedProduct === 'clinicare'
-                                ? 'bg-[#BE757C] text-white border-[#A9636A] shadow-2xs'
-                                : 'bg-white text-[#8C3F48] border-[#F0D0D5] hover:bg-[#FFF0F2]'
-                            }`}
-                          >
-                            <span>🔬</span> Product Clinicare
-                          </button>
-                        </div>
+                        <span className="text-[10px] text-[#7A5852] font-semibold bg-white px-2 py-0.5 rounded border border-[#E8BAC0]">
+                          Active Peptides &amp; HA
+                        </span>
                       </div>
 
                       <div>
@@ -441,9 +420,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedDuration('30')}
-                            className={`p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
+                            className={`p-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                               selectedDuration === '30'
-                                ? 'bg-[#5C423E] text-white border-[#4A352F] shadow-2xs'
+                                ? 'bg-[#BE757C] text-white border-[#A9636A] shadow-2xs'
                                 : 'bg-white text-[#5C4A45] border-[#E8BAC0] hover:bg-[#FAF0F2]'
                             }`}
                           >
@@ -453,9 +432,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                           <button
                             type="button"
                             onClick={() => setSelectedDuration('60')}
-                            className={`p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
+                            className={`p-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                               selectedDuration === '60'
-                                ? 'bg-[#5C423E] text-white border-[#4A352F] shadow-2xs'
+                                ? 'bg-[#BE757C] text-white border-[#A9636A] shadow-2xs'
                                 : 'bg-white text-[#5C4A45] border-[#E8BAC0] hover:bg-[#FAF0F2]'
                             }`}
                           >
@@ -471,7 +450,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <div className="mt-3 p-3.5 rounded-xl bg-gradient-to-br from-[#FFF5F7] to-[#FAF0F2] border border-[#F0D0D5] space-y-2">
                     <div className="flex items-center justify-between text-xs pb-2 border-b border-[#F0D0D5]">
                       <span className="text-[#5C4A45] font-serif-luxury italic">
-                        {currentService.title} ({hasDualProducts ? `${selectedDuration} min • ${selectedProduct === 'tropic' ? '🌿 Tropic' : '🔬 Clinicare'}` : currentService.duration})
+                        {currentService.title} ({hasMultipleDurations ? `${selectedDuration} min • 🔬 CLINICARE` : currentService.duration})
                       </span>
                       <span className="font-semibold text-[#5C4A45]">
                         Total Fee: <span className="font-bold text-[#3D2B27]">£{totalFee.toFixed(2)}</span>
@@ -634,7 +613,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                         {currentService.title}
                       </h4>
                       <p className="text-xs text-[#5C4A45] mt-0.5">
-                        {hasDualProducts ? (selectedProduct === 'tropic' ? '🌿 Product Tropic' : '🔬 Product Clinicare') : ''} • {selectedDuration} mins • {selectedDate} at {selectedTime}
+                        {hasMultipleDurations ? `${selectedDuration} mins • 🔬 Product CLINICARE` : currentService.duration} • {selectedDate} at {selectedTime}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
@@ -1009,14 +988,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                       <span className="font-bold text-[#3D2B27] text-right">{currentService.title}</span>
                     </div>
 
-                    {hasDualProducts && (
-                      <div className="flex justify-between">
-                        <span className="text-[#5C4A45]">Skincare Line:</span>
-                        <span className="font-bold text-emerald-800">
-                          {selectedProduct === 'tropic' ? '🌿 Tropic (Fresh Botanicals)' : '🔬 Clinicare (Active Cosmeceuticals)'}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex justify-between">
+                      <span className="text-[#5C4A45]">Skincare Formulation:</span>
+                      <span className="font-bold text-[#BE757C]">
+                        🔬 CLINICARE (Medical Cosmeceuticals)
+                      </span>
+                    </div>
 
                     <div className="flex justify-between">
                       <span className="text-[#5C4A45]">Scheduled Date &amp; Time:</span>

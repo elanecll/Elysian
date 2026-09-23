@@ -63,7 +63,7 @@ export const Testimonials: React.FC = () => {
           <div className="h-8 w-px bg-[#E8BAC0]/40 hidden sm:block"></div>
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#BE757C]" />
-            <span className="text-xs font-semibold text-[#5C4A45]">Tropic &amp; CLINICCARE Certified</span>
+            <span className="text-xs font-semibold text-[#5C4A45]">CLINICARE Certified Aesthetics</span>
           </div>
         </div>
 

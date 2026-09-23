@@ -93,8 +93,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                   <Flower2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27]">100% Clean</h4>
-                  <p className="text-[11px] text-[#5C4A45]">🌿 Tropic &amp; 🔬 Clinicare Actives</p>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27]">100% Medical-Grade</h4>
+                  <p className="text-[11px] text-[#5C4A45]">🔬 CLINICARE Active Formulas</p>
                 </div>
               </div>
 

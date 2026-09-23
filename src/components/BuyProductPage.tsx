@@ -270,7 +270,7 @@ export const BuyProductPage: React.FC<BuyProductPageProps> = ({
     const itemsList = cart
       .map(
         (item) =>
-          `• ${item.product.name} (Qty: ${item.quantity}) — £${item.product.numericPrice * item.quantity}`
+          `• ${item.product.name} (Qty: ${item.quantity}) — £${(item.product.numericPrice * item.quantity).toFixed(2)}`
       )
       .join('\n');
 
@@ -476,7 +476,7 @@ export const BuyProductPage: React.FC<BuyProductPageProps> = ({
                     {item.quantity}x {item.product.name}
                   </span>
                   <span className="font-semibold text-[#3D2B27]">
-                    £{item.product.numericPrice * item.quantity}
+                    £{(item.product.numericPrice * item.quantity).toFixed(2)}
                   </span>
                 </li>
               ))}
@@ -737,7 +737,7 @@ export const BuyProductPage: React.FC<BuyProductPageProps> = ({
                       {/* Item Total */}
                       <div className="text-right sm:self-center shrink-0">
                         <span className="text-base font-bold font-display text-[#3D2B27]">
-                          £{item.product.numericPrice * item.quantity}
+                          £{(item.product.numericPrice * item.quantity).toFixed(2)}
                         </span>
                       </div>
                     </div>

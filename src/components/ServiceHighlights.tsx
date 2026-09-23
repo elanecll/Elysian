@@ -18,13 +18,13 @@ export const ServiceHighlights: React.FC<ServiceHighlightsProps> = ({ onSelectSe
       icon: <FacialIcon className="w-14 h-14 text-[#BE757C]" />,
       image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80',
       duration: '30 - 75 min',
-      price: 'From £35',
+      price: 'From £25',
       description: 'Revitalize cellular radiance through Hydro-Facials, EMS lifting, Radio Frequency, Ultrasonic infusion, and PDT Oxygen LED therapy.',
       features: [
         'Hydro-Facial deep extraction & hydration',
         'EMS & Radio Frequency collagen lift',
-        'Ultrasonic nutrient infusion',
-        '🌿 Tropic Organic & 🔬 Clinicare active tiers'
+        'Ultrasonic nutrient bio-infusion',
+        '🔬 CLINICARE Swedish Cosmeceutical Actives'
       ]
     },
     {

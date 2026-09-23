@@ -4,23 +4,22 @@ export const SPA_SERVICES: Treatment[] = [
   // 1. Elysian Personalised Glow Treatment
   {
     id: 'elysian-personalised-glow-treatment',
-    category: 'packages',
+    category: 'facial',
     title: 'Elysian Personalised Glow Treatment',
     tagline: 'ULTIMATE BESPOKE MULTI-TECHNOLOGY FACIAL (SINGLE SESSION)',
     duration: '60-75 mins',
-    priceDisplay: '£80 (🌿 Tropic) / £95 (🔬 CLINICCARE)',
+    priceDisplay: '£80 (🔬 CLINICARE)',
     priceOptions: [
-      { label: '🌿 Tropic Skincare', duration: '60-75 mins', priceSingle: 80 },
-      { label: '🔬 CLINICCARE', duration: '60-75 mins', priceSingle: 95 },
+      { label: '🔬 CLINICARE Professional Cosmeceuticals', duration: '60-75 mins', priceSingle: 80 },
     ],
-    description: 'Our ultimate bespoke multi-technology facial tailored to your exact skin goals. Includes a full multi-modality protocol plus double cleanse, custom serums (Tropic or CLINICCARE), bespoke mask, moisturiser & SPF.',
+    description: 'Our ultimate bespoke multi-technology facial tailored to your exact skin goals. Includes a full multi-modality protocol plus double cleanse, custom CLINICARE active serums, bespoke mask, moisturiser & SPF.',
     benefits: [
       'Ultrasonic Scrubber → Deep cleanse & exfoliate',
       '💧 Hydrodermabrasion → Hydrate & resurface',
       '📡 RF Skin Tightening OR ⚡ EMS Lift → Firm & contour',
       '❄️ Cold Hammer → Calm, soothe, lock in serums',
       '💜 LED Mask → Heal, repair, boost collagen',
-      '✨ Plus: Double cleanse, custom serums (Tropic or CLINICCARE), mask, moisturiser & SPF'
+      '✨ Plus: Double cleanse, custom CLINICARE active serums, mask, moisturiser & SPF'
     ],
     popular: true,
   },
@@ -32,16 +31,16 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Hydrodemabrasion Facial',
     tagline: 'DEEP CLEANSE • HYDRATE • RESURFACE & EXFOLIATE',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £42 (🌿 Tropic) / £52 (🔬 Clinicare)',
+    priceDisplay: 'From £32 (30m Express) / £62 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceTropic: 42, priceClinicare: 52 },
-      { duration: '60 min — Full Treatment', priceTropic: 68, priceClinicare: 82 },
+      { duration: '30 min — Express', priceClinicare: 32, priceSingle: 32 },
+      { duration: '60 min — Full Treatment', priceClinicare: 62, priceSingle: 62 },
     ],
-    description: 'Vortex-fusion hydrodermabrasion suction deeply extracts impurities and dead skin cells while infusing intensive hyaluronic and botanical antioxidant serums.',
+    description: 'Vortex-fusion hydrodermabrasion suction deeply extracts impurities and dead skin cells while infusing intensive CLINICARE low-molecular hyaluronic acid and peptide serums.',
     benefits: [
       'Pore Hydro-Extraction & Deep Cleansing',
       'Non-Invasive Gentle Exfoliation & Resurfacing',
-      'Intensive Hydration Infusion (🌿 Tropic or 🔬 Clinicare)',
+      'Intensive Hydration Infusion (🔬 CLINICARE Active Peptides)',
       'Zero Downtime Glass-Skin Radiance'
     ],
     popular: true,
@@ -54,12 +53,12 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'EMS Facial',
     tagline: 'LIFT, TONE, FIRM & CELLULAR ACTIVATION',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £40 (🌿 Tropic) / £50 (🔬 Clinicare)',
+    priceDisplay: 'From £30 (30m Express) / £58 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceTropic: 40, priceClinicare: 50 },
-      { duration: '60 min — Full Treatment', priceTropic: 65, priceClinicare: 78 },
+      { duration: '30 min — Express', priceClinicare: 30, priceSingle: 30 },
+      { duration: '60 min — Full Treatment', priceClinicare: 58, priceSingle: 58 },
     ],
-    description: 'Electrical Muscle Stimulation (EMS) to lift, sculpt, firm facial contours, and stimulate natural collagen and elastin production.',
+    description: 'Electrical Muscle Stimulation (EMS) paired with CLINICARE active peptide complexes to lift, sculpt, firm facial contours, and stimulate natural collagen and elastin production.',
     benefits: [
       'Facial Contour Lifting & Sculpting',
       'Stimulates Natural Collagen & Elastin',
@@ -76,12 +75,12 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Radio Frequency Facial',
     tagline: 'TIGHTEN SKIN, BOOST COLLAGEN & SMOOTH LINES',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £42 (🌿 Tropic) / £52 (🔬 Clinicare)',
+    priceDisplay: 'From £32 (30m Express) / £60 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceTropic: 42, priceClinicare: 52 },
-      { duration: '60 min — Full Treatment', priceTropic: 68, priceClinicare: 80 },
+      { duration: '30 min — Express', priceClinicare: 32, priceSingle: 32 },
+      { duration: '60 min — Full Treatment', priceClinicare: 60, priceSingle: 60 },
     ],
-    description: 'Targeted thermal energy heats deep dermis layers to tighten lax skin, boost collagen matrix synthesis, and reduce fine lines and wrinkles.',
+    description: 'Targeted thermal energy heats deep dermis layers while infusing CLINICARE concentrated hyaluronic acid to tighten lax skin, boost collagen matrix synthesis, and reduce fine lines.',
     benefits: [
       'Deep Dermal Thermal Tightening',
       'Reduces Fine Lines & Wrinkles',
@@ -97,12 +96,12 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Ultrasonic Facial',
     tagline: 'DEEP NUTRIENT INFUSION & CELLULAR STIMULATION',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £36 (🌿 Tropic) / £46 (🔬 Clinicare)',
+    priceDisplay: 'From £26 (30m Express) / £42 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceTropic: 36, priceClinicare: 46 },
-      { duration: '60 min — Full Treatment', priceTropic: 55, priceClinicare: 62 },
+      { duration: '30 min — Express', priceClinicare: 26, priceSingle: 26 },
+      { duration: '60 min — Full Treatment', priceClinicare: 42, priceSingle: 42 },
     ],
-    description: 'High-frequency ultrasonic waves provide deep nutrient infusion, ultrasonic cellular stimulation, and firm and refine skin tone.',
+    description: 'High-frequency ultrasonic waves provide deep nutrient infusion with CLINICARE active cosmeceuticals, ultrasonic cellular stimulation, and firm and refine skin tone.',
     benefits: [
       'Deep Nutrient Bio-Infusion',
       'Ultrasonic Cellular Stimulation',
@@ -118,18 +117,18 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Microdermabrasion Facial',
     tagline: 'RESURFACE • IMPROVE SCARS & TEXTURE',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £35 (🌿 Tropic) / £45 (🔬 Clinicare)',
+    priceDisplay: 'From £25 (30m Express) / £42 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceTropic: 35, priceClinicare: 45 },
-      { duration: '60 min — Full Treatment', priceTropic: 48, priceClinicare: 62 },
+      { duration: '30 min — Express', priceClinicare: 25, priceSingle: 25 },
+      { duration: '60 min — Full Treatment', priceClinicare: 42, priceSingle: 42 },
     ],
-    description: 'Diamond-tip exfoliation buffing away dull superficial layers to resurface uneven texture and visibly improve acne scarring.',
+    description: 'Diamond-tip exfoliation buffing away dull superficial layers followed by CLINICARE soothing epidermal hydration to resurface uneven texture and visibly improve acne scarring.',
     benefits: [
       'Precision Skin Resurfacing',
       'Improves Appearance of Scars',
       'Minimizes Enlarged Pores',
       'Enhances Skincare Absorption',
-      'Series Available: Buy 3, Get 4th FREE (Tropic £105/£144 • Clinicare £135/£186)'
+      'Series Available: Buy 3, Get 4th FREE (Clinicare 30m: £75 • 60m: £126)'
     ],
   },
 
@@ -140,12 +139,12 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Lymphatic Drainage Facial',
     tagline: 'REDUCE PUFFINESS • DETOXIFY • CIRCULATION',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £36 (🌿 Tropic) / £46 (🔬 Clinicare)',
+    priceDisplay: 'From £26 (30m Express) / £40 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceTropic: 36, priceClinicare: 46 },
-      { duration: '60 min — Full Treatment', priceTropic: 50, priceClinicare: 60 },
+      { duration: '30 min — Express', priceClinicare: 26, priceSingle: 26 },
+      { duration: '60 min — Full Treatment', priceClinicare: 40, priceSingle: 40 },
     ],
-    description: 'Gentle, specialized rhythmic strokes to reduce puffiness, detoxify stagnant lymph fluid, and boost oxygenated circulation.',
+    description: 'Gentle, specialized rhythmic strokes paired with CLINICARE soothing bio-serums to reduce puffiness, detoxify stagnant lymph fluid, and boost oxygenated circulation.',
     benefits: [
       'Reduces Facial Puffiness',
       'Eliminates Stagnant Toxins',
@@ -161,12 +160,12 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy',
     tagline: '8-IN-1 HOT & COLD THERAPY • NANO-MIST HYDRATION • MULTI-SPECTRUM PDT LED',
     duration: '30 min Express / 45–60 min Full Ritual',
-    priceDisplay: 'From £35 (🌿 Tropic) / £45 (🔬 Clinicare)',
+    priceDisplay: 'From £25 (30m Express) / £40 (Full Ritual)',
     priceOptions: [
-      { duration: '30 min — Express PDT LED', priceTropic: 35, priceClinicare: 45 },
-      { duration: '60 min — Full 8-in-1 Ritual (45–60 min)', priceTropic: 45, priceClinicare: 60 },
+      { duration: '30 min — Express PDT LED', priceClinicare: 25, priceSingle: 25 },
+      { duration: '60 min — Full 8-in-1 Ritual (45–60 min)', priceClinicare: 40, priceSingle: 40 },
     ],
-    description: 'Advanced 8-in-1 facial technology featuring medical-grade PDT LED light therapy, thermal hot and cold pore-calming therapy, and deep nano-sized mist hydration infusion. Complete session includes double cleanse, skin prep, 15–25 minute targeted PDT LED phase, bespoke serum cocktail & finish.',
+    description: 'Advanced 8-in-1 facial technology featuring medical-grade PDT LED light therapy, thermal hot and cold pore-calming therapy, and deep nano-sized mist hydration infusion with CLINICARE cosmeceuticals. Complete session includes double cleanse, skin prep, 15–25 minute targeted PDT LED phase, bespoke CLINICARE serum cocktail & finish.',
     benefits: [
       '💡 PDT Light Therapy — Targets acne, ageing, pigmentation & cellular repair',
       '🌫️ Deep Hydration Infusion — Nano-sized mist penetrates deep dermal layers',
@@ -353,17 +352,17 @@ export const SPA_SERVICES: Treatment[] = [
     title: '4-Session Facial Series (Buy 3, Get 1 FREE)',
     tagline: 'BUY 3 FACIALS & RECEIVE YOUR 4TH FACIAL FREE',
     duration: '30 min Express / 60 min Full Series (4 Sessions)',
-    priceDisplay: 'From £105 (🌿 Tropic) / £135 (🔬 Clinicare) • 4th FREE',
+    priceDisplay: 'From £75 (30m Series) / £126 (60m Series) • 4th FREE',
     priceOptions: [
-      { duration: '30 min — Express Series (4 Sessions)', priceTropic: 105, priceClinicare: 135 },
-      { duration: '60 min — Full Treatment Series (4 Sessions)', priceTropic: 144, priceClinicare: 186 },
+      { duration: '30 min — Express Series (4 Sessions)', priceClinicare: 75, priceSingle: 75 },
+      { duration: '60 min — Full Treatment Series (4 Sessions)', priceClinicare: 126, priceSingle: 126 },
     ],
-    description: 'Buy 3 facials and receive your 4th facial completely FREE! Pay for 3 sessions and enjoy your 4th session complimentary — available in 30-min targeted Express or 60-min intensive Full Treatment courses for long-term progressive skin transformation.',
+    description: 'Buy 3 facials and receive your 4th facial completely FREE! Pay for 3 sessions and enjoy your 4th session complimentary — powered by CLINICARE Swedish medical cosmeceuticals for long-term progressive skin transformation.',
     benefits: [
       'Buy 3 Facials & Receive 4th Facial Completely FREE',
-      '🌿 Tropic 30 mins: £105 (Save £35) • 60 mins: £144 (Save £48)',
-      '🔬 Clinicare 30 mins: £135 (Save £45) • 60 mins: £186 (Save £62)',
-      'Tailored with Bespoke 🌿 Tropic or 🔬 Clinicare Active Formulations'
+      '🔬 CLINICARE 30 mins: £75 (Save £25)',
+      '🔬 CLINICARE 60 mins: £126 (Save £42)',
+      'Tailored with Medical-Grade Low-Molecular Hyaluronic Acid & Peptides'
     ],
     popular: true,
   },
@@ -375,16 +374,16 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Microdermabrasion Facial Series (Buy 3, Get 1 FREE)',
     tagline: 'BUY 3 MICRODERMABRASION FACIALS & RECEIVE YOUR 4TH FREE',
     duration: '30 min Express / 60 min Full Series (4 Sessions)',
-    priceDisplay: 'From £105 (🌿 Tropic) / £135 (🔬 Clinicare) • 4th FREE',
+    priceDisplay: 'From £75 (30m Series) / £126 (60m Series) • 4th FREE',
     priceOptions: [
-      { duration: '30 min — Express Series (4 Sessions)', priceTropic: 105, priceClinicare: 135 },
-      { duration: '60 min — Full Treatment Series (4 Sessions)', priceTropic: 144, priceClinicare: 186 },
+      { duration: '30 min — Express Series (4 Sessions)', priceClinicare: 75, priceSingle: 75 },
+      { duration: '60 min — Full Treatment Series (4 Sessions)', priceClinicare: 126, priceSingle: 126 },
     ],
-    description: 'Buy 3 Microdermabrasion Facials and receive your 4th facial completely FREE! Diamond-tip precision buffing removes dull cellular layers, reduces acne scars, and smooths uneven texture over a restorative 4-treatment course.',
+    description: 'Buy 3 Microdermabrasion Facials and receive your 4th facial completely FREE! Diamond-tip precision buffing removes dull cellular layers, paired with CLINICARE EGF restorative hydration over a 4-treatment course.',
     benefits: [
       'Buy 3 Microdermabrasion Facials & Receive 4th Facial FREE',
-      '🌿 Tropic 30 mins: £105 (Save £35) • 🔬 Clinicare 30 mins: £135 (Save £45)',
-      '🌿 Tropic 60 mins: £144 (Save £48) • 🔬 Clinicare 60 mins: £186 (Save £62)',
+      '🔬 CLINICARE 30 mins: £75 (Save £25)',
+      '🔬 CLINICARE 60 mins: £126 (Save £42)',
       'Progressively Smooths Acne Scars & Visibly Refines Uneven Texture'
     ],
     popular: true,
@@ -397,9 +396,9 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Bring A Friend (Both Save 15% OFF)',
     tagline: 'BOOK TOGETHER & BOTH RECEIVE 15% OFF',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'Both Save 15% OFF (£35 - £42)',
+    priceDisplay: 'Both Save 15% OFF',
     priceOptions: [
-      { label: 'Twin Facial Ritual (Both save 15%)', duration: '30 - 60 mins each', priceSingle: '£35 - £42' },
+      { label: 'Twin Facial Ritual (Both save 15%)', duration: '30 - 60 mins each', priceSingle: 'From £38' },
       { label: 'Twin Back Massage Ritual (Both save 15%)', duration: '30 mins each', priceSingle: 51 },
       { label: 'Twin Full Body Massage Ritual (Both save 15%)', duration: '60 mins each', priceSingle: 102 },
       { label: 'Twin Hot & Cold PDT Oxygen Facial (30 mins)', duration: '30 mins each', priceSingle: 76 },
@@ -424,13 +423,13 @@ export const SPA_SERVICES: Treatment[] = [
     duration: '60 - 75 mins',
     priceDisplay: '10% OFF Skincare',
     priceOptions: [
-      { label: '🌿 Tropic Custom Facial + 10% OFF Products', duration: '60 mins', priceSingle: 55 },
+      { label: 'CLINICARE Custom Facial + 10% OFF Products', duration: '60 mins', priceSingle: 60 },
       { label: 'Elysian 4-in-1 Oxygen Glow Facial + 10% OFF Products', duration: '75 mins', priceSingle: 70 }
     ],
-    description: 'Book any qualifying facial and receive 10% OFF 🌿 TROPIC professional skincare products purchased on the day! Includes product saving perks, complete facial experience, and bespoke skincare consultation.',
+    description: 'Book any qualifying CLINICARE facial and receive 10% OFF professional boutique skincare products purchased on the day! Includes product saving perks, complete facial experience, and bespoke skincare consultation.',
     benefits: [
-      'Book Any Qualifying Facial and Receive 10% OFF Skincare Products',
-      'Valid on 🌿 Tropic Professional Skincare Products Purchased on the Day',
+      'Book Any Qualifying Facial and Receive 10% OFF Boutique Skincare',
+      'Valid on Professional Skincare Products Purchased on the Day',
       'Your Therapist Will Recommend the Best Products for Your Skin',
       'Complimentary Skin Analysis & Tailored Home Regimen Curation'
     ],
@@ -444,12 +443,11 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Elysian Signature Glow & Massage Ritual',
     tagline: '4-IN-1 OXYGEN FACIAL + 60 MIN VOLCANIC HOT STONE MASSAGE',
     duration: '120 mins',
-    priceDisplay: '£125 (Save £15)',
+    priceDisplay: '£135 (Save £15)',
     priceOptions: [
-      { label: '🌿 Tropic Skincare & Warm Basalt Ritual', duration: '120 mins', priceSingle: 125 },
-      { label: '🔬 Clinicare Cosmeceutical & Hot Stone Ritual', duration: '120 mins', priceSingle: 135 }
+      { label: '🔬 CLINICARE Cosmeceutical & Hot Stone Ritual', duration: '120 mins', priceSingle: 135 }
     ],
-    description: 'Our ultimate luxury sanctuary immersion combining the signature 4-in-1 Oxygen & LED illumination facial with a full 60-minute volcanic hot stone body massage and botanical cranial scalp pressure ritual.',
+    description: 'Our ultimate luxury sanctuary immersion combining the signature 4-in-1 Oxygen & LED illumination facial with CLINICARE active cosmeceuticals, a full 60-minute volcanic hot stone body massage, and botanical cranial scalp pressure ritual.',
     benefits: [
       'Full Body Heated Basalt Massage',
       '4-in-1 Oxygen & LED Illumination Facial',
@@ -466,12 +464,11 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Radiance & Sculpt Dermal Course (Package of 3)',
     tagline: '3X ADVANCED EMS & RADIO FREQUENCY SESSIONS',
     duration: '3 x 45 mins',
-    priceDisplay: '£150 (Save £30)',
+    priceDisplay: '£175 (Save £35)',
     priceOptions: [
-      { label: 'Course of 3 Sessions (🌿 Tropic)', duration: '3 x 45 mins', priceSingle: 150 },
-      { label: 'Course of 3 Sessions (🔬 Clinicare)', duration: '3 x 45 mins', priceSingle: 175 }
+      { label: 'Course of 3 Sessions (🔬 CLINICARE)', duration: '3 x 45 mins', priceSingle: 175 }
     ],
-    description: 'A transformative 3-session clinical course alternating EMS contour lifting and deep Radio Frequency thermal collagen stimulation to visibly sculpt jawline contours and smooth fine lines.',
+    description: 'A transformative 3-session clinical course alternating EMS contour lifting and deep Radio Frequency thermal collagen stimulation with CLINICARE bio-actives to visibly sculpt jawline contours and smooth fine lines.',
     benefits: [
       'Course of 3 Dedicated 45-Min Sessions',
       'Dual EMS Lifting & RF Thermal Collagen Matrix',
@@ -529,7 +526,7 @@ export const REVIEWS: Review[] = [
     service: 'Elysian Personalised Treatment Glow',
     rating: 5,
     date: 'August 2026',
-    comment: 'The bespoke multi-technology protocol completely transformed my skin for my sister’s wedding. The CLINICCARE hydration cocktail and LED therapy gave me an instant, glass-like radiance!',
+    comment: 'The bespoke multi-technology protocol completely transformed my skin for my sister’s wedding. The CLINICARE hydration cocktail and LED therapy gave me an instant, glass-like radiance!',
     avatarText: 'EV',
   },
   {
@@ -580,10 +577,10 @@ export const REVIEWS: Review[] = [
   {
     id: '7',
     author: 'Gemma Atherton',
-    service: 'Hydro-Facial (🌿 Tropic Botanicals)',
+    service: 'Hydro-Facial (🔬 CLINICARE Low-Molecular HA)',
     rating: 5,
     date: 'June 2026',
-    comment: 'I love that they offer fresh, organic Tropic skincare! My sensitive skin did not flare up at all; instead, it felt deeply nourished, calm, and naturally radiant.',
+    comment: 'The CLINICARE cosmeceutical infusion was incredible! My sensitive skin did not flare up at all; instead, it felt deeply nourished, calm, and visibly glowing for days.',
     avatarText: 'GA',
   },
   {
@@ -608,8 +605,8 @@ export const REVIEWS: Review[] = [
 
 export const FAQS: FaqItem[] = [
   {
-    question: 'What is the difference between 🌿 Tropic and 🔬 Clinicare treatment options?',
-    answer: '🌿 Tropic formulas are 100% natural, freshly made, organic vegan botanical skincare rich in superfood antioxidants. 🔬 Clinicare is a medical-grade cosmeceutical range utilizing low molecular weight hyaluronic acid and pharmaceutical-grade active peptides for clinical anti-aging and deep epidermal corrective results.',
+    question: 'What skincare formulations are used in treatments and available in your boutique?',
+    answer: 'All facial aesthetic treatments exclusively feature 🔬 CLINICARE — Swedish medical-grade cosmeceuticals with low-molecular hyaluronic acid and biomimetic peptide complexes for immediate and long-term skin rejuvenation. In our Sanctuary Boutique Shop, we also stock the full range of fresh handcrafted 🌿 Tropic organic botanical skincare for your daily home regimen.',
   },
   {
     question: 'What should I wear during my massage and hot stone therapy?',

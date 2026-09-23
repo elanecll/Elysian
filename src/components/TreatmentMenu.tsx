@@ -16,7 +16,6 @@ interface TreatmentMenuProps {
 export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, selectedCategory = 'all' }) => {
   const [activeTab, setActiveTab] = useState<string>(selectedCategory || 'all');
   const [durationFilter, setDurationFilter] = useState<'all' | '30' | '60'>('all');
-  const [productLineFilter, setProductLineFilter] = useState<'all' | 'tropic' | 'clinicare'>('all');
   const [cardDurations, setCardDurations] = useState<Record<string, '30' | '60'>>({});
 
   useEffect(() => {
@@ -83,7 +82,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
             Treatment Menu &amp; Pricing
           </h2>
           <p className="text-base sm:text-lg font-serif-luxury italic text-[#5C4A45]">
-            Featuring organic 🌿 Tropic botanicals and medical-grade 🔬 Clinicare cosmeceutical formulations.
+            Featuring advanced medical-grade 🔬 CLINICARE Swedish cosmeceutical formulations.
           </p>
         </div>
 
@@ -119,260 +118,82 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
           })}
         </div>
 
-        {/* Skincare Product Line & Duration Filter Selector for Facials & Series */}
+        {/* Skincare Formulation & Duration Filter Bar for Facials & Series */}
         {(activeTab === 'facial' || activeTab === 'all' || activeTab === 'packages') && (
           <div className="mb-10 bg-white rounded-2xl p-5 sm:p-7 border border-[#E8BAC0]/70 shadow-xs max-w-4xl mx-auto">
             <div className="text-center mb-5">
               <div className="inline-flex items-center justify-center gap-2 mb-1">
                 <Sparkles className="w-4 h-4 text-[#BE757C]" />
                 <span className="text-xs sm:text-sm uppercase tracking-widest text-[#3D2B27] font-bold font-sans-clean">
-                  Facial Aesthetics &amp; Series Packages — Product Line &amp; Duration Selector
+                  Facial Aesthetics &amp; Series Packages — 🔬 CLINICARE Cosmeceuticals
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-[#5C4A45] max-w-2xl mx-auto">
-                Select your preferred formulation: organic <strong className="text-emerald-900 font-semibold">🌿 Product Tropic</strong> botanicals or advanced <strong className="text-[#8C3F48] font-semibold">🔬 Product Clinicare</strong> cosmeceuticals, with 30-min express, 60-min rituals, and <strong className="text-[#BE757C] font-semibold">Buy 3 Get 1 FREE packages</strong>.
+                Formulated exclusively with medical-grade <strong className="text-[#8C3F48] font-semibold">🔬 CLINICARE Swedish cosmeceuticals</strong> (low-molecular hyaluronic acid &amp; biomimetic peptides). Choose from 30-min express, 60-min rituals, and <strong className="text-[#BE757C] font-semibold">Buy 3 Get 1 FREE packages</strong>.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-[#F0D5D8]">
-              {/* 1. Product Line Separation */}
-              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[#3D2B27] mb-2 flex items-center gap-1.5 font-sans-clean">
-                  <span>🌿 / 🔬</span> Step 1: Skincare Product Line
-                </label>
-                <div className="inline-flex flex-wrap p-1 bg-[#FFF9F9] rounded-xl border border-[#E8BAC0]/80 gap-1 w-full justify-center sm:justify-start">
-                  <button
-                    type="button"
-                    id="btn-filter-all-products"
-                    onClick={() => setProductLineFilter('all')}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                      productLineFilter === 'all'
-                        ? 'bg-[#3D2B27] text-white shadow-xs'
-                        : 'text-[#6B5550] hover:text-[#BE757C]'
-                    }`}
-                  >
-                    Compare Both
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-filter-tropic"
-                    onClick={() => setProductLineFilter('tropic')}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      productLineFilter === 'tropic'
-                        ? 'bg-emerald-800 text-white shadow-xs ring-1 ring-emerald-700'
-                        : 'text-emerald-900 hover:bg-emerald-50'
-                    }`}
-                  >
-                    <span>🌿</span> Product Tropic
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-filter-clinicare"
-                    onClick={() => setProductLineFilter('clinicare')}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      productLineFilter === 'clinicare'
-                        ? 'bg-[#BE757C] text-white shadow-xs ring-1 ring-[#A9636A]'
-                        : 'text-[#8C3F48] hover:bg-[#FFF0F2]'
-                    }`}
-                  >
-                    <span>🔬</span> Product Clinicare
-                  </button>
-                </div>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#F0D5D8]">
+              <div className="flex items-center gap-2 text-xs text-[#5C4A45]">
+                <Clock className="w-4 h-4 text-[#BE757C]" />
+                <span className="font-semibold text-[#3D2B27]">Filter By Duration:</span>
               </div>
-
-              {/* 2. Duration Filter */}
-              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[#3D2B27] mb-2 flex items-center gap-1.5 font-sans-clean">
-                  <Clock className="w-3.5 h-3.5 text-[#BE757C]" /> Step 2: Treatment Duration
-                </label>
-                <div className="inline-flex flex-wrap p-1 bg-[#FFF9F9] rounded-xl border border-[#E8BAC0]/80 gap-1 w-full justify-center sm:justify-start">
-                  <button
-                    type="button"
-                    id="btn-facial-all"
-                    onClick={() => setDurationFilter('all')}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                      durationFilter === 'all'
-                        ? 'bg-[#3D2B27] text-white shadow-xs'
-                        : 'text-[#6B5550] hover:text-[#BE757C]'
-                    }`}
-                  >
-                    All Durations
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-facial-30-mins"
-                    onClick={() => {
-                      setDurationFilter('30');
-                      const updated: Record<string, '30' | '60'> = {};
-                      SPA_SERVICES.forEach((s) => {
-                        updated[s.id] = '30';
-                      });
-                      setCardDurations(updated);
-                    }}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      durationFilter === '30'
-                        ? 'bg-[#BE757C] text-white shadow-xs ring-1 ring-[#A9636A]'
-                        : 'text-[#5C423E] hover:bg-[#FFF0F2]'
-                    }`}
-                  >
-                    <Clock className="w-3.5 h-3.5" /> 30 Mins Express
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-facial-60-mins"
-                    onClick={() => {
-                      setDurationFilter('60');
-                      const updated: Record<string, '30' | '60'> = {};
-                      SPA_SERVICES.forEach((s) => {
-                        updated[s.id] = '60';
-                      });
-                      setCardDurations(updated);
-                    }}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      durationFilter === '60'
-                        ? 'bg-[#BE757C] text-white shadow-xs ring-1 ring-[#A9636A]'
-                        : 'text-[#5C423E] hover:bg-[#FFF0F2]'
-                    }`}
-                  >
-                    <Clock className="w-3.5 h-3.5" /> 60 Mins Full
-                  </button>
-                </div>
+              <div className="inline-flex flex-wrap p-1 bg-[#FFF9F9] rounded-xl border border-[#E8BAC0]/80 gap-1">
+                <button
+                  type="button"
+                  id="btn-facial-all"
+                  onClick={() => setDurationFilter('all')}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    durationFilter === 'all'
+                      ? 'bg-[#3D2B27] text-white shadow-xs'
+                      : 'text-[#6B5550] hover:text-[#BE757C]'
+                  }`}
+                >
+                  All Durations
+                </button>
+                <button
+                  type="button"
+                  id="btn-facial-30-mins"
+                  onClick={() => {
+                    setDurationFilter('30');
+                    const updated: Record<string, '30' | '60'> = {};
+                    SPA_SERVICES.forEach((s) => {
+                      updated[s.id] = '30';
+                    });
+                    setCardDurations(updated);
+                  }}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    durationFilter === '30'
+                      ? 'bg-[#BE757C] text-white shadow-xs ring-1 ring-[#A9636A]'
+                      : 'text-[#5C423E] hover:bg-[#FFF0F2]'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" /> 30 Mins Express
+                </button>
+                <button
+                  type="button"
+                  id="btn-facial-60-mins"
+                  onClick={() => {
+                    setDurationFilter('60');
+                    const updated: Record<string, '30' | '60'> = {};
+                    SPA_SERVICES.forEach((s) => {
+                      updated[s.id] = '60';
+                    });
+                    setCardDurations(updated);
+                  }}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    durationFilter === '60'
+                      ? 'bg-[#BE757C] text-white shadow-xs ring-1 ring-[#A9636A]'
+                      : 'text-[#5C423E] hover:bg-[#FFF0F2]'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" /> 60 Mins Full
+                </button>
               </div>
             </div>
 
-            {/* Dynamic Product Breakdown Banner */}
-            {productLineFilter === 'clinicare' && (
-              <div className="mt-5 p-4 rounded-xl bg-gradient-to-r from-[#FFF4F6] to-[#FAF0F2] border border-[#F0D0D5] text-left">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                  <span className="inline-flex items-center gap-2 font-bold text-sm text-[#3D2B27]">
-                    <span className="p-1 rounded-md bg-[#BE757C] text-white text-xs">🔬</span>
-                    Product Clinicare — Medical-Grade Cosmeceuticals &amp; Series
-                  </span>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-[#BE757C] text-white font-bold">
-                    30 Min Express (£45–£52) • Series £135 / £186
-                  </span>
-                </div>
-                <p className="text-xs text-[#5C4A45] leading-relaxed mb-3 font-sans-clean">
-                  Advanced Swedish cosmeceuticals enriched with low-molecular hyaluronic acid, biomimetic peptides, and cellular bio-actives.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
-                  <div className="bg-white/90 p-2 rounded-lg border border-[#F0D5D8] flex items-center justify-between">
-                    <span className="text-[#3D2B27] font-medium">Hydrodemabrasion (30 min)</span>
-                    <span className="font-bold text-[#BE757C]">£52</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-[#F0D5D8] flex items-center justify-between">
-                    <span className="text-[#3D2B27] font-medium">Radio Frequency (30 min)</span>
-                    <span className="font-bold text-[#BE757C]">£52</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-[#F0D5D8] flex items-center justify-between">
-                    <span className="text-[#3D2B27] font-medium">EMS Facial (30 min)</span>
-                    <span className="font-bold text-[#BE757C]">£50</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-[#F0D5D8] flex items-center justify-between">
-                    <span className="text-[#3D2B27] font-medium">Ultrasonic Facial (30 min)</span>
-                    <span className="font-bold text-[#BE757C]">£46</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-[#F0D5D8] flex items-center justify-between">
-                    <span className="text-[#3D2B27] font-medium">Lymphatic Drainage (30 min)</span>
-                    <span className="font-bold text-[#BE757C]">£46</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-[#F0D5D8] flex items-center justify-between">
-                    <span className="text-[#3D2B27] font-medium">Microdermabrasion (30 min)</span>
-                    <span className="font-bold text-[#BE757C]">£45</span>
-                  </div>
-                  <div className="sm:col-span-2 lg:col-span-3 bg-gradient-to-r from-[#FBE8EB] to-[#FAF0F2] p-2.5 rounded-lg border border-[#BE757C]/40 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#BE757C] text-white">
-                        4th FREE Series
-                      </span>
-                      <span className="text-[#3D2B27] font-semibold">
-                        Microdermabrasion Series (Buy 3, Get 4th FREE)
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[#8C3F48] font-bold">30 mins: £135</span>
-                      <span className="text-[#5C4A45]">|</span>
-                      <span className="text-[#8C3F48] font-bold">60 mins: £186</span>
-                      <span className="text-[10px] text-[#7A5852]">(Save up to £62)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {productLineFilter === 'tropic' && (
-              <div className="mt-5 p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50/60 border border-emerald-200 text-left">
-                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                  <span className="inline-flex items-center gap-2 font-bold text-sm text-emerald-950">
-                    <span className="p-1 rounded-md bg-emerald-800 text-white text-xs">🌿</span>
-                    Product Tropic — Fresh Organic Botanicals &amp; Series
-                  </span>
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-800 text-white font-bold">
-                    30 Min Express (£35–£42) • Series £105 / £144
-                  </span>
-                </div>
-                <p className="text-xs text-emerald-900/80 leading-relaxed mb-3 font-sans-clean">
-                  100% natural, freshly blended cruelty-free tropical botanicals and bio-retinol plant extracts formulated for soothing, radiant glass skin.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
-                  <div className="bg-white/90 p-2 rounded-lg border border-emerald-200/80 flex items-center justify-between">
-                    <span className="text-emerald-950 font-medium">Hydrodemabrasion (30 min)</span>
-                    <span className="font-bold text-emerald-800">£42</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-emerald-200/80 flex items-center justify-between">
-                    <span className="text-emerald-950 font-medium">Radio Frequency (30 min)</span>
-                    <span className="font-bold text-emerald-800">£42</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-emerald-200/80 flex items-center justify-between">
-                    <span className="text-emerald-950 font-medium">EMS Facial (30 min)</span>
-                    <span className="font-bold text-emerald-800">£40</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-emerald-200/80 flex items-center justify-between">
-                    <span className="text-emerald-950 font-medium">Ultrasonic Facial (30 min)</span>
-                    <span className="font-bold text-emerald-800">£36</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-emerald-200/80 flex items-center justify-between">
-                    <span className="text-emerald-950 font-medium">Lymphatic Drainage (30 min)</span>
-                    <span className="font-bold text-emerald-800">£36</span>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-emerald-200/80 flex items-center justify-between">
-                    <span className="text-emerald-950 font-medium">Microdermabrasion (30 min)</span>
-                    <span className="font-bold text-emerald-800">£35</span>
-                  </div>
-                  <div className="sm:col-span-2 lg:col-span-3 bg-gradient-to-r from-emerald-100/70 to-teal-50 p-2.5 rounded-lg border border-emerald-300 flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-800 text-white">
-                        4th FREE Series
-                      </span>
-                      <span className="text-emerald-950 font-semibold">
-                        Microdermabrasion Series (Buy 3, Get 4th FREE)
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-emerald-800 font-bold">30 mins: £105</span>
-                      <span className="text-emerald-700">|</span>
-                      <span className="text-emerald-800 font-bold">60 mins: £144</span>
-                      <span className="text-[10px] text-emerald-800/80">(Save up to £48)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {productLineFilter === 'all' && (
-              <div className="mt-5 p-3.5 rounded-xl bg-[#FAF0F2] border border-[#F0D5D8] flex flex-wrap items-center justify-between gap-2 text-xs text-[#5C4A45]">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[#3D2B27]">Separate Skincare Lines Available:</span>
-                  <span>🌿 Product Tropic (£35–£42 / Series £105/£144) &amp; 🔬 Product Clinicare (£45–£52 / Series £135/£186) are clearly separated in distinct panels below.</span>
-                </div>
-                <span className="text-[11px] text-[#BE757C] font-semibold font-sans-clean">
-                  Switch tabs above or compare side-by-side
-                </span>
-              </div>
-            )}
-
             {/* 50% Downpayment Policy Banner */}
-            <div className="mt-3 px-4 py-2.5 rounded-xl bg-[#5C423E] text-[#FFF0F2] flex flex-wrap items-center justify-between gap-2 text-xs shadow-xs">
+            <div className="mt-4 px-4 py-2.5 rounded-xl bg-[#5C423E] text-[#FFF0F2] flex flex-wrap items-center justify-between gap-2 text-xs shadow-xs">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded-full bg-[#BE757C] text-white text-[10px] font-bold tracking-wider uppercase font-sans-clean">
                   50% Deposit Policy
@@ -472,7 +293,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                       {treatment.description}
                     </p>
 
-                    {/* Separated Product Line Breakdown & Duration Options */}
+                    {/* Formulation Breakdown & Duration Options */}
                     {hasDurationChoice && (
                       <div className="mb-5 space-y-3">
                         {/* Interactive Duration Selector on Card */}
@@ -506,199 +327,56 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                           </div>
                         </div>
 
-                        {/* 🌿 PRODUCT TROPIC SEPARATE BOX */}
-                        {(productLineFilter === 'all' || productLineFilter === 'tropic') && (
-                          <div className={`rounded-xl p-3.5 border transition-all ${
-                            productLineFilter === 'tropic'
-                              ? 'bg-gradient-to-br from-emerald-50 to-teal-50/50 border-emerald-300 ring-2 ring-emerald-600/30 shadow-xs'
-                              : 'bg-emerald-50/60 border-emerald-200/90'
-                          }`}>
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-950 tracking-wide">
-                                <span>🌿</span> Product Tropic
-                              </span>
-                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-sans-clean">
-                                {isSeriesPackage ? 'Buy 3, 4th FREE' : 'Fresh Botanicals'}
-                              </span>
-                            </div>
-
-                            <p className="text-[11px] text-emerald-900/80 mb-2 leading-tight">
-                              {isSeriesPackage
-                                ? 'Pay for 3 sessions and receive your 4th session completely FREE with fresh 100% natural Tropic botanicals.'
-                                : '100% freshly made vegan botanicals, pure essential oils, and soothing antioxidant bio-actives.'}
-                            </p>
-
-                            <div className="flex items-center justify-between pt-1 border-t border-emerald-200/60">
-                              <div className="flex flex-wrap items-center gap-2 text-xs">
-                                <span className="text-emerald-950 font-medium">
-                                  {isSeriesPackage
-                                    ? (activeCardDur === '30' ? 'Tropic 30 mins:' : 'Tropic 60 mins:')
-                                    : (activeCardDur === '30' ? '30m Express:' : '60m Full:')}
-                                </span>
-                                <span className="text-base font-bold text-emerald-800 font-display">
-                                  £{activeCardDur === '30' ? opt30?.priceTropic : opt60?.priceTropic}
-                                </span>
-                                <span className="text-[10px] text-emerald-900/90 font-semibold bg-emerald-100/80 px-1.5 py-0.5 rounded">
-                                  50% dep: £{(((activeCardDur === '30' ? opt30?.priceTropic : opt60?.priceTropic) ?? 0) * 0.5).toFixed(2).replace('.00', '')}
-                                </span>
-                                <span className="text-[10px] text-emerald-800/70">
-                                  {isSeriesPackage
-                                    ? (activeCardDur === '30' ? '(Save £35)' : '(Save £48)')
-                                    : (activeCardDur === '30' ? `(60m: £${opt60?.priceTropic})` : `(30m: £${opt30?.priceTropic})`)}
-                                </span>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => onBookTreatment(treatment.id, 'tropic', activeCardDur)}
-                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white transition-all duration-200 cursor-pointer shadow-2xs shrink-0"
-                              >
-                                {isSeriesPackage ? 'Book Tropic Series' : 'Book Tropic'}
-                              </button>
-                            </div>
+                        {/* 🔬 CLINICARE TREATMENT BOX */}
+                        <div className="rounded-xl p-3.5 border bg-gradient-to-br from-[#FFF4F6] to-[#FAF0F2] border-[#BE757C]/40 shadow-2xs">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8C3F48] tracking-wide">
+                              <span>🔬</span> CLINICARE Cosmeceuticals
+                            </span>
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#FBE8EB] text-[#8C3F48] font-sans-clean">
+                              {isSeriesPackage ? 'Buy 3, 4th FREE' : 'Active Peptides & HA'}
+                            </span>
                           </div>
-                        )}
 
-                        {/* 🔬 PRODUCT CLINICARE SEPARATE BOX */}
-                        {(productLineFilter === 'all' || productLineFilter === 'clinicare') && (
-                          <div className={`rounded-xl p-3.5 border transition-all ${
-                            productLineFilter === 'clinicare'
-                              ? 'bg-gradient-to-br from-[#FFF4F6] to-[#FAF0F2] border-[#BE757C] ring-2 ring-[#BE757C]/30 shadow-xs'
-                              : 'bg-[#FFF6F7] border-[#F0D0D5]'
-                          }`}>
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8C3F48] tracking-wide">
-                                <span>🔬</span> Product Clinicare
+                          <p className="text-[11px] text-[#7A5852] mb-2 leading-tight">
+                            {isSeriesPackage
+                              ? 'Pay for 3 sessions and receive your 4th session completely FREE with Swedish low-molecular hyaluronic cosmeceuticals.'
+                              : 'Advanced Swedish medical-grade low-molecular hyaluronic acid and biomimetic peptide complex.'}
+                          </p>
+
+                          <div className="flex items-center justify-between pt-1 border-t border-[#F0D0D5]/70">
+                            <div className="flex flex-wrap items-center gap-2 text-xs">
+                              <span className="text-[#3D2B27] font-medium">
+                                {isSeriesPackage
+                                  ? (activeCardDur === '30' ? '30 mins Series:' : '60 mins Series:')
+                                  : (activeCardDur === '30' ? '30m Express:' : '60m Full:')}
                               </span>
-                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#FBE8EB] text-[#8C3F48] font-sans-clean">
-                                {isSeriesPackage ? 'Buy 3, 4th FREE' : 'Cosmeceutical Active'}
+                              <span className="text-base font-bold text-[#BE757C] font-display">
+                                £{activeCardDur === '30' ? (opt30?.priceClinicare ?? opt30?.priceSingle) : (opt60?.priceClinicare ?? opt60?.priceSingle)}
+                              </span>
+                              <span className="text-[10px] text-[#8C3F48] font-semibold bg-[#FCE8EB] px-1.5 py-0.5 rounded">
+                                50% dep: £{(Number(activeCardDur === '30' ? (opt30?.priceClinicare ?? opt30?.priceSingle) : (opt60?.priceClinicare ?? opt60?.priceSingle)) * 0.5).toFixed(2).replace('.00', '')}
+                              </span>
+                              <span className="text-[10px] text-[#7A5852]">
+                                {isSeriesPackage
+                                  ? (activeCardDur === '30' ? '(Save £45)' : '(Save £62)')
+                                  : (activeCardDur === '30' ? `(60m: £${opt60?.priceClinicare ?? opt60?.priceSingle})` : `(30m: £${opt30?.priceClinicare ?? opt30?.priceSingle})`)}
                               </span>
                             </div>
 
-                            <p className="text-[11px] text-[#7A5852] mb-2 leading-tight">
-                              {isSeriesPackage
-                                ? 'Pay for 3 sessions and receive your 4th session completely FREE with Swedish low-molecular hyaluronic cosmeceuticals.'
-                                : 'Advanced Swedish medical-grade low-molecular hyaluronic acid and biomimetic peptide complex.'}
-                            </p>
-
-                            <div className="flex items-center justify-between pt-1 border-t border-[#F0D0D5]/70">
-                              <div className="flex flex-wrap items-center gap-2 text-xs">
-                                <span className="text-[#3D2B27] font-medium">
-                                  {isSeriesPackage
-                                    ? (activeCardDur === '30' ? 'Clinicare 30 mins:' : 'Clinicare 60 mins:')
-                                    : (activeCardDur === '30' ? '30m Express:' : '60m Full:')}
-                                </span>
-                                <span className="text-base font-bold text-[#BE757C] font-display">
-                                  £{activeCardDur === '30' ? opt30?.priceClinicare : opt60?.priceClinicare}
-                                </span>
-                                <span className="text-[10px] text-[#8C3F48] font-semibold bg-[#FCE8EB] px-1.5 py-0.5 rounded">
-                                  50% dep: £{(((activeCardDur === '30' ? opt30?.priceClinicare : opt60?.priceClinicare) ?? 0) * 0.5).toFixed(2).replace('.00', '')}
-                                </span>
-                                <span className="text-[10px] text-[#7A5852]">
-                                  {isSeriesPackage
-                                    ? (activeCardDur === '30' ? '(Save £45)' : '(Save £62)')
-                                    : (activeCardDur === '30' ? `(60m: £${opt60?.priceClinicare})` : `(30m: £${opt30?.priceClinicare})`)}
-                                </span>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => onBookTreatment(treatment.id, 'clinicare', activeCardDur)}
-                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#BE757C] hover:bg-[#A9636A] text-white transition-all duration-200 cursor-pointer shadow-2xs shrink-0"
-                              >
-                                {isSeriesPackage ? 'Book Clinicare Series' : 'Book Clinicare'}
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => onBookTreatment(treatment.id, 'clinicare', activeCardDur)}
+                              className="text-xs font-semibold px-3.5 py-1.5 rounded-lg bg-[#BE757C] hover:bg-[#A9636A] text-white transition-all duration-200 cursor-pointer shadow-2xs shrink-0"
+                            >
+                              {isSeriesPackage ? 'Book Series' : 'Book Ritual'}
+                            </button>
                           </div>
-                        )}
+                        </div>
                       </div>
                     )}
 
-                    {/* If service has both Tropic & Clinicare options without 30/60 toggle, separate them cleanly */}
-                    {!hasDurationChoice && treatment.priceOptions && (
-                      treatment.priceOptions.some(o => o.priceTropic !== undefined || o.label?.includes('Tropic')) &&
-                      treatment.priceOptions.some(o => o.priceClinicare !== undefined || o.label?.includes('CLINICCARE') || o.label?.includes('Clinicare'))
-                    ) ? (
-                      <div className="mb-5 space-y-3">
-                        {/* 🌿 PRODUCT TROPIC SEPARATE BOX */}
-                        {(productLineFilter === 'all' || productLineFilter === 'tropic') && (
-                          <div className={`rounded-xl p-3.5 border transition-all ${
-                            productLineFilter === 'tropic'
-                              ? 'bg-gradient-to-br from-emerald-50 to-teal-50/50 border-emerald-300 ring-2 ring-emerald-600/30 shadow-xs'
-                              : 'bg-emerald-50/60 border-emerald-200/90'
-                          }`}>
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-950 tracking-wide">
-                                <span>🌿</span> Product Tropic
-                              </span>
-                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-sans-clean">
-                                Fresh Botanicals
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-emerald-900/80 mb-2 leading-tight">
-                              100% freshly made vegan botanicals, pure essential oils, and soothing antioxidant bio-actives.
-                            </p>
-                            <div className="flex items-center justify-between pt-1 border-t border-emerald-200/60">
-                              <div className="flex items-center gap-2 text-xs">
-                                <span className="text-emerald-950 font-medium">Session Fee:</span>
-                                <span className="text-base font-bold text-emerald-800 font-display">
-                                  £{treatment.priceOptions.find(o => o.priceTropic !== undefined || o.label?.includes('Tropic'))?.priceTropic ?? treatment.priceOptions.find(o => o.label?.includes('Tropic'))?.priceSingle}
-                                </span>
-                                <span className="text-[10px] text-emerald-800/70">
-                                  ({treatment.priceOptions.find(o => o.label?.includes('Tropic'))?.duration || treatment.duration})
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => onBookTreatment(treatment.id)}
-                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white transition-all duration-200 cursor-pointer shadow-2xs"
-                              >
-                                Book Tropic
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* 🔬 PRODUCT CLINICARE SEPARATE BOX */}
-                        {(productLineFilter === 'all' || productLineFilter === 'clinicare') && (
-                          <div className={`rounded-xl p-3.5 border transition-all ${
-                            productLineFilter === 'clinicare'
-                              ? 'bg-gradient-to-br from-[#FFF4F6] to-[#FAF0F2] border-[#BE757C] ring-2 ring-[#BE757C]/30 shadow-xs'
-                              : 'bg-[#FFF6F7] border-[#F0D0D5]'
-                          }`}>
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8C3F48] tracking-wide">
-                                <span>🔬</span> Product Clinicare
-                              </span>
-                              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#FBE8EB] text-[#8C3F48] font-sans-clean">
-                                Cosmeceutical Active
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-[#7A5852] mb-2 leading-tight">
-                              Advanced Swedish medical-grade low-molecular hyaluronic acid and biomimetic peptide complex.
-                            </p>
-                            <div className="flex items-center justify-between pt-1 border-t border-[#F0D0D5]/70">
-                              <div className="flex items-center gap-2 text-xs">
-                                <span className="text-[#3D2B27] font-medium">Session Fee:</span>
-                                <span className="text-base font-bold text-[#BE757C] font-display">
-                                  £{treatment.priceOptions.find(o => o.priceClinicare !== undefined || o.label?.includes('CLINICCARE') || o.label?.includes('Clinicare'))?.priceClinicare ?? treatment.priceOptions.find(o => o.label?.includes('CLINICCARE') || o.label?.includes('Clinicare'))?.priceSingle}
-                                </span>
-                                <span className="text-[10px] text-[#7A5852]">
-                                  ({treatment.priceOptions.find(o => o.label?.includes('CLINICCARE') || o.label?.includes('Clinicare'))?.duration || treatment.duration})
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => onBookTreatment(treatment.id)}
-                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#BE757C] hover:bg-[#A9636A] text-white transition-all duration-200 cursor-pointer shadow-2xs"
-                              >
-                                Book Clinicare
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : !hasDurationChoice && treatment.priceOptions && treatment.priceOptions.length > 0 ? (
+                    {!hasDurationChoice && treatment.priceOptions && treatment.priceOptions.length > 0 && (
                       <div className="bg-[#FFF9F9] rounded-xl p-3.5 border border-[#F0D5D8] mb-4 space-y-2">
                         <p className="text-[10px] tracking-wider uppercase font-bold text-[#BE757C] font-sans-clean">
                           Pricing &amp; Duration Breakdown:
@@ -713,23 +391,9 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                                 {opt.label ? opt.label : opt.duration}
                               </span>
                               <div className="flex items-center gap-3">
-                                {opt.priceSingle !== undefined && (
-                                  <span className="font-bold text-[#3D2B27]">
-                                    {typeof opt.priceSingle === 'number'
-                                      ? `£${opt.priceSingle}`
-                                      : String(opt.priceSingle).startsWith('£')
-                                      ? opt.priceSingle
-                                      : `£${opt.priceSingle}`}
-                                  </span>
-                                )}
-                                {opt.priceTropic !== undefined && (
-                                  <span className="text-[#5C4A45]">
-                                    <span className="text-emerald-800 font-bold">£{opt.priceTropic}</span> (🌿 Tropic)
-                                  </span>
-                                )}
-                                {opt.priceClinicare !== undefined && (
-                                  <span className="text-[#5C4A45]">
-                                    <span className="text-[#BE757C] font-bold">£{opt.priceClinicare}</span> (🔬 Clinicare)
+                                {(opt.priceClinicare !== undefined || opt.priceSingle !== undefined) && (
+                                  <span className="font-bold text-[#BE757C]">
+                                    £{opt.priceClinicare ?? opt.priceSingle}
                                   </span>
                                 )}
                               </div>
@@ -737,7 +401,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                           ))}
                         </div>
                       </div>
-                    ) : null}
+                    )}
 
                     {/* Benefit highlights */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6 pt-3 border-t border-[#F5E6E8]">
@@ -770,14 +434,11 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                       <div className="text-base sm:text-lg font-display font-medium text-[#3D2B27] mt-0.5">
                         {hasDurationChoice ? (
                           <span>
-                            <span className="text-emerald-800 font-bold">
-                              £{activeCardDur === '30' ? opt30?.priceTropic : opt60?.priceTropic}
+                            <span className="font-bold text-[#BE757C]">
+                              £{activeCardDur === '30' ? (opt30?.priceClinicare ?? opt30?.priceSingle) : (opt60?.priceClinicare ?? opt60?.priceSingle)}
                             </span>{' '}
                             <span className="text-xs text-[#5C4A45] font-sans-clean font-normal">
-                              🌿 Tropic
-                            </span>{' '}
-                            <span className="text-xs text-[#8C3F48] font-semibold">
-                              / £{activeCardDur === '30' ? opt30?.priceClinicare : opt60?.priceClinicare} 🔬 Clinicare
+                              (🔬 CLINICARE)
                             </span>
                           </span>
                         ) : (
@@ -793,7 +454,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                       id={`book-item-${treatment.id}`}
                       onClick={() => onBookTreatment(
                         treatment.id,
-                        productLineFilter === 'all' ? undefined : productLineFilter,
+                        'clinicare',
                         hasDurationChoice ? activeCardDur : undefined
                       )}
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-xs tracking-wider uppercase transition-all duration-300 shadow-2xs hover:shadow-md cursor-pointer shrink-0"

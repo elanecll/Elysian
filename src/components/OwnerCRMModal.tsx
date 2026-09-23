@@ -27,6 +27,7 @@ import {
   ArrowUpDown,
   Send,
   RefreshCw,
+  RotateCcw,
   Copy,
   Check,
   Building2,
@@ -38,6 +39,7 @@ import {
   saveCRMRecord,
   updateCRMRecord,
   deleteCRMRecord,
+  clearAllCRMRecords,
   exportCRMToCSV,
   generateOwnerWhatsAppUrl,
   generateOwnerEmailUrl,
@@ -73,7 +75,7 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
   const [manualPhone, setManualPhone] = useState('');
   const [manualEmail, setManualEmail] = useState('');
   const [manualServiceId, setManualServiceId] = useState(SPA_SERVICES[0].id);
-  const [manualProduct, setManualProduct] = useState<'tropic' | 'clinicare'>('tropic');
+  const [manualProduct, setManualProduct] = useState<'clinicare'>('clinicare');
   const [manualDuration, setManualDuration] = useState('60 mins Full Ritual');
   const [manualDate, setManualDate] = useState(new Date().toISOString().split('T')[0]);
   const [manualTime, setManualTime] = useState('11:00 AM');
@@ -190,6 +192,18 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
   const handleDelete = (id: string) => {
     if (window.confirm(`Are you sure you want to delete record #${id} from the CRM?`)) {
       deleteCRMRecord(id);
+    }
+  };
+
+  const handleResetForLaunch = () => {
+    if (
+      window.confirm(
+        'Are you sure you want to reset the CRM for live launch?\n\nThis will clear all test records and reset the system to 0 bookings and orders so you can start completely fresh.'
+      )
+    ) {
+      clearAllCRMRecords();
+      setRecords([]);
+      setSearchQuery('');
     }
   };
 
@@ -339,6 +353,15 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleResetForLaunch}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-rose-500/25 text-[#FFF0F2] hover:text-white text-xs font-semibold tracking-wider transition-all cursor-pointer border border-white/20 hover:border-rose-300/40"
+              title="Reset all test records to 0 for live launch"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-[#E8BAC0]" />
+              <span className="hidden sm:inline">Reset for Launch</span>
+            </button>
+
             <button
               onClick={() => exportCRMToCSV(records)}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold tracking-wider transition-all cursor-pointer border border-white/20"
@@ -571,7 +594,39 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
             </div>
 
             {/* Records List View */}
-            {filteredRecords.length === 0 ? (
+            {records.length === 0 ? (
+              <div className="bg-white rounded-2xl p-8 sm:p-12 border border-[#E8BAC0]/60 text-center space-y-4 max-w-xl mx-auto my-6 shadow-xs">
+                <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center mx-auto shadow-2xs">
+                  <CheckCircle2 className="w-7 h-7" />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="text-base sm:text-lg font-semibold font-display text-[#3D2B27]">
+                    CRM Ready for Live Launch
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#7A5852] max-w-md mx-auto leading-relaxed">
+                    All test and sample contents have been reset. When clients schedule sanctuary treatments or purchase from the Tropic Skincare boutique, their booking records, 50% deposit receipts, fulfillment notes, and WhatsApp dispatch alerts will arrive here in real time.
+                  </p>
+                </div>
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('manual_entry')}
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#BE757C] hover:bg-[#A86168] text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Log Walk-in / Phone Client</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('bank_settings')}
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#FFF0F2] hover:bg-[#FCE6E9] text-[#5C423E] text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border border-[#E8BAC0]"
+                  >
+                    <CreditCard className="w-3.5 h-3.5 text-[#BE757C]" />
+                    <span>Verify Bank Details</span>
+                  </button>
+                </div>
+              </div>
+            ) : filteredRecords.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 border border-[#E8BAC0]/60 text-center space-y-3">
                 <div className="w-14 h-14 rounded-full bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center mx-auto">
                   <FileText className="w-6 h-6" />
@@ -581,6 +636,7 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
                   No records matched your search parameters. Clear your filters or log a new walk-in client.
                 </p>
                 <button
+                  type="button"
                   onClick={() => {
                     setSearchQuery('');
                     setFilterType('all');
@@ -991,29 +1047,8 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
                         <label className="block text-[11px] font-bold text-[#5C4A45] mb-1">
                           Product Formulation
                         </label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setManualProduct('tropic')}
-                            className={`py-1.5 rounded-lg border font-semibold ${
-                              manualProduct === 'tropic'
-                                ? 'bg-emerald-800 text-white border-emerald-700'
-                                : 'bg-white text-emerald-900 border-emerald-200'
-                            }`}
-                          >
-                            🌿 Tropic
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setManualProduct('clinicare')}
-                            className={`py-1.5 rounded-lg border font-semibold ${
-                              manualProduct === 'clinicare'
-                                ? 'bg-[#BE757C] text-white border-[#A9636A]'
-                                : 'bg-white text-[#8C3F48] border-[#F0D0D5]'
-                            }`}
-                          >
-                            🔬 Clinicare
-                          </button>
+                        <div className="py-2 px-3 rounded-xl border border-[#BE757C]/40 bg-[#FFF4F6] text-xs font-semibold text-[#8C3F48] flex items-center gap-2">
+                          <span>🔬</span> Clinicare Cosmeceuticals
                         </div>
                       </div>
                     </div>
@@ -1166,7 +1201,7 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
                 </div>
                 <div>🔔 *NEW BOOKING ALERT - ELYSIAN SPA &amp; WELLNESS*</div>
                 <div>👤 *Guest:* Eleanor Vance (07890 123456)</div>
-                <div>💆‍♀️ *Treatment:* Tropic Botanical Custom Facial (60 mins)</div>
+                <div>💆‍♀️ *Treatment:* CLINICARE Cosmeceutical Facial (60 mins)</div>
                 <div>📅 *Date:* 10 Sep 2026 at 11:00 AM</div>
                 <div>💰 *Fee:* £65.00 • *50% Deposit Paid:* £32.50 ✅</div>
                 <div>🏛️ *Remaining Balance on Arrival:* £32.50</div>

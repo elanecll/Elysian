@@ -253,7 +253,7 @@ export default function App() {
               <PageBanner
                 currentPageName="Treatment Menu"
                 title="Treatment Menu & Tariff"
-                subtitle="Explore our complete bespoke therapies featuring organic Tropic botanicals and clinical-grade Clinicare cosmeceuticals."
+                subtitle="Explore our complete bespoke therapies featuring advanced Swedish CLINICARE medical-grade cosmeceuticals and therapeutic bodywork."
                 tagline="HOLISTIC BEAUTY & BODYWORK"
                 onNavigateHome={() => handleNavigate('home')}
               />
@@ -299,8 +299,8 @@ export default function App() {
               <PageBanner
                 currentPageName="Boutique & Vouchers"
                 title="Spa Boutique & Gift Vouchers"
-                subtitle="Take the sanctuary home with fresh handcrafted Tropic botanicals, active serums, and bespoke gift vouchers for loved ones."
-                tagline="ORGANIC SKINCARE & GIFTING"
+                subtitle="Take the sanctuary home with Swedish CLINICARE medical cosmeceuticals, fresh handcrafted Tropic botanicals, and bespoke gift vouchers."
+                tagline="SKINCARE BOUTIQUE & GIFTING"
                 onNavigateHome={() => handleNavigate('home')}
               />
               <ShopSection
@@ -322,8 +322,8 @@ export default function App() {
               <PageBanner
                 currentPageName="Basket & Checkout"
                 title="Your Boutique Basket"
-                subtitle="Review your selected organic Tropic botanicals and complete your order with sanctuary collection or tracked postal delivery."
-                tagline="ORGANIC SKINCARE ORDER"
+                subtitle="Review your selected CLINICARE medical cosmeceuticals and Tropic botanicals, with sanctuary collection or tracked postal delivery."
+                tagline="SANCTUARY BOUTIQUE ORDER"
                 onNavigateHome={() => handleNavigate('home')}
               />
               <BuyProductPage

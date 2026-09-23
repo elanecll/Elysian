@@ -69,178 +69,10 @@ export const OWNER_CONFIG = {
   address: 'Blackpool Courtyard Sanctuary, Lancashire, UK',
 };
 
-const CRM_STORAGE_KEY = 'elysian_crm_records_v1';
+const CRM_STORAGE_KEY = 'elysian_crm_records_v2';
 
-// Initial sample records showcasing both bookings and boutique sales
-const INITIAL_SAMPLE_RECORDS: CRMRecord[] = [
-  {
-    id: 'ELS-BK-2026-8192',
-    type: 'booking',
-    createdAt: '2026-09-08T10:15:00Z',
-    createdFormatted: '08 Sep 2026, 11:15 AM',
-    customer: {
-      name: 'Eleanor Vance',
-      phone: '+44 7890 123456',
-      email: 'eleanor.vance@example.co.uk',
-      notes: 'Prefers gentle aromatic pressure; allergic to synthetic perfumes. Requested lavender tea.',
-    },
-    details: {
-      serviceId: 'tropic-custom-facial',
-      serviceTitle: '🌿 Tropic Botanical Custom Facial',
-      skincareProduct: 'tropic',
-      duration: '60 mins Full Ritual',
-      scheduledDate: '2026-09-10',
-      scheduledTime: '11:00 AM',
-    },
-    financials: {
-      totalAmount: 65,
-      depositPaid: 32.5,
-      balanceDue: 32.5,
-      paymentStatus: '50%_deposit_paid',
-      paymentMethod: 'Card ending in 4812',
-      authCode: 'AUTH-61842',
-    },
-    notifications: {
-      whatsAppOwner: {
-        recipient: OWNER_CONFIG.whatsappDisplay,
-        channel: 'whatsapp',
-        sent: true,
-        sentAt: '2026-09-08T10:15:05Z',
-        url: '',
-        previewText: 'New Booking: Eleanor Vance • Tropic Facial (60m) on 10 Sep at 11:00 AM. 50% Deposit £32.50 Paid.',
-      },
-      emailOwner: {
-        recipient: OWNER_CONFIG.email,
-        channel: 'email',
-        sent: true,
-        sentAt: '2026-09-08T10:15:08Z',
-        url: '',
-        previewText: 'Booking Notification: Eleanor Vance - 10 Sep 2026',
-      },
-    },
-    status: 'confirmed',
-    ownerNotes: 'VIP return guest from Lytham St Annes. Ensure Room 1 (Botanical Suite) is set up with warm basalt stones.',
-  },
-  {
-    id: 'ELS-ORD-2026-4029',
-    type: 'sale',
-    createdAt: '2026-09-07T16:45:00Z',
-    createdFormatted: '07 Sep 2026, 05:45 PM',
-    customer: {
-      name: 'Charlotte Davies',
-      phone: '+44 7711 987654',
-      email: 'c.davies@lancaster.ac.uk',
-      address: '14 Queen Street, Lytham St Annes, FY8 5JE',
-      notes: 'Please leave in porch if no answer.',
-    },
-    details: {
-      items: [
-        {
-          id: 'smoothing-cleanser',
-          name: 'Smoothing Cleanser Complexion Purifier (200ml)',
-          quantity: 1,
-          unitPrice: 28,
-          totalPrice: 28,
-        },
-        {
-          id: 'skin-feast',
-          name: 'Skin Feast Nourishing Moisturiser (50ml)',
-          quantity: 1,
-          unitPrice: 32,
-          totalPrice: 32,
-        },
-        {
-          id: 'elixir',
-          name: 'Super Greens Nutrient Boost Oil (30ml)',
-          quantity: 1,
-          unitPrice: 46,
-          totalPrice: 46,
-        },
-      ],
-      deliveryOption: 'delivery',
-      deliveryAddress: '14 Queen Street, Lytham St Annes, FY8 5JE',
-      shippingCost: 0,
-      discountAmount: 10.6,
-      promoCode: 'ELYSIAN10',
-    },
-    financials: {
-      totalAmount: 95.4,
-      depositPaid: 95.4,
-      balanceDue: 0,
-      paymentStatus: 'paid_in_full',
-      paymentMethod: 'VISA Card (ending 8831)',
-      authCode: 'VISA-994102',
-    },
-    notifications: {
-      whatsAppOwner: {
-        recipient: OWNER_CONFIG.whatsappDisplay,
-        channel: 'whatsapp',
-        sent: true,
-        sentAt: '2026-09-07T16:45:10Z',
-        url: '',
-        previewText: 'Boutique Sale: Charlotte Davies • 3 items • Total £95.40 Paid via VISA. Tracked Delivery.',
-      },
-      emailOwner: {
-        recipient: OWNER_CONFIG.email,
-        channel: 'email',
-        sent: true,
-        sentAt: '2026-09-07T16:45:12Z',
-        url: '',
-        previewText: 'Sales Notification: Order #ELS-ORD-2026-4029',
-      },
-    },
-    status: 'dispatched',
-    ownerNotes: 'Dispatched via Royal Mail Tracked 24. Tracking code: GB294817293RM.',
-  },
-  {
-    id: 'ELS-BK-2026-7734',
-    type: 'booking',
-    createdAt: '2026-09-07T11:20:00Z',
-    createdFormatted: '07 Sep 2026, 12:20 PM',
-    customer: {
-      name: 'Marcus & Jessica Bell',
-      phone: '+44 7922 445566',
-      email: 'marcus.bell@prestondesign.com',
-      notes: 'Celebrating 10th wedding anniversary. Requested couple twin experience room.',
-    },
-    details: {
-      serviceId: 'twin-package',
-      serviceTitle: 'Twin Sanctuary Ritual (Couples Experience)',
-      skincareProduct: 'tropic',
-      duration: '60 mins each',
-      scheduledDate: '2026-09-12',
-      scheduledTime: '02:30 PM',
-    },
-    financials: {
-      totalAmount: 102,
-      depositPaid: 51,
-      balanceDue: 51,
-      paymentStatus: '50%_deposit_paid',
-      paymentMethod: 'Apple Pay',
-      authCode: 'APAY-44102',
-    },
-    notifications: {
-      whatsAppOwner: {
-        recipient: OWNER_CONFIG.whatsappDisplay,
-        channel: 'whatsapp',
-        sent: true,
-        sentAt: '2026-09-07T11:20:05Z',
-        url: '',
-        previewText: 'New Booking: Marcus & Jessica Bell • Twin Sanctuary Ritual • 12 Sep at 02:30 PM. 50% Deposit £51.00 Paid.',
-      },
-      emailOwner: {
-        recipient: OWNER_CONFIG.email,
-        channel: 'email',
-        sent: true,
-        sentAt: '2026-09-07T11:20:07Z',
-        url: '',
-        previewText: 'Booking Notification: Marcus & Jessica Bell - 12 Sep 2026',
-      },
-    },
-    status: 'confirmed',
-    ownerNotes: 'Prepare celebratory hibiscus botanical flower tea and complimentary organic bath salts bag.',
-  },
-];
+// Empty initial records for live site launch - ready for real customer bookings & orders
+const INITIAL_SAMPLE_RECORDS: CRMRecord[] = [];
 
 /**
  * Generate formatted WhatsApp notification link and text for site owner
@@ -256,7 +88,7 @@ export function generateOwnerWhatsAppUrl(record: CRMRecord): string {
       `📞 *Phone / WA:* ${record.customer.phone}\n` +
       `✉️ *Email:* ${record.customer.email || 'Not provided'}\n\n` +
       `💆‍♀️ *Treatment Ritual:* ${record.details.serviceTitle || 'Bespoke Ritual'}\n` +
-      (record.details.skincareProduct ? `🌿 *Product Line:* ${record.details.skincareProduct === 'tropic' ? '🌿 Tropic Botanicals' : '🔬 Clinicare Cosmeceuticals'}\n` : '') +
+      `🔬 *Product Line:* 🔬 CLINICARE Cosmeceuticals\n` +
       `⏱️ *Duration:* ${record.details.duration || '60 mins'}\n` +
       `📅 *Date:* ${record.details.scheduledDate}\n` +
       `⏰ *Time Slot:* ${record.details.scheduledTime}\n\n` +
@@ -319,7 +151,7 @@ export function generateOwnerEmailUrl(record: CRMRecord): { url: string; subject
       `TREATMENT DETAILS\n` +
       `==================================================\n` +
       `Treatment: ${record.details.serviceTitle}\n` +
-      `Skincare Formulation: ${record.details.skincareProduct ? (record.details.skincareProduct === 'tropic' ? 'Tropic Botanicals' : 'Clinicare Cosmeceuticals') : 'Standard'}\n` +
+      `Skincare Formulation: 🔬 CLINICARE Swedish Cosmeceuticals\n` +
       `Duration: ${record.details.duration || '60 mins'}\n` +
       `Scheduled Date: ${record.details.scheduledDate}\n` +
       `Scheduled Time: ${record.details.scheduledTime}\n` +
@@ -374,23 +206,46 @@ export function generateOwnerEmailUrl(record: CRMRecord): { url: string; subject
 }
 
 /**
- * Retrieve all CRM records from localStorage (seeded with initial samples if empty)
+ * Retrieve all CRM records from localStorage (clean empty state for live launch)
  */
 export function getCRMRecords(): CRMRecord[] {
   try {
-    const raw = localStorage.getItem(CRM_STORAGE_KEY);
+    // Clear old v1 demo storage if present from earlier preview sessions
+    if (typeof window !== 'undefined' && localStorage.getItem('elysian_crm_records_v1')) {
+      localStorage.removeItem('elysian_crm_records_v1');
+    }
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(CRM_STORAGE_KEY) : null;
     if (!raw) {
-      localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify(INITIAL_SAMPLE_RECORDS));
-      return INITIAL_SAMPLE_RECORDS;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify([]));
+      }
+      return [];
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
-    return INITIAL_SAMPLE_RECORDS;
+    return [];
   } catch (err) {
     console.error('Failed to parse CRM records:', err);
-    return INITIAL_SAMPLE_RECORDS;
+    return [];
+  }
+}
+
+/**
+ * Completely reset and clear all CRM records to empty for production launch
+ */
+export function clearAllCRMRecords(): CRMRecord[] {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('elysian_crm_records_v1');
+      localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify([]));
+      window.dispatchEvent(new CustomEvent('elysian_crm_updated', { detail: { all: [] } }));
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to clear CRM records:', err);
+    return [];
   }
 }
 
