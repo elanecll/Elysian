@@ -179,11 +179,11 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
-  // 9. CARBOXYTHERAPY FACE MASK TREATMENT
+  // 9. Clinicare Carboxytherapy Face Mask Treatment
   {
     id: 'carboxytherapy-face-mask-treatment',
     category: 'facial',
-    title: 'CARBOXYTHERAPY FACE MASK TREATMENT',
+    title: 'Clinicare Carboxytherapy Face Mask Treatment',
     tagline: 'OXYGENATING BOHR EFFECT • CELLULAR METABOLISM • INSTANT FIRMING',
     duration: '30-45 mins',
     priceDisplay: '£40',
@@ -202,11 +202,11 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
-  // 10. CLINICARE CHEMICAL PEELING
+  // 10. Clinicare Chemical Peeling
   {
     id: 'cliniccare-chemical-peeling',
     category: 'facial',
-    title: 'CLINICARE CHEMICAL PEELING',
+    title: 'Clinicare Chemical Peeling',
     tagline: 'SUPERFICIAL MEDICAL PEEL • CELLULAR TURNOVER • RADIANCE RENEWAL',
     duration: '35-45 mins',
     priceDisplay: '£45',
