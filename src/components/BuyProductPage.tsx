@@ -550,19 +550,6 @@ export const BuyProductPage: React.FC<BuyProductPageProps> = ({
                   <span>Send to Owner Email ({OWNER_CONFIG.email})</span>
                 </a>
               </div>
-
-              {onOpenCRM && (
-                <div className="pt-1 text-center">
-                  <button
-                    type="button"
-                    onClick={onOpenCRM}
-                    className="text-xs font-bold text-[#BE757C] hover:underline inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>View Sale in Owner CRM &amp; Sales Hub</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
@@ -594,9 +581,11 @@ export const BuyProductPage: React.FC<BuyProductPageProps> = ({
                 onClearCart();
                 onNavigate('shop');
               }}
-              className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#5C423E] hover:bg-[#4A352F] text-white text-xs font-medium tracking-wider uppercase transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#5C423E] hover:bg-[#4A352F] text-white text-xs font-medium tracking-wider uppercase transition-colors cursor-pointer"
+              title="Return / Back to Boutique"
             >
-              Return to Boutique
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Boutique</span>
             </button>
           </div>
         </div>

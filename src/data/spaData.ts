@@ -1,40 +1,18 @@
 import { Treatment, Review, FaqItem } from '../types';
 
 export const SPA_SERVICES: Treatment[] = [
-  // 1. Elysian Personalised Glow Treatment
-  {
-    id: 'elysian-personalised-glow-treatment',
-    category: 'facial',
-    title: 'Elysian Personalised Glow Treatment',
-    tagline: 'ULTIMATE BESPOKE MULTI-TECHNOLOGY FACIAL (SINGLE SESSION)',
-    duration: '60-75 mins',
-    priceDisplay: '£80 (🔬 CLINICARE)',
-    priceOptions: [
-      { label: '🔬 CLINICARE Professional Cosmeceuticals', duration: '60-75 mins', priceSingle: 80 },
-    ],
-    description: 'Our ultimate bespoke multi-technology facial tailored to your exact skin goals. Includes a full multi-modality protocol plus double cleanse, custom CLINICARE active serums, bespoke mask, moisturiser & SPF.',
-    benefits: [
-      'Ultrasonic Scrubber → Deep cleanse & exfoliate',
-      '💧 Hydrodermabrasion → Hydrate & resurface',
-      '📡 RF Skin Tightening OR ⚡ EMS Lift → Firm & contour',
-      '❄️ Cold Hammer → Calm, soothe, lock in serums',
-      '💜 LED Mask → Heal, repair, boost collagen',
-      '✨ Plus: Double cleanse, custom CLINICARE active serums, mask, moisturiser & SPF'
-    ],
-    popular: true,
-  },
-
-  // Hydrodemabrasion Facial
+  // 1. Hydrodermabrasion Facial
   {
     id: 'hydrodemabrasion-facial',
     category: 'facial',
-    title: 'Hydrodemabrasion Facial',
+    title: 'Hydrodermabrasion Facial',
     tagline: 'DEEP CLEANSE • HYDRATE • RESURFACE & EXFOLIATE',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abba755cd53dbc0df306c73.jpeg',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £32 (30m Express) / £62 (60m Full)',
+    priceDisplay: 'From £35 (30m Express) / £65 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceClinicare: 32, priceSingle: 32 },
-      { duration: '60 min — Full Treatment', priceClinicare: 62, priceSingle: 62 },
+      { duration: '30 min — Express', priceClinicare: 35, priceSingle: 35 },
+      { duration: '60 min — Full Treatment', priceClinicare: 65, priceSingle: 65 },
     ],
     description: 'Vortex-fusion hydrodermabrasion suction deeply extracts impurities and dead skin cells while infusing intensive CLINICARE low-molecular hyaluronic acid and peptide serums.',
     benefits: [
@@ -46,46 +24,25 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
-  // EMS Facial
-  {
-    id: 'ems-facial',
-    category: 'facial',
-    title: 'EMS Facial',
-    tagline: 'LIFT, TONE, FIRM & CELLULAR ACTIVATION',
-    duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £30 (30m Express) / £58 (60m Full)',
-    priceOptions: [
-      { duration: '30 min — Express', priceClinicare: 30, priceSingle: 30 },
-      { duration: '60 min — Full Treatment', priceClinicare: 58, priceSingle: 58 },
-    ],
-    description: 'Electrical Muscle Stimulation (EMS) paired with CLINICARE active peptide complexes to lift, sculpt, firm facial contours, and stimulate natural collagen and elastin production.',
-    benefits: [
-      'Facial Contour Lifting & Sculpting',
-      'Stimulates Natural Collagen & Elastin',
-      'Improves Cellular Oxygenation & Microcirculation',
-      'Firms Jawline & Cheek Contours'
-    ],
-    popular: true,
-  },
-
-  // 4. RADIO FREQUENCY Facial
+  // 4. RADIO FREQUENCY + EMS Facial
   {
     id: 'radio-frequency-facial',
     category: 'facial',
-    title: 'Radio Frequency Facial',
-    tagline: 'TIGHTEN SKIN, BOOST COLLAGEN & SMOOTH LINES',
+    title: 'Radio Frequency + EMS Facial',
+    tagline: 'TIGHTEN SKIN, BOOST COLLAGEN & SMOOTH LINES • LIFT, TONE, FIRM & CELLULAR ACTIVATION',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab94adac13d4373c2c3e9d5.png',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £32 (30m Express) / £60 (60m Full)',
+    priceDisplay: 'From £35 (30m Express) / £60 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceClinicare: 32, priceSingle: 32 },
+      { duration: '30 min — Express', priceClinicare: 35, priceSingle: 35 },
       { duration: '60 min — Full Treatment', priceClinicare: 60, priceSingle: 60 },
     ],
-    description: 'Targeted thermal energy heats deep dermis layers while infusing CLINICARE concentrated hyaluronic acid to tighten lax skin, boost collagen matrix synthesis, and reduce fine lines.',
+    description: 'Targeted thermal radio frequency and electrical muscle stimulation (EMS) paired with CLINICARE active peptide complexes to lift, tone, and sculpt facial contours while heating deep dermis layers to boost collagen synthesis and smooth lines.',
     benefits: [
-      'Deep Dermal Thermal Tightening',
-      'Reduces Fine Lines & Wrinkles',
-      'Boosts Long-Term Collagen Formation',
-      'Restores Elasticity & Firmness'
+      'Deep Dermal Thermal Tightening & Collagen Synthesis',
+      'EMS Facial Muscle Contour Lifting & Sculpting',
+      'Reduces Fine Lines, Wrinkles & Skin Laxity',
+      'Firms Jawline, Tones & Activates Cellular Renewal'
     ],
   },
 
@@ -95,6 +52,7 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'Ultrasonic Facial',
     tagline: 'DEEP NUTRIENT INFUSION & CELLULAR STIMULATION',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abba630c13d4373c2ff7e24.jpeg',
     duration: '30 min Express / 60 min Full Treatment',
     priceDisplay: 'From £26 (30m Express) / £42 (60m Full)',
     priceOptions: [
@@ -116,11 +74,12 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'Microdermabrasion Facial',
     tagline: 'RESURFACE • IMPROVE SCARS & TEXTURE',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9c8fc13d4373c2fe9101.jpeg',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £25 (30m Express) / £42 (60m Full)',
+    priceDisplay: 'From £30 (30m Express) / £50 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceClinicare: 25, priceSingle: 25 },
-      { duration: '60 min — Full Treatment', priceClinicare: 42, priceSingle: 42 },
+      { duration: '30 min — Express', priceClinicare: 30, priceSingle: 30 },
+      { duration: '60 min — Full Treatment', priceClinicare: 50, priceSingle: 50 },
     ],
     description: 'Diamond-tip exfoliation buffing away dull superficial layers followed by CLINICARE soothing epidermal hydration to resurface uneven texture and visibly improve acne scarring.',
     benefits: [
@@ -128,7 +87,7 @@ export const SPA_SERVICES: Treatment[] = [
       'Improves Appearance of Scars',
       'Minimizes Enlarged Pores',
       'Enhances Skincare Absorption',
-      'Series Available: Buy 3, Get 4th FREE (Clinicare 30m: £75 • 60m: £126)'
+      'Accelerates Cellular Regeneration'
     ],
   },
 
@@ -138,11 +97,12 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'Lymphatic Drainage Facial',
     tagline: 'REDUCE PUFFINESS • DETOXIFY • CIRCULATION',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9ca960c7466bcf6d00c8.jpeg',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £26 (30m Express) / £40 (60m Full)',
+    priceDisplay: 'From £30 (30m Express) / £50 (60m Full)',
     priceOptions: [
-      { duration: '30 min — Express', priceClinicare: 26, priceSingle: 26 },
-      { duration: '60 min — Full Treatment', priceClinicare: 40, priceSingle: 40 },
+      { duration: '30 min — Express', priceClinicare: 30, priceSingle: 30 },
+      { duration: '60 min — Full Treatment', priceClinicare: 50, priceSingle: 50 },
     ],
     description: 'Gentle, specialized rhythmic strokes paired with CLINICARE soothing bio-serums to reduce puffiness, detoxify stagnant lymph fluid, and boost oxygenated circulation.',
     benefits: [
@@ -159,11 +119,12 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy',
     tagline: '8-IN-1 HOT & COLD THERAPY • NANO-MIST HYDRATION • MULTI-SPECTRUM PDT LED',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab95120b4d207ff9dfe763d.jpeg',
     duration: '30 min Express / 45–60 min Full Ritual',
-    priceDisplay: 'From £25 (30m Express) / £40 (Full Ritual)',
+    priceDisplay: 'From £30 (30m Express) / £50 (Full Ritual)',
     priceOptions: [
-      { duration: '30 min — Express PDT LED', priceClinicare: 25, priceSingle: 25 },
-      { duration: '60 min — Full 8-in-1 Ritual (45–60 min)', priceClinicare: 40, priceSingle: 40 },
+      { duration: '30 min — Express PDT LED', priceClinicare: 30, priceSingle: 30 },
+      { duration: '60 min — Full 8-in-1 Ritual (45–60 min)', priceClinicare: 50, priceSingle: 50 },
     ],
     description: 'Advanced 8-in-1 facial technology featuring medical-grade PDT LED light therapy, thermal hot and cold pore-calming therapy, and deep nano-sized mist hydration infusion with CLINICARE cosmeceuticals. Complete session includes double cleanse, skin prep, 15–25 minute targeted PDT LED phase, bespoke CLINICARE serum cocktail & finish.',
     benefits: [
@@ -185,10 +146,11 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'Clinicare Carboxytherapy Face Mask Treatment',
     tagline: 'OXYGENATING BOHR EFFECT • CELLULAR METABOLISM • INSTANT FIRMING',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab94e65c13d4373c2c438b1.jpeg',
     duration: '30-45 mins',
-    priceDisplay: '£40',
+    priceDisplay: '£45',
     priceOptions: [
-      { duration: '30-45 mins', priceClinicare: 40, priceSingle: 40, label: '30–45 min Complete Carboxy Ritual' },
+      { duration: '30-45 mins', priceClinicare: 45, priceSingle: 45, label: '30–45 min Complete Carboxy Ritual' },
     ],
     description: 'An advanced non-invasive medical infusion that delivers Carbon Dioxide (CO2) directly beneath the skin surface, triggering the physiological Bohr Effect. The sudden surge of pure oxygen from deep within accelerates cellular metabolism, flushes out stagnant waste toxins, stimulates collagen synthesis, and dramatically tightens and brightens the complexion with zero downtime.',
     benefits: [
@@ -208,29 +170,79 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'Clinicare Chemical Peeling',
     tagline: 'SUPERFICIAL MEDICAL PEEL • CELLULAR TURNOVER • RADIANCE RENEWAL',
-    duration: '35-45 mins',
-    priceDisplay: '£45',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb98f860c7466bcf6c8e73.jpeg',
+    beforeAfterImage: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9396be703c7b305f1f19.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£60',
     priceOptions: [
-      { duration: '35-45 mins', priceClinicare: 45, priceSingle: 45, label: '35–45 min Tailored Medical Peel' },
+      { duration: '30-45 mins', priceClinicare: 60, priceSingle: 60, label: '30–45 min Tailored Medical Peel' },
     ],
-    description: 'Targeted Swedish superficial chemical peel tailored to your specific skin needs (GLOW for pigmentation & sun damage, PURE for blemish control & inflamed skin, or REFRESH for fine lines & laxity). Formulated with optimal concentrations of Glycolic, Mandelic, Lactic, and Salicylic acids to dissolve dead cells, unclog pores, and stimulate cellular regeneration with minimal downtime and maximum luminosity.',
+    description: 'Targeted Swedish superficial chemical peel tailored to your specific skin needs with three medical formulations: Glow / Growth (hyperpigmentation, sun damage & uneven skin), Pure (combination, oily, sensitive or acne-prone skin), and Refresh (skin rejuvenation, ageing, sun damage, fine lines & skin laxity). Formulated with optimal concentrations of Glycolic, Mandelic, Lactic, and Salicylic acids to dissolve dead cells, unclog pores, and stimulate cellular regeneration with zero downtime.',
     benefits: [
-      'Gently dissolves dull surface keratin without harsh flaking or excessive trauma',
-      'Targets stubborn hyperpigmentation, melasma, age spots & uneven skin tone',
-      'Unclogs congested pores, regulates sebum & reduces acne flare-ups',
-      'Refines rough skin texture, smoothing fine lines & superficial wrinkles',
-      'Boosts absorption of active low-molecular Hyaluronic Acid & peptide serums',
+      'Glow / Growth: Targets hyperpigmentation, sun damage & uneven skin tone',
+      'Pure: Formulated for combination, oily, sensitive & acne-prone skin',
+      'Refresh: Skin rejuvenation, ageing defence, fine lines & skin laxity',
+      'Gentle AHA/BHA chemical exfoliation with zero downtime or peeling',
       'Includes skin prep, tailored chemical peel, neutralizing soothing mask & SPF50'
     ],
     popular: true,
   },
 
-  // 11. Hot Stone Full Body Massage
+  // 11. CLINICARE Cinderella / Black Tie Facial
+  {
+    id: 'cliniccare-cinderella-black-tie-facial',
+    category: 'facial',
+    title: 'CLINICARE Cinderella / Black Tie Facial',
+    tagline: 'INSTANT RED CARPET GLOW • CELLULAR HYDRATION • PEEL & EGF MASK',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb94b6be703c7b305f3ffb.jpeg',
+    beforeAfterImage: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb939660c7466bcf6be8e1.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£30',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 30, priceSingle: 30, label: '30–45 min Cinderella / Black Tie Ritual' },
+    ],
+    description: 'The ultimate instant red-carpet radiance ritual combining CLINICARE gentle AHA superficial chemical exfoliation with an intensive low-molecular Hyaluronic Acid and biomimetic peptide EGF infusion. Known as the "Cinderella" facial for women and "Black Tie" facial for men, this treatment delivers instant lifting, plumping hydration, and camera-ready luminosity with zero downtime.',
+    benefits: [
+      'Instant Red-Carpet Lift, Tightening & Glass-Skin Luminosity',
+      'Gentle AHA Chemical Resurfacing with Zero Peeling or Downtime',
+      'Clinicare High-Potency EGF & Low-Molecular HA Infusion',
+      'Restores Natural Elasticity, Plumping Fine Lines & Dehydration',
+      'Includes Cleanse, Gentle Peel, EGF Sheet Mask & SPF50 Protection'
+    ],
+    popular: true,
+  },
+
+  // 12. High Frequency Facial Treatment
+  {
+    id: 'high-frequency-facial-treatment',
+    category: 'facial',
+    title: 'High Frequency Facial Treatment',
+    tagline: 'ANTI-BACTERIAL OXYGENATION • BLEMISH DEFENCE • COLLAGEN BOOST',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9c8f60c7466bcf6cfbff.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£35',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 35, priceSingle: 35, label: '30–45 min High Frequency Therapy' },
+    ],
+    description: 'Advanced electrotherapy utilizing a targeted glass electrode that emits high-frequency alternating electrical currents and generates germicidal ozone (oxygen). This thermal and anti-bacterial action deep cleanses pores, eradicates acne-causing bacteria, calms inflammation, accelerates wound healing, and stimulates blood circulation and collagen production for a clearer, firmer complexion.',
+    benefits: [
+      'Eradicates stubborn acne-causing bacteria & prevents new breakouts',
+      'Generates germicidal ozone to purify & oxygenate congested skin',
+      'Calms redness, active inflammation & post-breakout sensitivity',
+      'Refines enlarged pores & helps regulate excessive oil production',
+      'Stimulates microcirculation, cellular renewal & collagen synthesis',
+      'Includes double cleanse, high frequency wand session, calming serum & SPF'
+    ],
+    popular: true,
+  },
+
+  // 13. Hot Stone Full Body Massage
   {
     id: 'hot-stone-full-body-massage',
     category: 'hot-stone',
     title: 'Hot Stone Full Body Massage',
     tagline: 'VOLCANIC BASALT THERMAL GROUNDING',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abacf3df6972e3b5220cc5d.png',
     duration: '60 mins',
     priceDisplay: '£70',
     priceOptions: [
@@ -252,6 +264,7 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'body-massage',
     title: 'Swedish Full Body Massage',
     tagline: 'FULL BODY RELAXATION & TENSION RELEASE',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abacf3d4100b77e52391c2e.png',
     duration: '60 mins',
     priceDisplay: '£60',
     priceOptions: [
@@ -389,51 +402,7 @@ export const SPA_SERVICES: Treatment[] = [
     isAddon: true,
   },
 
-  // 18. 4-Session Facial Series - Buy 3 Get 1 FREE
-  {
-    id: 'buy-3-get-1-free-facial-series',
-    category: 'packages',
-    title: '4-Session Facial Series (Buy 3, Get 1 FREE)',
-    tagline: 'BUY 3 FACIALS & RECEIVE YOUR 4TH FACIAL FREE',
-    duration: '30 min Express / 60 min Full Series (4 Sessions)',
-    priceDisplay: 'From £75 (30m Series) / £126 (60m Series) • 4th FREE',
-    priceOptions: [
-      { duration: '30 min — Express Series (4 Sessions)', priceClinicare: 75, priceSingle: 75 },
-      { duration: '60 min — Full Treatment Series (4 Sessions)', priceClinicare: 126, priceSingle: 126 },
-    ],
-    description: 'Buy 3 facials and receive your 4th facial completely FREE! Pay for 3 sessions and enjoy your 4th session complimentary — powered by CLINICARE Swedish medical cosmeceuticals for long-term progressive skin transformation.',
-    benefits: [
-      'Buy 3 Facials & Receive 4th Facial Completely FREE',
-      '🔬 CLINICARE 30 mins: £75 (Save £25)',
-      '🔬 CLINICARE 60 mins: £126 (Save £42)',
-      'Tailored with Medical-Grade Low-Molecular Hyaluronic Acid & Peptides'
-    ],
-    popular: true,
-  },
-
-  // 18. Microdermabrasion Facial - Buy 3 Get 1 FREE
-  {
-    id: 'microdermabrasion-buy-3-get-1-free-package',
-    category: 'packages',
-    title: 'Microdermabrasion Facial Series (Buy 3, Get 1 FREE)',
-    tagline: 'BUY 3 MICRODERMABRASION FACIALS & RECEIVE YOUR 4TH FREE',
-    duration: '30 min Express / 60 min Full Series (4 Sessions)',
-    priceDisplay: 'From £75 (30m Series) / £126 (60m Series) • 4th FREE',
-    priceOptions: [
-      { duration: '30 min — Express Series (4 Sessions)', priceClinicare: 75, priceSingle: 75 },
-      { duration: '60 min — Full Treatment Series (4 Sessions)', priceClinicare: 126, priceSingle: 126 },
-    ],
-    description: 'Buy 3 Microdermabrasion Facials and receive your 4th facial completely FREE! Diamond-tip precision buffing removes dull cellular layers, paired with CLINICARE EGF restorative hydration over a 4-treatment course.',
-    benefits: [
-      'Buy 3 Microdermabrasion Facials & Receive 4th Facial FREE',
-      '🔬 CLINICARE 30 mins: £75 (Save £25)',
-      '🔬 CLINICARE 60 mins: £126 (Save £42)',
-      'Progressively Smooths Acne Scars & Visibly Refines Uneven Texture'
-    ],
-    popular: true,
-  },
-
-  // 19. Bring A Friend - Both Save 15% OFF
+  // 18. Bring A Friend - Both Save 15% OFF
   {
     id: 'bring-a-friend-package',
     category: 'packages',
@@ -661,8 +630,8 @@ export const FAQS: FaqItem[] = [
     answer: 'Absolutely. You can easily pair treatments such as the Hydro-Facial or EMS Facial with our Indian Head Massage or Body Scrub add-ons for the ultimate head-to-toe ritual.',
   },
   {
-    question: 'What is your cancellation and rescheduling policy?',
-    answer: 'We kindly request at least 24 hours notice for any cancellations or schedule changes so we may offer the suite to waiting guests.',
+    question: 'What is your 50% deposit and cancellation policy?',
+    answer: 'A 50% deposit is required to confirm your booking. The remaining 50% balance is payable upon arrival on the day of your appointment. If you need to cancel, please notify us as soon as possible. Cancellations with 24+ hours notice receive a 100% full refund. In accordance with UK consumer fairness rules, deposits are not automatically non-refundable; charges strictly reflect reasonable saved costs or replacement bookings.',
   },
 ];
 

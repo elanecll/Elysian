@@ -1,4 +1,4 @@
-export type PageTab = 'home' | 'treatments' | 'experience' | 'shop' | 'basket' | 'reviews' | 'location';
+export type PageTab = 'home' | 'treatments' | 'experience' | 'shop' | 'basket' | 'reviews' | 'location' | 'terms';
 
 export interface Product {
   id: string;
@@ -45,6 +45,8 @@ export interface Treatment {
   benefits: string[];
   popular?: boolean;
   isAddon?: boolean;
+  image?: string;
+  beforeAfterImage?: string;
 }
 
 export interface Review {

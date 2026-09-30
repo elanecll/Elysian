@@ -14,6 +14,7 @@ import { Testimonials } from './components/Testimonials';
 import { LocationAndFaq } from './components/LocationAndFaq';
 import { ShopSection } from './components/ShopSection';
 import { BuyProductPage } from './components/BuyProductPage';
+import { TermsAndConditionsPage } from './components/TermsAndConditionsPage';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { OwnerCRMModal } from './components/OwnerCRMModal';
@@ -31,6 +32,7 @@ export default function App() {
   const [preselectedServiceId, setPreselectedServiceId] = useState<string | undefined>();
   const [preselectedProduct, setPreselectedProduct] = useState<'tropic' | 'clinicare' | undefined>();
   const [preselectedDuration, setPreselectedDuration] = useState<'30' | '60' | undefined>();
+  const [preselectedIsCourse, setPreselectedIsCourse] = useState<boolean>(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   // Persistent shopping cart state
@@ -108,6 +110,10 @@ export default function App() {
         setCurrentPage('reviews');
       } else if (hash === 'location' || hash === 'contact' || hash === 'faq' || hash === 'hours') {
         setCurrentPage('location');
+      } else if (hash === 'terms' || hash === 'conditions' || hash === 'deposit-policy' || hash === 'policy') {
+        setCurrentPage('terms');
+      } else if (hash === 'admin' || hash === 'crm' || hash === 'owner') {
+        setIsCRMOpen(true);
       } else {
         setCurrentPage('home');
       }
@@ -115,7 +121,20 @@ export default function App() {
 
     parseHash();
     window.addEventListener('hashchange', parseHash);
-    return () => window.removeEventListener('hashchange', parseHash);
+
+    // Private Owner Shortcut: Ctrl + Shift + A or Cmd + Shift + A
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'O' || e.key === 'o')) {
+        e.preventDefault();
+        setIsCRMOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('hashchange', parseHash);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleNavigate = (page: PageTab, categoryFilter?: string) => {
@@ -130,11 +149,13 @@ export default function App() {
   const handleOpenBooking = (
     serviceId?: string,
     preferredProduct?: 'tropic' | 'clinicare',
-    preferredDuration?: '30' | '60'
+    preferredDuration?: '30' | '60',
+    isCourse?: boolean
   ) => {
     setPreselectedServiceId(serviceId);
     setPreselectedProduct(preferredProduct);
     setPreselectedDuration(preferredDuration);
+    setPreselectedIsCourse(!!isCourse);
     setIsBookingOpen(true);
   };
 
@@ -258,8 +279,8 @@ export default function App() {
                 onNavigateHome={() => handleNavigate('home')}
               />
               <TreatmentMenu
-                onBookTreatment={(serviceId, preferredProduct, preferredDuration) =>
-                  handleOpenBooking(serviceId, preferredProduct, preferredDuration)
+                onBookTreatment={(serviceId, preferredProduct, preferredDuration, isCourse) =>
+                  handleOpenBooking(serviceId, preferredProduct, preferredDuration, isCourse)
                 }
                 selectedCategory={treatmentCategory}
               />
@@ -385,6 +406,21 @@ export default function App() {
               <LocationAndFaq />
             </motion.div>
           )}
+
+          {currentPage === 'terms' && (
+            <motion.div
+              key="terms-page"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <TermsAndConditionsPage
+                onNavigate={handleNavigate}
+                onOpenBooking={() => handleOpenBooking()}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
@@ -398,11 +434,17 @@ export default function App() {
           setIsBookingOpen(false);
           setPreselectedProduct(undefined);
           setPreselectedDuration(undefined);
+          setPreselectedIsCourse(false);
         }}
         preselectedServiceId={preselectedServiceId}
         initialProduct={preselectedProduct}
         initialDuration={preselectedDuration}
+        initialIsCourse={preselectedIsCourse}
         onOpenCRM={() => setIsCRMOpen(true)}
+        onOpenTerms={() => {
+          setIsBookingOpen(false);
+          handleNavigate('terms');
+        }}
       />
 
       {/* Owner Private CRM & Sales Portal Modal */}

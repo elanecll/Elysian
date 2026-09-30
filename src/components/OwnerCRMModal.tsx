@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   X,
+  ArrowLeft,
   Search,
   Calendar,
   ShoppingBag,
@@ -31,7 +32,21 @@ import {
   Copy,
   Check,
   Building2,
+  Lock,
+  KeyRound,
+  ShieldAlert,
+  Smartphone,
+  LogOut,
+  Key,
 } from 'lucide-react';
+import { OwnerAuthGate } from './OwnerAuthGate';
+import {
+  getActiveSession,
+  clearAuthSession,
+  getOwnerCredentials,
+  saveOwnerCredentials,
+  OwnerCredentials,
+} from '../data/ownerAuth';
 import {
   CRMRecord,
   OWNER_CONFIG,
@@ -62,7 +77,18 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'booking' | 'sale' | 'pending_balance'>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'records' | 'add_manual' | 'bank_settings' | 'notifications_log'>('records');
+  const [activeTab, setActiveTab] = useState<'records' | 'add_manual' | 'bank_settings' | 'notifications_log' | 'security_settings'>('records');
+
+  // Security & 2FA State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => getActiveSession() !== null);
+  const [ownerCreds, setOwnerCreds] = useState<OwnerCredentials>(() => getOwnerCredentials());
+  const [editUsername, setEditUsername] = useState(ownerCreds.username);
+  const [editPassword, setEditPassword] = useState('');
+  const [editConfirmPassword, setEditConfirmPassword] = useState('');
+  const [editPhone, setEditPhone] = useState(ownerCreds.phoneNumber);
+  const [editTwoFactor, setEditTwoFactor] = useState(ownerCreds.twoFactorEnabled);
+  const [securitySuccess, setSecuritySuccess] = useState('');
+  const [securityError, setSecurityError] = useState('');
 
   // Bank & Payment configuration state
   const [bankDetails, setBankDetails] = useState<BankDetails>(() => getStoredBankDetails());
@@ -93,8 +119,21 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
     setRecords(getCRMRecords());
   };
 
+  const handleSignOut = () => {
+    clearAuthSession();
+    setIsAuthenticated(false);
+    onClose();
+  };
+
   useEffect(() => {
     if (isOpen) {
+      const active = getActiveSession();
+      setIsAuthenticated(active !== null);
+      const creds = getOwnerCredentials();
+      setOwnerCreds(creds);
+      setEditUsername(creds.username);
+      setEditPhone(creds.phoneNumber);
+      setEditTwoFactor(creds.twoFactorEnabled);
       reloadRecords();
     }
   }, [isOpen]);
@@ -107,6 +146,54 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
     window.addEventListener('elysian_crm_updated', handleUpdate);
     return () => window.removeEventListener('elysian_crm_updated', handleUpdate);
   }, []);
+
+  const handleSaveSecuritySettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityError('');
+    setSecuritySuccess('');
+
+    if (!editUsername.trim()) {
+      setSecurityError('Username cannot be empty.');
+      return;
+    }
+
+    if (editPassword && editPassword.length < 6) {
+      setSecurityError('New password must be at least 6 characters.');
+      return;
+    }
+
+    if (editPassword && editPassword !== editConfirmPassword) {
+      setSecurityError('Passwords do not match. Please re-enter.');
+      return;
+    }
+
+    const updated: OwnerCredentials = {
+      ...ownerCreds,
+      username: editUsername.trim(),
+      passwordHash: editPassword ? editPassword : ownerCreds.passwordHash,
+      phoneNumber: editPhone.trim() || ownerCreds.phoneNumber,
+      twoFactorEnabled: editTwoFactor,
+    };
+
+    saveOwnerCredentials(updated);
+    setOwnerCreds(updated);
+    setEditPassword('');
+    setEditConfirmPassword('');
+    setSecuritySuccess('Security settings and credentials updated successfully!');
+    setTimeout(() => setSecuritySuccess(''), 4000);
+  };
+
+  const handleRegenerateBackupCodes = () => {
+    const newCodes = Array.from({ length: 5 }, () => `ELS-${Math.floor(1000 + Math.random() * 9000)}`);
+    const updated: OwnerCredentials = {
+      ...ownerCreds,
+      backupCodes: newCodes,
+    };
+    saveOwnerCredentials(updated);
+    setOwnerCreds(updated);
+    setSecuritySuccess('5 new emergency backup codes generated and saved!');
+    setTimeout(() => setSecuritySuccess(''), 4000);
+  };
 
   // Filtered & Searched records
   const filteredRecords = useMemo(() => {
@@ -327,6 +414,23 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
+  if (!isAuthenticated) {
+    return (
+      <OwnerAuthGate
+        onSuccess={() => {
+          setIsAuthenticated(true);
+          const creds = getOwnerCredentials();
+          setOwnerCreds(creds);
+          setEditUsername(creds.username);
+          setEditPhone(creds.phoneNumber);
+          setEditTwoFactor(creds.twoFactorEnabled);
+          reloadRecords();
+        }}
+        onClose={onClose}
+      />
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 md:p-6">
       <div className="relative w-full max-w-6xl bg-[#FFFDFD] rounded-3xl shadow-2xl border border-[#E8BAC0]/70 overflow-hidden flex flex-col max-h-[92vh]">
@@ -334,7 +438,15 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
         {/* Top Header Bar */}
         <div className="bg-[#422F2B] text-[#FFF0F2] px-5 sm:px-8 py-5 flex flex-wrap items-center justify-between gap-4 border-b border-[#BE757C]/30 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#BE757C] text-white flex items-center justify-center shadow-md">
+            <button
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFF0F2] hover:text-white text-xs font-semibold tracking-wider transition-all cursor-pointer border border-white/20 mr-1"
+              title="Return to Sanctuary Website"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-[#E8BAC0]" />
+              <span>Back to Website</span>
+            </button>
+            <div className="w-11 h-11 rounded-2xl bg-[#BE757C] text-white flex items-center justify-center shadow-md shrink-0">
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
@@ -342,17 +454,26 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
                 <h2 className="text-lg sm:text-xl font-display font-semibold tracking-wide text-white">
                   Owner CRM &amp; Sales Hub
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#BE757C]/40 border border-[#BE757C] text-[10px] uppercase font-bold tracking-widest text-[#FFF0F2]">
-                  Private Portal
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[10px] uppercase font-bold tracking-widest text-emerald-300">
+                  Authenticated ({ownerCreds.username})
                 </span>
               </div>
               <p className="text-xs text-[#E8BAC0] font-sans-clean mt-0.5">
-                Site Owner: <strong className="text-white">{OWNER_CONFIG.name}</strong> • Registered WhatsApp: <strong className="text-white">{OWNER_CONFIG.whatsappDisplay}</strong> • Email: <strong className="text-white">{OWNER_CONFIG.email}</strong>
+                Site Owner: <strong className="text-white">{OWNER_CONFIG.name}</strong> • Registered WhatsApp: <strong className="text-white">{OWNER_CONFIG.whatsappDisplay}</strong> • 2FA: <strong className="text-white">{ownerCreds.twoFactorEnabled ? 'Active' : 'Disabled'}</strong>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 text-[#FFE8EC] hover:text-white text-xs font-semibold tracking-wider transition-all cursor-pointer border border-rose-300/40"
+              title="Lock CRM and sign out of 2FA session"
+            >
+              <Lock className="w-3.5 h-3.5 text-[#E8BAC0]" />
+              <span className="hidden md:inline">Lock / Sign Out</span>
+            </button>
+
             <button
               onClick={handleResetForLaunch}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-rose-500/25 text-[#FFF0F2] hover:text-white text-xs font-semibold tracking-wider transition-all cursor-pointer border border-white/20 hover:border-rose-300/40"
@@ -382,10 +503,12 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
 
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
-              title="Close CRM Portal"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold tracking-wider transition-all cursor-pointer border border-white/20"
+              title="Close CRM and Return to Website"
             >
-              <X className="w-5 h-5" />
+              <ArrowLeft className="w-3.5 h-3.5 text-[#E8BAC0]" />
+              <span className="hidden sm:inline">Back</span>
+              <X className="w-4 h-4 ml-0.5 text-white/70" />
             </button>
           </div>
         </div>
@@ -455,7 +578,19 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
 
         {/* View Mode Navigation Tabs */}
         <div className="px-4 sm:px-6 pt-4 pb-2 flex flex-wrap items-center justify-between gap-3 border-b border-[#F0D5D8] bg-white shrink-0">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {activeTab !== 'records' && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('records')}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#FAF0F2] text-[#8C3F48] hover:bg-[#F2D6DC] text-xs font-semibold tracking-wider transition-all cursor-pointer border border-[#E8BAC0] mr-1"
+                title="Return to All Client Records"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Records</span>
+              </button>
+            )}
+
             <button
               onClick={() => setActiveTab('records')}
               className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
@@ -501,6 +636,18 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
             >
               <Send className="w-3.5 h-3.5" />
               <span>Owner Dispatch Alerts</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('security_settings')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'security_settings'
+                  ? 'bg-[#8C3F48] text-white shadow-xs'
+                  : 'bg-[#FFF0F2] text-[#8C3F48] hover:bg-[#FADDE2]'
+              }`}
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>Security &amp; 2FA</span>
             </button>
           </div>
 
@@ -1545,6 +1692,246 @@ export const OwnerCRMModal: React.FC<OwnerCRMModalProps> = ({ isOpen, onClose })
                   </a>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: SECURITY & 2FA SETTINGS */}
+        {activeTab === 'security_settings' && (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+            <div className="max-w-4xl mx-auto space-y-6">
+              
+              {/* Top Banner */}
+              <div className="bg-gradient-to-r from-[#FFF0F2] via-[#FAF0F2] to-[#FFF5F7] rounded-3xl p-5 sm:p-6 border border-[#E8BAC0] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#BE757C] to-[#8C3F48] text-white flex items-center justify-center shadow-md shrink-0">
+                    <ShieldCheck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-display font-bold text-[#3D2B27]">
+                      Owner Authentication &amp; 2FA Security Center
+                    </h3>
+                    <p className="text-xs text-[#7A5852] mt-0.5">
+                      Logged in as <strong className="text-[#3D2B27]">{ownerCreds.username}</strong> • 2FA Status: <span className="font-bold text-emerald-700">{ownerCreds.twoFactorEnabled ? 'Enabled (Active)' : 'Disabled'}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="px-4 py-2 rounded-xl bg-[#5C423E] hover:bg-[#3D2B27] text-white text-xs font-bold tracking-wider uppercase transition-all shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Lock &amp; Sign Out</span>
+                </button>
+              </div>
+
+              {securitySuccess && (
+                <div className="flex items-center gap-2.5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>{securitySuccess}</span>
+                </div>
+              )}
+
+              {securityError && (
+                <div className="flex items-center gap-2.5 p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{securityError}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Column: Account & Password Credentials */}
+                <form
+                  onSubmit={handleSaveSecuritySettings}
+                  className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-6 border border-[#E8BAC0]/70 shadow-xs space-y-4"
+                >
+                  <div className="border-b border-[#F0D5D8] pb-3 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-[#3D2B27] flex items-center gap-2">
+                        <KeyRound className="w-4 h-4 text-[#BE757C]" />
+                        <span>Update Owner Credentials</span>
+                      </h4>
+                      <p className="text-[11px] text-[#7A5852] mt-0.5">
+                        Customize your username and password for future logins.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#4A352F] mb-1">
+                      Owner Username:
+                    </label>
+                    <input
+                      type="text"
+                      value={editUsername}
+                      onChange={(e) => setEditUsername(e.target.value)}
+                      placeholder="e.g. elaine"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9F9] border border-[#E8BAC0] text-sm text-[#3D2B27] focus:outline-hidden focus:border-[#BE757C]"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#4A352F] mb-1">
+                        New Password (optional):
+                      </label>
+                      <input
+                        type="password"
+                        value={editPassword}
+                        onChange={(e) => setEditPassword(e.target.value)}
+                        placeholder="Leave blank to keep"
+                        className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9F9] border border-[#E8BAC0] text-sm text-[#3D2B27] focus:outline-hidden focus:border-[#BE757C]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-[#4A352F] mb-1">
+                        Confirm New Password:
+                      </label>
+                      <input
+                        type="password"
+                        value={editConfirmPassword}
+                        onChange={(e) => setEditConfirmPassword(e.target.value)}
+                        placeholder="Re-type password"
+                        className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9F9] border border-[#E8BAC0] text-sm text-[#3D2B27] focus:outline-hidden focus:border-[#BE757C]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[#4A352F] mb-1">
+                      Registered 2FA Phone Number:
+                    </label>
+                    <input
+                      type="tel"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                      placeholder="+44 7707 32 8060"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9F9] border border-[#E8BAC0] text-sm text-[#3D2B27] focus:outline-hidden focus:border-[#BE757C]"
+                    />
+                    <p className="text-[10px] text-[#7A5852] mt-1">
+                      Used to dispatch your 6-digit one-time verification passcode.
+                    </p>
+                  </div>
+
+                  {/* 2FA Toggle */}
+                  <div className="pt-2 border-t border-[#F0D5D8] flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-[#3D2B27] block">
+                        Require Two-Step Verification (2FA)
+                      </span>
+                      <span className="text-[11px] text-[#7A5852]">
+                        Demands a 6-digit SMS / Push verification code after entering password.
+                      </span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editTwoFactor}
+                        onChange={(e) => setEditTwoFactor(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#BE757C]"></div>
+                    </label>
+                  </div>
+
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 rounded-xl bg-[#BE757C] hover:bg-[#8C3F48] text-white text-xs font-bold tracking-wider uppercase transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Save Security Settings</span>
+                    </button>
+                  </div>
+                </form>
+
+                {/* Right Column: Emergency Backup Codes & Quick Access Info */}
+                <div className="lg:col-span-5 space-y-4">
+                  {/* Backup Codes Card */}
+                  <div className="bg-[#FAF0F2] rounded-3xl p-5 border border-[#E8BAC0] shadow-xs space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-[#E8BAC0]/60">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#8C3F48] flex items-center gap-1.5">
+                        <Key className="w-3.5 h-3.5 text-[#BE757C]" />
+                        Emergency Backup Codes
+                      </span>
+                      <span className="text-[10px] text-[#7A5852] font-semibold">
+                        {ownerCreds.backupCodes.length} remaining
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-[#5C4A45] leading-relaxed">
+                      Use these one-time codes if your phone is unavailable. Each code can be entered into the 2FA login gate:
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      {ownerCreds.backupCodes.map((code, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white px-3 py-2 rounded-xl border border-[#E8BAC0] text-center font-mono text-xs font-bold text-[#8C3F48] shadow-2xs flex items-center justify-between"
+                        >
+                          <span>{code}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(code);
+                              setSecuritySuccess(`Copied backup code ${code}`);
+                              setTimeout(() => setSecuritySuccess(''), 2000);
+                            }}
+                            title="Copy code"
+                            className="text-[#A6888B] hover:text-[#BE757C] transition-colors cursor-pointer"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={handleRegenerateBackupCodes}
+                        className="w-full py-2 rounded-xl bg-white hover:bg-[#FFF0F2] border border-[#BE757C]/40 text-[#BE757C] hover:text-[#8C3F48] text-xs font-bold tracking-wider uppercase transition-all shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Regenerate 5 New Codes</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Private Access Instructions */}
+                  <div className="bg-white rounded-3xl p-5 border border-[#E8BAC0]/70 text-xs text-[#5C4A45] space-y-2.5">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#3D2B27] block">
+                      🔒 How to Access Your Hidden CRM:
+                    </span>
+                    <ul className="space-y-1.5 text-[11px]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-[#BE757C] font-bold">•</span>
+                        <span>
+                          <strong>Keyboard Shortcut:</strong> Press <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300 font-mono text-[10px] text-gray-800">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300 font-mono text-[10px] text-gray-800">Shift</kbd> + <kbd className="px-1.5 py-0.5 bg-gray-100 rounded border border-gray-300 font-mono text-[10px] text-gray-800">A</kbd> anywhere on the site.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-[#BE757C] font-bold">•</span>
+                        <span>
+                          <strong>Footer Link:</strong> Click the discreet <code className="text-[#BE757C] font-semibold">Staff Access</code> link in the footer copyright line.
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-[#BE757C] font-bold">•</span>
+                        <span>
+                          <strong>URL Direct:</strong> Append <code className="text-[#BE757C] font-semibold">#admin</code> or <code className="text-[#BE757C] font-semibold">#crm</code> to the website address.
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+
             </div>
           </div>
         )}

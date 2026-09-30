@@ -30,6 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'shop', name: 'Shop', isShop: true },
     { id: 'reviews', name: 'Reviews' },
     { id: 'location', name: 'Location & FAQ' },
+    { id: 'terms', name: 'Deposit Policy' },
   ];
 
   const handleNavClick = (page: PageTab) => {
@@ -46,26 +47,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           Complimentary with Botanical Flowers Tea
         </span>
         <span className="hidden md:inline text-[#E8BAC0]/50">•</span>
-        <span className="text-[#E8BAC0] font-semibold">
-          💳 50% Downpayment at Booking
-        </span>
+        <button
+          onClick={() => handleNavClick('terms')}
+          className="text-[#E8BAC0] hover:text-white font-semibold transition-colors underline decoration-dotted underline-offset-2 cursor-pointer"
+          title="View our 50% Deposit Policy & Booking Terms"
+        >
+          💳 50% Deposit Policy
+        </button>
         <span className="hidden md:inline text-[#E8BAC0]/50">•</span>
         <a href="tel:+447707328060" className="hidden md:inline-flex items-center gap-1 text-[#E8BAC0] hover:text-white transition-colors">
           <Phone className="w-3 h-3" /> +44 7707 32 8060
         </a>
-        {onOpenCRM && (
-          <>
-            <span className="hidden sm:inline text-[#E8BAC0]/50">•</span>
-            <button
-              onClick={onOpenCRM}
-              className="inline-flex items-center gap-1 text-[#FFF0F2] hover:text-[#E8BAC0] transition-colors cursor-pointer bg-white/20 hover:bg-white/30 px-2.5 py-0.5 rounded-full border border-white/30 text-[10px] tracking-wider"
-              title="Open Private Owner CRM Portal"
-            >
-              <ShieldCheck className="w-3 h-3 text-[#E8BAC0]" />
-              <span>Owner CRM Hub</span>
-            </button>
-          </>
-        )}
       </div>
 
       {/* Main Navigation Bar */}
@@ -267,20 +259,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Phone className="w-3.5 h-3.5" />
               <span>Call +44 7707 32 8060</span>
             </a>
-
-            {onOpenCRM && (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenCRM();
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-[#5C423E] text-white text-xs tracking-widest uppercase font-medium shadow-xs cursor-pointer"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#E8BAC0]" />
-                <span>Owner CRM &amp; Sales Portal</span>
-              </button>
-            )}
           </div>
         </div>
       )}

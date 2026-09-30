@@ -1,6 +1,6 @@
 import React from 'react';
 import { SpaHeartDivider } from './SpaIcons';
-import { Sparkles, Phone, Mail, MapPin, Instagram, Facebook, Heart, MessageCircle, ShieldCheck } from 'lucide-react';
+import { Sparkles, Phone, Mail, MapPin, Instagram, Facebook, Heart, MessageCircle, Lock } from 'lucide-react';
 import { PageTab } from '../types';
 
 interface FooterProps {
@@ -124,7 +124,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
               </li>
               <li>
                 <button onClick={() => handleNav('treatments', 'packages')} className="hover:text-white transition-colors text-left cursor-pointer">
-                  Treatment Packages (Buy 3, Get 1 FREE)
+                  Treatment Packages
                 </button>
               </li>
             </ul>
@@ -169,6 +169,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
               <li>
                 <button onClick={() => handleNav('basket')} className="hover:text-white transition-colors text-left cursor-pointer">
                   Shopping Basket &amp; Checkout
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleNav('terms')} className="text-[#E8BAC0] hover:text-white transition-colors text-left cursor-pointer font-medium flex items-center gap-1">
+                  <span>Terms &amp; 50% Deposit Policy</span>
                 </button>
               </li>
             </ul>
@@ -231,13 +236,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
             <button onClick={() => handleNav('home')} className="hover:text-white transition-colors cursor-pointer">Home</button>
             <button onClick={() => handleNav('treatments')} className="hover:text-white transition-colors cursor-pointer">Treatments</button>
             <button onClick={() => handleNav('location')} className="hover:text-white transition-colors cursor-pointer">Contact &amp; FAQ</button>
+            <button onClick={() => handleNav('terms')} className="hover:text-white text-[#E8BAC0] transition-colors cursor-pointer underline underline-offset-2">Terms &amp; 50% Deposit Policy</button>
             {onOpenCRM && (
               <button
                 onClick={onOpenCRM}
-                className="text-[#E8BAC0] hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-semibold"
+                className="text-[#B89FA3]/50 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-normal text-[10px]"
+                title="Management Portal (Shortcut: Ctrl+Shift+A)"
               >
-                <ShieldCheck className="w-3 h-3 text-[#BE757C]" />
-                <span>Owner CRM Portal</span>
+                <Lock className="w-2.5 h-2.5" />
+                <span>Staff Access</span>
               </button>
             )}
           </div>

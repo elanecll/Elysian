@@ -35,6 +35,9 @@ export interface CRMRecord {
     duration?: string;
     scheduledDate?: string;
     scheduledTime?: string;
+    isPackageCourse?: boolean;
+    totalSessions?: number;
+    savingsAmount?: number;
     // For Sales
     items?: CRMItem[];
     deliveryOption?: 'collection' | 'delivery';
@@ -82,18 +85,20 @@ export function generateOwnerWhatsAppUrl(record: CRMRecord): string {
   let message = '';
 
   if (isBooking) {
+    const isCourse = !!record.details.isPackageCourse;
     message = `🔔 *NEW BOOKING ALERT - ELYSIAN SPA & WELLNESS*\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
       `👤 *Guest:* ${record.customer.name}\n` +
       `📞 *Phone / WA:* ${record.customer.phone}\n` +
       `✉️ *Email:* ${record.customer.email || 'Not provided'}\n\n` +
       `💆‍♀️ *Treatment Ritual:* ${record.details.serviceTitle || 'Bespoke Ritual'}\n` +
+      (isCourse ? `✨ *Option:* 4-Session Treatment Course (Buy 3, Get 1 FREE — 4th Session Complimentary!)\n📦 *Sessions Total:* 4 Sessions (1st session confirmed today, 3 remaining sessions booked flexibly)\n` : '') +
       `🔬 *Product Line:* 🔬 CLINICARE Cosmeceuticals\n` +
       `⏱️ *Duration:* ${record.details.duration || '60 mins'}\n` +
       `📅 *Date:* ${record.details.scheduledDate}\n` +
       `⏰ *Time Slot:* ${record.details.scheduledTime}\n\n` +
       `💰 *FINANCIAL BREAKDOWN:*\n` +
-      `• Total Fee: £${record.financials.totalAmount.toFixed(2)}\n` +
+      `• Total Fee: £${record.financials.totalAmount.toFixed(2)}${isCourse ? ` (Course of 4 - saved £${(record.details.savingsAmount || 0).toFixed(2)})` : ''}\n` +
       `• *50% Deposit Paid:* £${record.financials.depositPaid.toFixed(2)} ✅ (${record.financials.paymentMethod})\n` +
       `• *Remaining Balance on Arrival:* £${record.financials.balanceDue.toFixed(2)}\n\n` +
       (record.customer.notes ? `📝 *Guest Notes:* "${record.customer.notes}"\n\n` : '') +
@@ -137,7 +142,8 @@ export function generateOwnerEmailUrl(record: CRMRecord): { url: string; subject
   let body = '';
 
   if (isBooking) {
-    subject = `[Elysian Spa Booking] ${record.customer.name} - ${record.details.scheduledDate} at ${record.details.scheduledTime} (Deposit £${record.financials.depositPaid.toFixed(2)} Paid)`;
+    const isCourse = !!record.details.isPackageCourse;
+    subject = `[Elysian Spa Booking] ${record.customer.name} - ${record.details.scheduledDate} at ${record.details.scheduledTime} (Deposit £${record.financials.depositPaid.toFixed(2)} Paid)${isCourse ? ' [BUY 3 GET 1 FREE COURSE]' : ''}`;
     body = `Dear Elaine,\n\nA new client booking has just been confirmed on the Elysian Spa & Wellness website!\n\n` +
       `==================================================\n` +
       `CLIENT & BOOKING INFORMATION\n` +
@@ -151,6 +157,7 @@ export function generateOwnerEmailUrl(record: CRMRecord): { url: string; subject
       `TREATMENT DETAILS\n` +
       `==================================================\n` +
       `Treatment: ${record.details.serviceTitle}\n` +
+      (isCourse ? `Booking Type: 4-Session Treatment Course (Buy 3, Get 1 FREE — 4th Session Complimentary!)\nTotal Sessions: 4 Sessions (1st session confirmed for ${record.details.scheduledDate}, 3 remaining sessions scheduled flexibly)\nSavings: £${(record.details.savingsAmount || 0).toFixed(2)} saved\n` : `Booking Type: Single Session\n`) +
       `Skincare Formulation: 🔬 CLINICARE Swedish Cosmeceuticals\n` +
       `Duration: ${record.details.duration || '60 mins'}\n` +
       `Scheduled Date: ${record.details.scheduledDate}\n` +

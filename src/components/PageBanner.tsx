@@ -19,7 +19,7 @@ export const PageBanner: React.FC<PageBannerProps> = ({
   onNavigateHome,
 }) => {
   return (
-    <div className="relative bg-gradient-to-b from-[#FFF0F2] to-[#FFF9F9] border-b border-[#E8BAC0]/40 pt-10 pb-12 sm:pt-14 sm:pb-16 px-4 overflow-hidden">
+    <div className="relative bg-gradient-to-b from-[#FFF0F2] to-[#FFF9F9] border-b border-[#E8BAC0]/40 pt-6 pb-7 sm:pt-8 sm:pb-9 px-4 overflow-hidden">
       {/* Subtle decorative background circles */}
       <div className="absolute top-0 right-10 w-72 h-72 rounded-full bg-[#BE757C]/5 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-10 w-60 h-60 rounded-full bg-[#E8BAC0]/15 blur-2xl pointer-events-none" />
