@@ -1,0 +1,775 @@
+import { afterEach, test } from "node:test";
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import request from "supertest";
+import Stripe from "stripe";
+import { createApp } from "../server/app";
+import { Store } from "../server/store";
+import { loadConfig } from "../server/config";
+import { londonDate, type BookingRequest } from "../shared/payments";
+import { shopQuote, shopSchema } from "../server/catalogue";
+
+const origin = "http://localhost:3000";
+const secret = "whsec_automated_fixture";
+const customer = {
+  name: "Test Customer",
+  email: "test@example.com",
+  phone: "+44 7707 328060",
+  notes: "",
+};
+const shop = {
+  customer,
+  items: [{ productId: "tropic-skincare-kit-1", quantity: 1 }],
+  deliveryOption: "collection" as const,
+  deliveryAddress: "",
+  promoCode: "ELYSIAN10",
+};
+const booking = (): BookingRequest => ({
+  customer,
+  treatments: [{ serviceId: "hydrodemabrasion-facial", optionIndex: 0 }],
+  customTreatments: [],
+  date: londonDate(new Date(Date.now() + 3 * 86400000)),
+  time: "11:00",
+  isCourse: false,
+});
+const resources: { store: Store; directory?: string }[] = [];
+afterEach(() => {
+  for (const resource of resources.splice(0)) {
+    resource.store.close();
+    if (resource.directory)
+      rmSync(resource.directory, { recursive: true, force: true });
+  }
+});
+
+function setup(path = ":memory:") {
+  const store = new Store(path);
+  resources.push({ store });
+  const sdk = new Stripe("sk_test_fixture");
+  const sessions = new Map<string, Stripe.Checkout.Session>();
+  const charges = new Map<string, Stripe.Charge>();
+  const intents = new Map<string, Stripe.PaymentIntent>();
+  const creations: Stripe.Checkout.SessionCreateParams[] = [];
+  const keys = new Map<
+    string,
+    { payload: string; session: Stripe.Checkout.Session }
+  >();
+  let failAfterCreate = false;
+  const fake = {
+    webhooks: sdk.webhooks,
+    checkout: {
+      sessions: {
+        create: async (
+          params: Stripe.Checkout.SessionCreateParams,
+          options: Stripe.RequestOptions,
+        ) => {
+          const key = options.idempotencyKey!;
+          const previous = keys.get(key);
+          if (previous) {
+            assert.equal(
+              JSON.stringify(params),
+              previous.payload,
+              "Idempotent retries must preserve all Stripe parameters",
+            );
+            return previous.session;
+          }
+          creations.push(params);
+          const id = `cs_test_${creations.length}`;
+          const amount = params.line_items![0].price_data!.unit_amount!;
+          const intentId = `pi_test_${creations.length}`;
+          const session = {
+            id,
+            url: `https://checkout.stripe.com/test/${id}`,
+            mode: "payment",
+            currency: "gbp",
+            amount_total: amount,
+            payment_status: "unpaid",
+            status: "open",
+            livemode: false,
+            payment_intent: intentId,
+            client_reference_id: params.client_reference_id,
+            metadata: params.metadata,
+            expires_at: params.expires_at,
+          } as Stripe.Checkout.Session;
+          sessions.set(id, session);
+          intents.set(intentId, {
+            id: intentId,
+            metadata: params.payment_intent_data?.metadata,
+            amount,
+            currency: "gbp",
+            livemode: false,
+            status: "requires_payment_method",
+          } as Stripe.PaymentIntent);
+          keys.set(key, { payload: JSON.stringify(params), session });
+          if (failAfterCreate) {
+            failAfterCreate = false;
+            throw new Error(
+              "Fixture transport disconnected after Stripe accepted the request",
+            );
+          }
+          return session;
+        },
+        retrieve: async (id: string) => {
+          const session = sessions.get(id);
+          if (!session) throw new Error("No fixture session");
+          return session;
+        },
+      },
+    },
+    charges: { retrieve: async (id: string) => charges.get(id)! },
+    paymentIntents: { retrieve: async (id: string) => intents.get(id)! },
+  } as unknown as Stripe;
+  const config = {
+    appUrl: origin,
+    stripeSecretKey: "sk_test_fixture",
+    webhookSecret: secret,
+    ownerUsername: "owner",
+    ownerPassword: "a-long-test-password",
+    databasePath: path,
+  };
+  const app = createApp(config, store, fake);
+  const post = (path: string) => request(app).post(path).set("Origin", origin);
+  async function login() {
+    const response = await post("/api/owner/login")
+      .send({ username: "owner", password: config.ownerPassword })
+      .expect(200);
+    return response.headers["set-cookie"][0].split(";")[0] as string;
+  }
+  async function createShop(key = randomUUID(), data = shop) {
+    return (
+      await post("/api/shop/checkout")
+        .set("Idempotency-Key", key)
+        .send(data)
+        .expect(200)
+    ).body as { url: string; receiptToken: string };
+  }
+  async function createBooking(data = booking()) {
+    return (
+      await post("/api/bookings")
+        .set("Idempotency-Key", randomUUID())
+        .send(data)
+        .expect(201)
+    ).body as { receipt: { id: string }; receiptToken: string };
+  }
+  async function webhook(
+    type: string,
+    object: { id: string },
+    id = `evt_${randomUUID()}`,
+  ) {
+    const payload = JSON.stringify({
+      id,
+      type,
+      livemode: false,
+      data: { object },
+    });
+    const signature = sdk.webhooks.generateTestHeaderString({
+      payload,
+      secret,
+    });
+    return request(app)
+      .post("/api/stripe/webhook")
+      .set("Content-Type", "application/json")
+      .set("Stripe-Signature", signature)
+      .send(payload);
+  }
+  function pay(sessionId: string) {
+    const session = sessions.get(sessionId)!;
+    session.payment_status = "paid";
+    session.status = "complete";
+    return session;
+  }
+  return {
+    store,
+    app,
+    post,
+    login,
+    createShop,
+    createBooking,
+    webhook,
+    pay,
+    sessions,
+    charges,
+    intents,
+    creations,
+    fake,
+    config,
+    disconnectNextCreate: () => {
+      failAfterCreate = true;
+    },
+  };
+}
+
+test("catalogue quotes use integer pennies including discount and postage", () => {
+  const quote = shopQuote(
+    shopSchema.parse({
+      ...shop,
+      deliveryOption: "delivery",
+      deliveryAddress: "12 Test Road, London, SW1A 1AA",
+    }),
+  );
+  assert.equal(quote.subtotalPence, 3400);
+  assert.equal(quote.discountPence, 340);
+  assert.equal(quote.shippingPence, 395);
+  assert.equal(quote.totalPence, 3455);
+  assert.equal(
+    shopQuote(
+      shopSchema.parse({
+        ...shop,
+        items: [{ productId: shop.items[0].productId, quantity: 2 }],
+        deliveryOption: "delivery",
+        deliveryAddress: "12 Test Road, London",
+      }),
+    ).shippingPence,
+    0,
+  );
+});
+test("shop payment is unpaid until verified and paid on signed webhook without browser return", async () => {
+  const f = setup();
+  const result = await f.createShop();
+  const record = f.store.byReceipt(result.receiptToken)!;
+  assert.equal(record.paidPence, 0);
+  assert.equal(record.status, "awaiting_payment");
+  assert.equal(f.creations[0].line_items![0].price_data!.unit_amount, 3060);
+  f.pay(record.stripeSessionId!);
+  await f
+    .webhook("checkout.session.completed", { id: record.stripeSessionId! })
+    .then((r) => assert.equal(r.status, 200));
+  const paid = f.store.get(record.id)!;
+  assert.equal(paid.paymentStatus, "paid");
+  assert.equal(paid.paidPence, 3060);
+  assert.equal(paid.status, "confirmed");
+});
+test("signed events are not trusted if Stripe still reports unpaid", async () => {
+  const f = setup();
+  const result = await f.createShop();
+  const record = f.store.byReceipt(result.receiptToken)!;
+  await f.webhook("checkout.session.completed", {
+    id: record.stripeSessionId!,
+  });
+  assert.equal(f.store.get(record.id)!.paidPence, 0);
+});
+test("repeat events and simultaneous duplicate submissions do not duplicate sales or revenue", async () => {
+  const f = setup();
+  const key = randomUUID();
+  const [one, two] = await Promise.all([f.createShop(key), f.createShop(key)]);
+  assert.equal(one.receiptToken, two.receiptToken);
+  assert.equal(f.store.list().length, 1);
+  assert.equal(f.creations.length, 1);
+  const record = f.store.byReceipt(one.receiptToken)!;
+  f.pay(record.stripeSessionId!);
+  const responses = await Promise.all([
+    f.webhook(
+      "checkout.session.completed",
+      { id: record.stripeSessionId! },
+      "evt_repeat",
+    ),
+    f.webhook(
+      "checkout.session.completed",
+      { id: record.stripeSessionId! },
+      "evt_repeat",
+    ),
+  ]);
+  assert.ok(responses.every((r) => r.status === 200));
+  assert.equal(f.store.get(record.id)!.paidPence, 3060);
+  await f.webhook("checkout.session.completed", {
+    id: record.stripeSessionId!,
+  });
+  assert.equal(f.store.get(record.id)!.paidPence, 3060);
+});
+test("request retries after a lost Stripe response reuse identical persisted parameters", async () => {
+  const f = setup();
+  const key = randomUUID();
+  f.disconnectNextCreate();
+  await f
+    .post("/api/shop/checkout")
+    .set("Idempotency-Key", key)
+    .send(shop)
+    .expect(500);
+  await f.createShop(key);
+  assert.equal(f.creations.length, 1);
+  assert.equal(f.store.list().length, 1);
+});
+test("price tampering, bad quantities, unknown products and missing delivery addresses are rejected", async () => {
+  const f = setup();
+  for (const body of [
+    { ...shop, totalPence: 1 },
+    { ...shop, items: [{ productId: shop.items[0].productId, quantity: 0 }] },
+    { ...shop, items: [{ productId: shop.items[0].productId, quantity: 1.5 }] },
+    { ...shop, items: [{ productId: "not-a-product", quantity: 1 }] },
+    { ...shop, deliveryOption: "delivery" },
+    { ...shop, items: [{ ...shop.items[0], unitPrice: 0.01 }] },
+    { ...shop, promoCode: "FAKE" },
+    { ...shop, customer: { ...customer, name: "", phone: "" } },
+  ]) {
+    await f
+      .post("/api/shop/checkout")
+      .set("Idempotency-Key", randomUUID())
+      .send(body)
+      .expect(400);
+  }
+  assert.equal(f.store.list().length, 0);
+  assert.equal(f.creations.length, 0);
+});
+test("a submission key cannot be reused for different details", async () => {
+  const f = setup();
+  const key = randomUUID();
+  await f.createShop(key);
+  await f
+    .post("/api/shop/checkout")
+    .set("Idempotency-Key", key)
+    .send({ ...shop, promoCode: "" })
+    .expect(409);
+});
+test("booking requests stay unpaid until owner approval and verified deposit", async () => {
+  const f = setup();
+  const result = await f.createBooking();
+  assert.equal(f.creations.length, 0);
+  assert.equal(f.store.get(result.receipt.id)!.status, "requested");
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .send({ customPrices: [] })
+    .expect(401);
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  assert.equal(f.creations.length, 1);
+  const record = f.store.get(result.receipt.id)!;
+  assert.equal(record.amountDuePence, 1750);
+  assert.equal(record.status, "awaiting_payment");
+  assert.ok(record.expiresAt! - Date.now() <= 86400000);
+  f.pay(record.stripeSessionId!);
+  await f.webhook("checkout.session.completed", {
+    id: record.stripeSessionId!,
+  });
+  const paid = f.store.get(record.id)!;
+  assert.equal(paid.totalPence, 3500);
+  assert.equal(paid.paidPence, 1750);
+  assert.equal(paid.totalPence - paid.paidPence, 1750);
+});
+test("custom treatment quotes require explicit owner prices and preserve course pricing", async () => {
+  const f = setup();
+  const data = {
+    ...booking(),
+    isCourse: true,
+    customTreatments: [{ title: "Custom massage", durationMinutes: 30 }],
+  };
+  const result = await f.createBooking(data);
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(400);
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [{ id: "custom-0", pricePence: 2500 }] })
+    .expect(200);
+  const record = f.store.get(result.receipt.id)!;
+  assert.equal(record.totalPence, 18000);
+  assert.equal(record.amountDuePence, 9000);
+  await f
+    .post(`/api/owner/records/${record.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [{ id: "custom-0", pricePence: 2600 }] })
+    .expect(409);
+});
+test("past and impossible dates, price tampering and invalid treatment options are rejected", async () => {
+  const f = setup();
+  for (const body of [
+    { ...booking(), date: "2000-01-01" },
+    { ...booking(), date: "2099-02-31" },
+    { ...booking(), totalPence: 100 },
+    {
+      ...booking(),
+      treatments: [{ serviceId: "hydrodemabrasion-facial", optionIndex: 9 }],
+    },
+    {
+      ...booking(),
+      customTreatments: [
+        { title: "Custom", durationMinutes: 30, pricePence: 1 },
+      ],
+    },
+  ])
+    await f
+      .post("/api/bookings")
+      .set("Idempotency-Key", randomUUID())
+      .send(body)
+      .expect(400);
+  assert.equal(f.store.list().length, 0);
+});
+test("owner authentication is server-side, rate limited, private and revocable", async () => {
+  const f = setup();
+  await request(f.app).get("/api/owner/records").expect(401);
+  await request(f.app)
+    .get("/api/owner/records")
+    .set("Cookie", "elysian_session=fabricated")
+    .expect(401);
+  const cookie = await f.login();
+  const response = await request(f.app)
+    .get("/api/owner/records")
+    .set("Cookie", cookie)
+    .expect(200);
+  assert.deepEqual(response.body.records, []);
+  await f.post("/api/owner/logout").set("Cookie", cookie).send({}).expect(200);
+  await request(f.app)
+    .get("/api/owner/session")
+    .set("Cookie", cookie)
+    .expect(401);
+  for (let i = 0; i < 5; i++)
+    await f
+      .post("/api/owner/login")
+      .send({ username: "owner", password: "incorrect" })
+      .expect(401);
+  await f
+    .post("/api/owner/login")
+    .send({ username: "owner", password: "a-long-test-password" })
+    .expect(429);
+});
+test("owner cookies are HttpOnly and SameSite strict and expired sessions are rejected", async () => {
+  const f = setup();
+  const response = await f
+    .post("/api/owner/login")
+    .send({ username: "owner", password: "a-long-test-password" })
+    .expect(200);
+  const cookie = response.headers["set-cookie"][0];
+  assert.match(cookie, /HttpOnly/);
+  assert.match(cookie, /SameSite=Strict/);
+  assert.match(cookie, /Max-Age=14400/);
+  f.store.db.prepare("UPDATE sessions SET expires_at=?").run(Date.now() - 1);
+  await request(f.app)
+    .get("/api/owner/session")
+    .set("Cookie", cookie.split(";")[0])
+    .expect(401);
+});
+test("cross-origin browser mutations and missing signatures are rejected", async () => {
+  const f = setup();
+  await request(f.app)
+    .post("/api/bookings")
+    .set("Origin", "https://attacker.example")
+    .send(booking())
+    .expect(403);
+  await request(f.app)
+    .post("/api/owner/login")
+    .send({ username: "owner", password: "a-long-test-password" })
+    .expect(403);
+  await request(f.app)
+    .post("/api/stripe/webhook")
+    .set("Content-Type", "application/json")
+    .send("{}")
+    .expect(400);
+  await request(f.app)
+    .post("/api/stripe/webhook")
+    .set("Stripe-Signature", "invalid")
+    .set("Content-Type", "application/json")
+    .send("{}")
+    .expect(400);
+});
+test("webhook signatures validate exact raw bytes and amount/currency/reference mismatches reject payment", async () => {
+  const f = setup();
+  const created = await f.createShop();
+  const record = f.store.byReceipt(created.receiptToken)!;
+  const session = f.pay(record.stripeSessionId!);
+  for (const change of [
+    { currency: "usd" },
+    { amount_total: 1 },
+    { client_reference_id: "different-order" },
+    { livemode: true },
+  ]) {
+    const original = { ...session };
+    Object.assign(session, change);
+    const response = await f.webhook("checkout.session.completed", {
+      id: session.id,
+    });
+    assert.equal(response.status, 400);
+    Object.assign(session, original);
+    assert.equal(f.store.get(record.id)!.paidPence, 0);
+  }
+  const payload = JSON.stringify(
+    {
+      id: "evt_bytes",
+      type: "checkout.session.completed",
+      livemode: false,
+      data: { object: { id: session.id } },
+    },
+    null,
+    2,
+  );
+  const sdk = new Stripe("sk_test_fixture");
+  await request(f.app)
+    .post("/api/stripe/webhook")
+    .set("Content-Type", "application/json")
+    .set(
+      "Stripe-Signature",
+      sdk.webhooks.generateTestHeaderString({ payload, secret }),
+    )
+    .send(payload)
+    .expect(200);
+  assert.equal(f.store.get(record.id)!.paymentStatus, "paid");
+});
+test("return status verifies via Stripe API and exposes no customer contact details", async () => {
+  const f = setup();
+  const result = await f.createShop();
+  const record = f.store.byReceipt(result.receiptToken)!;
+  const unpaid = await request(f.app)
+    .get(`/api/receipts/${result.receiptToken}`)
+    .expect(200);
+  assert.equal(unpaid.body.receipt.paymentStatus, "unpaid");
+  assert.equal(unpaid.body.receipt.customer, undefined);
+  f.pay(record.stripeSessionId!);
+  const paid = await request(f.app)
+    .get(`/api/receipts/${result.receiptToken}`)
+    .expect(200);
+  assert.equal(paid.body.receipt.paidPence, 3060);
+  assert.equal(paid.body.checkoutUrl, undefined);
+  await request(f.app).get("/api/receipts/not-a-token").expect(404);
+  await request(f.app)
+    .get(`/api/receipts/${"a".repeat(64)}`)
+    .expect(404);
+});
+test("expired booking checkout requires reapproval and creates a new attempt", async () => {
+  const f = setup();
+  const result = await f.createBooking();
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  const old = f.store.get(result.receipt.id)!;
+  f.sessions.get(old.stripeSessionId!)!.status = "expired";
+  await f.webhook("checkout.session.expired", { id: old.stripeSessionId! });
+  assert.equal(f.store.get(old.id)!.paymentStatus, "expired");
+  await f
+    .post(`/api/owner/records/${old.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  const next = f.store.get(old.id)!;
+  assert.equal(next.revision, 2);
+  assert.notEqual(next.stripeSessionId, old.stripeSessionId);
+  assert.equal(next.paymentStatus, "unpaid");
+  // A delayed event from the old attempt cannot expire the new one.
+  await f.webhook("checkout.session.expired", { id: old.stripeSessionId! });
+  assert.equal(f.store.get(old.id)!.status, "awaiting_payment");
+});
+test("decline is distinct from unpaid and can recover to paid without duplicate amounts", async () => {
+  const f = setup();
+  const created = await f.createShop();
+  const record = f.store.byReceipt(created.receiptToken)!;
+  const intent = f.sessions.get(record.stripeSessionId!)!
+    .payment_intent as string;
+  await f.webhook("payment_intent.payment_failed", { id: intent });
+  assert.equal(f.store.get(record.id)!.paymentStatus, "failed");
+  assert.equal(f.store.get(record.id)!.paidPence, 0);
+  f.pay(record.stripeSessionId!);
+  await f.webhook("checkout.session.completed", {
+    id: record.stripeSessionId!,
+  });
+  assert.equal(f.store.get(record.id)!.paymentStatus, "paid");
+  await f.webhook("payment_intent.payment_failed", { id: intent });
+  assert.equal(f.store.get(record.id)!.paymentStatus, "paid");
+});
+test("refunds are cumulative, monotonic and do not get reset by duplicate paid events", async () => {
+  const f = setup();
+  const created = await f.createShop();
+  const record = f.store.byReceipt(created.receiptToken)!;
+  const session = f.pay(record.stripeSessionId!);
+  await f.webhook("checkout.session.completed", { id: session.id });
+  const charge = {
+    id: "ch_test",
+    payment_intent: session.payment_intent,
+    livemode: false,
+    currency: "gbp",
+    amount: 3060,
+    amount_refunded: 1000,
+  } as Stripe.Charge;
+  f.charges.set(charge.id, charge);
+  await f.webhook("charge.refunded", { id: charge.id });
+  assert.equal(f.store.get(record.id)!.paymentStatus, "partially_refunded");
+  charge.amount_refunded = 3060;
+  await f.webhook("charge.refunded", { id: charge.id });
+  assert.equal(f.store.get(record.id)!.paymentStatus, "refunded");
+  await f.webhook("checkout.session.completed", { id: session.id });
+  assert.equal(f.store.get(record.id)!.refundedPence, 3060);
+  assert.equal(f.store.get(record.id)!.paymentStatus, "refunded");
+});
+test("owner cannot mark unpaid records fulfilled or forge payment totals", async () => {
+  const f = setup();
+  const created = await f.createShop();
+  const record = f.store.byReceipt(created.receiptToken)!;
+  const cookie = await f.login();
+  await request(f.app)
+    .patch(`/api/owner/records/${record.id}`)
+    .set("Origin", origin)
+    .set("Cookie", cookie)
+    .send({ status: "dispatched" })
+    .expect(409);
+  await request(f.app)
+    .patch(`/api/owner/records/${record.id}`)
+    .set("Origin", origin)
+    .set("Cookie", cookie)
+    .send({ paidPence: 3060 })
+    .expect(400);
+  f.pay(record.stripeSessionId!);
+  await f.webhook("checkout.session.completed", {
+    id: record.stripeSessionId!,
+  });
+  await request(f.app)
+    .patch(`/api/owner/records/${record.id}`)
+    .set("Origin", origin)
+    .set("Cookie", cookie)
+    .send({ status: "dispatched", ownerNotes: "Posted" })
+    .expect(200);
+  assert.equal(f.store.get(record.id)!.status, "dispatched");
+});
+test("database survives server restarts and is visible to a separate authenticated browser", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "elysian-payments-"));
+  const path = join(directory, "records.sqlite");
+  const f = setup(path);
+  const result = await f.createBooking();
+  f.store.close();
+  resources.splice(
+    resources.findIndex((r) => r.store === f.store),
+    1,
+  );
+  const restarted = setup(path);
+  resources.find((r) => r.store === restarted.store)!.directory = directory;
+  const separateCookie = await restarted.login();
+  const response = await request(restarted.app)
+    .get("/api/owner/records")
+    .set("Cookie", separateCookie)
+    .expect(200);
+  assert.equal(response.body.records[0].id, result.receipt.id);
+  assert.equal(restarted.store.list().length, 1);
+});
+test("missing credentials disable checkout and authentication without inventing success", async () => {
+  const store = new Store(":memory:");
+  resources.push({ store });
+  const app = createApp({ appUrl: origin, databasePath: ":memory:" }, store);
+  await request(app)
+    .post("/api/shop/checkout")
+    .set("Origin", origin)
+    .set("Idempotency-Key", randomUUID())
+    .send(shop)
+    .expect(503);
+  await request(app)
+    .post("/api/owner/login")
+    .set("Origin", origin)
+    .send({ username: "owner", password: "password" })
+    .expect(503);
+  assert.equal(store.list().length, 0);
+});
+test("configuration refuses live keys", () => {
+  const previous = process.env.STRIPE_SECRET_KEY;
+  process.env.STRIPE_SECRET_KEY = "sk_live_not_allowed";
+  try {
+    assert.throws(loadConfig, /Live payments are disabled/);
+  } finally {
+    if (previous === undefined) delete process.env.STRIPE_SECRET_KEY;
+    else process.env.STRIPE_SECRET_KEY = previous;
+  }
+});
+
+test("catalogue treatments with variable prices require an owner quote", async () => {
+  const f = setup();
+  const result = await f.createBooking({
+    ...booking(),
+    treatments: [{ serviceId: "bring-a-friend-package", optionIndex: 0 }],
+  });
+  const cookie = await f.login();
+  assert.equal(f.store.get(result.receipt.id)!.items[0].unitPricePence, null);
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(400);
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({
+      customPrices: [{ id: "bring-a-friend-package", pricePence: 7600 }],
+    })
+    .expect(200);
+  assert.equal(f.store.get(result.receipt.id)!.amountDuePence, 3800);
+});
+
+test("a completed payment near link expiry cannot create another deposit charge", async () => {
+  const f = setup();
+  const result = await f.createBooking();
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  const record = f.store.get(result.receipt.id)!;
+  f.pay(record.stripeSessionId!);
+  f.store.save({ ...record, expiresAt: Date.now() - 1 });
+  await f
+    .post(`/api/owner/records/${record.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(409);
+  assert.equal(f.creations.length, 1);
+  assert.equal(f.store.get(record.id)!.paidPence, 1750);
+});
+
+test("a lost approval response freezes its quote until an identical retry succeeds", async () => {
+  const f = setup();
+  const result = await f.createBooking({
+    ...booking(),
+    customTreatments: [{ title: "Custom ritual", durationMinutes: 30 }],
+  });
+  const cookie = await f.login();
+  const approval = { customPrices: [{ id: "custom-0", pricePence: 2500 }] };
+  f.disconnectNextCreate();
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send(approval)
+    .expect(500);
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [{ id: "custom-0", pricePence: 2600 }] })
+    .expect(409);
+  assert.equal(f.store.get(result.receipt.id)!.totalPence, 6000);
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send(approval)
+    .expect(200);
+  assert.equal(f.creations.length, 1);
+});
+
+test("expired shop checkout stays unpaid and requires a new submission", async () => {
+  const f = setup();
+  const key = randomUUID();
+  const created = await f.createShop(key);
+  const record = f.store.byReceipt(created.receiptToken)!;
+  f.sessions.get(record.stripeSessionId!)!.status = "expired";
+  await f.webhook("checkout.session.expired", { id: record.stripeSessionId! });
+  await f
+    .post("/api/shop/checkout")
+    .set("Idempotency-Key", key)
+    .send(shop)
+    .expect(409);
+  const returned = await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}?cancelled=1`)
+    .expect(200);
+  assert.equal(returned.body.receipt.paidPence, 0);
+  assert.equal(returned.body.checkoutUrl, undefined);
+  const renewed = await f.createShop();
+  assert.notEqual(renewed.receiptToken, created.receiptToken);
+});

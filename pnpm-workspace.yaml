@@ -1,0 +1,7 @@
+allowBuilds:
+  esbuild: true
+  "@google/genai": false
+  protobufjs: false
+  "@stripe/cli": true
+# Dependencies are installed explicitly, never as a side effect of running a script.
+verifyDepsBeforeRun: false

@@ -1,0 +1,60 @@
+# Stripe sandbox end-to-end checks
+
+Actual Stripe sandbox Checkout testing completed on **1 October 2026** with synthetic customer details and public Stripe test cards. Every payment/session was verified as `livemode: false` and GBP. No real money, fulfilment, appointments, or customer messages were involved. Automated fixture checks are separate evidence.
+
+## Before the run
+
+1. Complete the private `.env` file with your sandbox `sk_test_` key and owner credentials. Do not paste secrets into chat or screenshots.
+2. Run `pnpm stripe:listen` as described in the [README](../README.md#start-locally). It uses the configured sandbox key and forwards events from that same sandbox.
+3. The listener saves its signing secret privately in `.env`. Restart `pnpm dev`, and leave the listener running.
+4. Run `pnpm check:stripe`. All checks must pass before attempting payments. This verifies API access and configuration; checkout is still required to verify webhook delivery.
+5. Use synthetic customer details, such as `Elysian Sandbox Test`, `checkout-test@example.com`, and `+447700900123`. Use a synthetic delivery address. Never enter a real card.
+
+## Results to record
+
+| Scenario                                                           | Expected result                                                                                                | Sandbox result                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Shop with one £34 Tropic ABC skincare kit, ELYSIAN10, and delivery | £34.00 subtotal − £3.40 discount + £3.95 delivery = **£34.55 paid**; purchased basket clears once              | **Passed:** hosted payment, verified receipt, SQLite amount, and empty purchased basket. Subsequently refunded for refund testing.                                                                                                                                                                                 |
+| Hydrodermabrasion Facial, first duration, future appointment       | Request is unpaid; owner approves £35.00 quote; **£17.50 deposit paid**, **£17.50 balance**; booking confirmed | **Passed:** request and approval through customer/owner UI; genuine hosted deposit; webhook and owner dashboard verified.                                                                                                                                                                                          |
+| Booking with a custom treatment                                    | No checkout before owner supplies every custom price; deposit matches the approved total                       | **Passed via API + real Stripe session:** approval without custom price rejected; £35.00 + £15.01 approved quote generated **£25.01** deposit, **£25.00** balance, 24-hour expiry. Custom session left expired/unpaid.                                                                                             |
+| Declined card                                                      | Checkout shows decline; ledger never claims paid; successful retry records the amount once                     | **Passed:** shop and deposit attempts declined with `4000…0002`, received £0.00 and failure webhooks; retry used the same sessions and recorded the correct amounts.                                                                                                                                               |
+| 3D Secure successful and failed authentication                     | Success confirms only after verification; failed authentication stays unpaid or failed                         | **Passed:** genuine Stripe test challenge Fail left £0.00/failed; Complete on retry produced **£30.60 paid**, one confirmed order.                                                                                                                                                                                 |
+| Cancel checkout                                                    | Return page remains unpaid; cancellation query does not authorize payment                                      | **Passed:** actual Stripe Back link displayed Checkout cancelled, £0.00 received, and a resumable link; SQLite remained unpaid. This order was created by the API harness; cancellation with a populated browser basket is covered by the existing browser fixture test.                                           |
+| Payment confirmation without customer return                       | Webhook confirms without visiting the receipt page                                                             | **Passed:** storefront port 3000 stopped while API/CLI remained running; genuine £17.50 hosted deposit completed; return could not load; completion webhook HTTP 200 and SQLite confirmed before storefront restoration. This is stronger isolation of the return path than closing a tab after its receipt loads. |
+| Repeat checkout submission and receipt refresh                     | Same submission reuses one order/session and amount                                                            | **Passed:** concurrent API submissions reused one actual Stripe session and one attempt; changed payload with same key rejected; paid receipt refresh preserved £30.60. Original shop basket cleared after verified payment.                                                                                       |
+| Resend the completed event                                         | Signed event is accepted without duplicating payment                                                           | **Passed:** retrieved the actual shop completion event from Stripe and replayed its body twice with locally generated valid webhook signatures. One stored event, £34.55 received once. This was a local replay, not Stripe Dashboard redelivery.                                                                  |
+| Expire an unpaid Stripe session                                    | Expired booking needs owner approval again                                                                     | **Passed:** actual Stripe session expiry produced HTTP 200 webhook, expired receipt/ledger; reapproval produced new session/revision. Second session expired to avoid leaving a test appointment payable.                                                                                                          |
+| Partial and full sandbox refunds                                   | Cumulative refunds and payment states remain distinct                                                          | **Passed:** real sandbox refunds of **£5.00** and **£29.55** generated partial/full refund events, each HTTP 200; cumulative £34.55 refunded; replay of old completion preserved refunded state.                                                                                                                   |
+| Restart backend and fresh independent client                       | Persistent paid/refunded records remain; anonymous access rejected                                             | **Passed:** API restarted twice; fresh HTTP owner login saw records; HttpOnly/SameSite Strict/four-hour cookie checked, logout revoked access; browser owner session also survived restart. **Separate browser profile remains untested:** Chrome automation was unavailable.                                      |
+
+## Verified records and evidence
+
+| Elysian reference                          | Final state                    | Received | Refunded | Balance |
+| ------------------------------------------ | ------------------------------ | -------- | -------- | ------- |
+| `ELS-70da73bd-c010-48ee-a39f-3cd59d53e191` | Shop, refunded                 | £34.55   | £34.55   | £0.00   |
+| `ELS-962a453c-c4c8-4284-ad69-838618b75bd3` | Booking, confirmed/paid        | £17.50   | £0.00    | £17.50  |
+| `ELS-d97b46f2-cffc-4283-a342-e28d290aa26e` | 3D Secure shop, confirmed/paid | £30.60   | £0.00    | £0.00   |
+| `ELS-0f4917cc-1d26-4c5a-b96e-4c57fb8209ab` | Custom booking, expired/unpaid | £0.00    | £0.00    | £50.01  |
+
+Final sandbox net receipts: **£48.10**. These four clearly labelled test records are retained for inspection; they must not be fulfilled or treated as real appointments.
+
+Actual Stripe events verified with HTTP 200 include shop completion `evt_1ULm1X0LaOg49Sy5cmTUYeO9`, webhook-only deposit `evt_1ULmZS0LaOg49Sy5ORH2dhko`, authentication failure `evt_3ULmgI0LaOg49Sy51Oe9AAS5`, authenticated shop completion `evt_1ULmhO0LaOg49Sy5vn9Qj954`, expiry `evt_1ULmcw0LaOg49Sy5dA8zchzs`/`evt_1ULmcy0LaOg49Sy5jY2Rdv8G`, and refunds `evt_3ULlyB0LaOg49Sy51a69fVeC`/`evt_3ULlyB0LaOg49Sy51LEkZZoh`.
+
+Private local evidence is under ignored `test-results/stripe-sandbox/`: shop decline/success JSON, `booking-webhook-only.json`, authentication failure/success JSON, `edge-state.json`, screenshots of the shop receipt, cancellation, authentication, and paid owner booking. `edge-state.json` contains private receipt/checkout links; do not publish it. The failed first attempt to close Checkout during Processing did not pay and was not counted as a passed no-return test. Checkout-managed PaymentIntents cannot be confirmed directly through the API; all successful payments here completed through hosted Checkout.
+
+Customer booking receipt visual verification after the intentional outage remains outstanding; the owner UI and SQLite verified the payment and balance. A browser automation URL-policy block prevented navigating a relative test receipt reference, so it was not bypassed. The shop return receipts were verified visually.
+
+## Local validation
+
+- `pnpm check:stripe`: configuration, official CLI, real sandbox API access, frontend proxy, and backend readiness passed.
+- TypeScript `pnpm lint`: passed.
+- Production `pnpm build`: passed; existing bundle-size warning remains (main JS about 584 kB before gzip).
+- Backend `node --import tsx --test tests/*.test.ts`: **26/26 passed**. Direct Node invocation avoids the restricted sandbox's tsx CLI IPC restriction.
+- Running API additionally rejected client totals, zero/fractional quantities, missing delivery addresses, past dates, invalid credentials, anonymous owner access, and invalid webhook signatures.
+- Original browser fixture checks are separate from this actual Stripe run; they were not rerun through an external browser automation tool during this turn.
+
+For interactive checkout use `4242 4242 4242 4242` for success, `4000 0000 0000 0002` for decline, and `4000 0025 0000 3155` for authentication. Use a future expiry date and any three-digit CVC. For the authentication card, exercise both outcomes in Stripe's test challenge. See [Stripe testing guidance](https://docs.stripe.com/testing).
+
+Use `pnpm exec stripe checkout sessions expire <session>` (authenticated to the same sandbox) to expire the specific unpaid test session. Use Stripe Dashboard to refund a specific test payment. Record the Elysian reference, expected/actual pence, observed status, webhook delivery status, and screenshot for each scenario. Do not expose receipt tokens, session cookies, secret keys, or real customer information in shared evidence.
+
+Signed raw-body validation, tampered totals, invalid quantities, missing addresses, past dates, and owner authentication/rate limits are covered in `tests/payments.test.ts`; keep those checks distinct from the real sandbox results above.

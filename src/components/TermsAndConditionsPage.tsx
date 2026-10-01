@@ -163,10 +163,10 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
                 1
               </div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27] mb-1">
-                At Time of Reservation
+                After Owner Approval
               </h4>
               <p className="text-xs text-[#5C4A45]">
-                Pay 50% via secure Debit/Credit Card, Apple Pay, Google Pay, or UK Bank Transfer to lock in your suite.
+                Request an appointment first. Once the owner approves availability and your quote, pay the 50% deposit using the Stripe checkout link.
               </p>
             </div>
 
@@ -178,7 +178,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
                 Written Confirmation
               </h4>
               <p className="text-xs text-[#5C4A45]">
-                Instant written receipt with your appointment time, therapist, reference, and deposit ledger.
+                View your appointment, reference, deposit received, and outstanding balance on the payment status page after verification.
               </p>
             </div>
 
@@ -211,13 +211,13 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
             </div>
             <div className="text-xs sm:text-sm text-[#5C4A45] leading-relaxed space-y-2.5 pl-11">
               <p>
-                1.1. All bookings are provisionally held until the 50% deposit has been cleared via our verified online payment portal or faster bank transfer.
+                1.1. Appointment requests are reviewed by the owner before a deposit link is issued. An appointment becomes confirmed after its 50% deposit is verified through Stripe Checkout.
               </p>
               <p>
-                1.2. Upon payment clearance, you will immediately receive written confirmation stating your selected date, time slot, service title, booked therapist, deposit paid, and outstanding balance.
+                1.2. After payment verification, your payment status page shows the approved appointment, service details, deposit received, and outstanding balance. Customer messages are sent manually.
               </p>
               <p>
-                1.3. Accepted payment methods include Visa, Mastercard, Maestro, American Express, Apple Pay, Google Pay, UK Faster Payments bank transfer, and in-person cash/card at the clinic for the balance.
+                1.3. Online deposits use card payments through Stripe-hosted Checkout. Arrange payment of the remaining balance with the owner. PayPal and direct bank transfer are not available in this checkout.
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-export type PageTab = 'home' | 'treatments' | 'experience' | 'shop' | 'basket' | 'reviews' | 'location' | 'terms';
+export type PageTab = 'home' | 'treatments' | 'experience' | 'shop' | 'basket' | 'reviews' | 'location' | 'terms' | 'payment';
 
 export interface Product {
   id: string;
