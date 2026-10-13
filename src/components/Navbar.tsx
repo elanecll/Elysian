@@ -21,10 +21,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navItems: { id: PageTab; name: string; isShop?: boolean }[] = [
     { id: 'home', name: 'Home' },
-    { id: 'treatments', name: 'Treatment Menu' },
+    { id: 'treatments', name: 'Treatments' },
     { id: 'shop', name: 'Shop', isShop: true },
-    { id: 'reviews', name: 'Reviews & Experience' },
-    { id: 'location', name: 'Location, FAQ & Policies' },
+    { id: 'reviews', name: 'Reviews' },
+    { id: 'location', name: 'Visit Us' },
   ];
 
   const handleNavClick = (page: PageTab) => {
@@ -35,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full bg-[#FFF9F9]/98 backdrop-blur-md border-b border-[#E8BAC0]/30 transition-all shadow-xs">
       {/* Top Banner Ribbon */}
-      <div className="bg-[#5C423E] text-[#FFF0F2] text-[11px] sm:text-xs py-1.5 px-4 text-center tracking-widest uppercase font-medium flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+      <div hidden className="bg-[#5C423E] text-[#FFF0F2] text-[11px] sm:text-xs py-1.5 px-4 text-center tracking-widest uppercase font-medium hidden items-center justify-center gap-2 sm:gap-4 flex-wrap">
         <span className="flex items-center gap-1.5">
           <Sparkles className="w-3 h-3 text-[#E8BAC0]" />
           Complimentary with Botanical Flowers Tea
@@ -71,14 +71,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-7">
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
           {navItems.map((item) => {
             const isActive = currentPage === item.id || (item.id === 'location' && currentPage === 'terms');
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`text-xs tracking-[0.16em] uppercase font-medium transition-all relative py-1.5 cursor-pointer ${
+                className={`text-[10px] xl:text-[11px] tracking-[0.1em] whitespace-nowrap uppercase font-medium transition-all relative py-1.5 cursor-pointer ${
                   isActive
                     ? 'text-[#BE757C] font-bold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#BE757C]'
                     : item.isShop
@@ -93,13 +93,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Action Controls */}
-        <div className="hidden sm:flex items-center gap-3">
+        <div className="hidden sm:flex shrink-0 items-center gap-2">
           {/* Basket Button with Live Badge */}
           <button
             id="nav-basket-btn"
             onClick={() => handleNavClick('basket')}
             title="View Shopping Basket"
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs tracking-wider uppercase font-medium transition-all duration-300 shadow-2xs cursor-pointer relative ${
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full border text-[11px] tracking-[0.08em] whitespace-nowrap uppercase font-medium transition-all duration-300 shadow-2xs cursor-pointer relative ${
               currentPage === 'basket'
                 ? 'bg-[#BE757C] text-white border-[#BE757C]'
                 : 'border-[#E8BAC0] text-[#5C423E] hover:border-[#BE757C] hover:text-[#BE757C] bg-white/90 hover:bg-[#FFF0F2]'
@@ -120,7 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-book-btn"
             onClick={onOpenBooking}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-xs tracking-[0.15em] uppercase transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-[11px] tracking-[0.1em] whitespace-nowrap uppercase transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Book Now</span>
@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`text-sm tracking-widest uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#E8BAC0]/20 flex items-center justify-between text-left transition-all ${
+                  className={`text-[13px] tracking-[0.1em] uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#E8BAC0]/20 flex items-center justify-between text-left transition-all ${
                     isActive
                       ? 'bg-[#FFF0F2] text-[#BE757C] font-bold border-l-4 border-l-[#BE757C]'
                       : 'text-[#4A352F] hover:text-[#BE757C] hover:bg-[#FFF0F2]/50'
@@ -184,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Basket Item */}
             <button
               onClick={() => handleNavClick('basket')}
-              className={`text-sm tracking-widest uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#E8BAC0]/20 flex items-center justify-between text-left transition-all ${
+              className={`text-[13px] tracking-[0.1em] uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#E8BAC0]/20 flex items-center justify-between text-left transition-all ${
                 currentPage === 'basket'
                   ? 'bg-[#FFF0F2] text-[#BE757C] font-bold border-l-4 border-l-[#BE757C]'
                   : 'text-[#4A352F] hover:text-[#BE757C] hover:bg-[#FFF0F2]/50'
