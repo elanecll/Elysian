@@ -1,25 +1,119 @@
 import { Treatment, Review, FaqItem } from '../types';
 
 export const SPA_SERVICES: Treatment[] = [
-  // 1. Hydrodermabrasion Facial
+  // Clinicare Microneedling
   {
-    id: 'hydrodemabrasion-facial',
+    id: 'clinicare-microneedling',
     category: 'facial',
-    title: 'Hydrodermabrasion Facial',
-    tagline: 'DEEP CLEANSE • HYDRATE • RESURFACE & EXFOLIATE',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abba755cd53dbc0df306c73.jpeg',
-    duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'From £35 (30m Express) / £65 (60m Full)',
+    title: 'Clinicare Microneedling',
+    tagline: 'MICRONEEDLING • CLINICARE EGF MESO VIALS',
+    image: '/images/treatments/clinicare-microneedling.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£80',
     priceOptions: [
-      { duration: '30 min — Express', priceClinicare: 35, priceSingle: 35 },
-      { duration: '60 min — Full Treatment', priceClinicare: 65, priceSingle: 65 },
+      { duration: '30-45 mins', priceClinicare: 80, priceSingle: 80, label: '30–45 min Microneedling Treatment' },
     ],
-    description: 'Vortex-fusion hydrodermabrasion suction deeply extracts impurities and dead skin cells while infusing intensive CLINICARE low-molecular hyaluronic acid and peptide serums.',
+    description: 'Microneedling with CLINICARE EGF Meso Vials, tailored following a consultation and suitability assessment. Your therapist will explain the procedure and aftercare before treatment.',
     benefits: [
-      'Pore Hydro-Extraction & Deep Cleansing',
-      'Non-Invasive Gentle Exfoliation & Resurfacing',
-      'Intensive Hydration Infusion (🔬 CLINICARE Active Peptides)',
-      'Zero Downtime Glass-Skin Radiance'
+      'CLINICARE EGF Meso Vials',
+      'Pre-treatment Consultation',
+      'Treatment Tailored to Your Skin',
+      'Aftercare Guidance'
+    ],
+    popular: true,
+  },
+
+  // 11. CLINICARE Cinderella / Black Tie Facial
+  {
+    id: 'cliniccare-cinderella-black-tie-facial',
+    category: 'facial',
+    title: 'CLINICARE Cinderella / Black Tie Facial',
+    tagline: 'INSTANT RED CARPET GLOW • CELLULAR HYDRATION • PEEL & EGF MASK',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb94b6be703c7b305f3ffb.jpeg',
+    beforeAfterImage: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb939660c7466bcf6be8e1.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£30',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 30, priceSingle: 30, label: '30–45 min Cinderella / Black Tie Ritual' },
+    ],
+    description: 'The ultimate instant red-carpet radiance ritual combining CLINICARE gentle AHA superficial chemical exfoliation with an intensive low-molecular Hyaluronic Acid and biomimetic peptide EGF infusion. Known as the "Cinderella" facial for women and "Black Tie" facial for men, this treatment delivers instant lifting, plumping hydration, and camera-ready luminosity with zero downtime.',
+    benefits: [
+      'Instant Red-Carpet Lift, Tightening & Glass-Skin Luminosity',
+      'Gentle AHA Chemical Resurfacing with Zero Peeling or Downtime',
+      'Clinicare High-Potency EGF & Low-Molecular HA Infusion',
+      'Restores Natural Elasticity, Plumping Fine Lines & Dehydration',
+      'Includes Cleanse, Gentle Peel, EGF Sheet Mask & SPF50 Protection'
+    ],
+    popular: true,
+  },
+
+  // 9. Clinicare Carboxytherapy Face Mask Treatment
+  {
+    id: 'carboxytherapy-face-mask-treatment',
+    category: 'facial',
+    title: 'Clinicare Carboxytherapy Face Mask Treatment',
+    tagline: 'OXYGENATING BOHR EFFECT • CELLULAR METABOLISM • INSTANT FIRMING',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab94e65c13d4373c2c438b1.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£45',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 45, priceSingle: 45, label: '30–45 min Complete Carboxy Ritual' },
+    ],
+    description: 'An advanced non-invasive medical infusion that delivers Carbon Dioxide (CO2) directly beneath the skin surface, triggering the physiological Bohr Effect. The sudden surge of pure oxygen from deep within accelerates cellular metabolism, flushes out stagnant waste toxins, stimulates collagen synthesis, and dramatically tightens and brightens the complexion with zero downtime.',
+    benefits: [
+      'Triggers the Bohr Effect — floods skin cells with fresh oxygen & nutrients',
+      'Stimulates neocollagenesis & restores youthful skin elasticity',
+      'Visibly tightens sagging contours, jawline & shrinks dilated pores',
+      'Brightens dull, fatigued skin & reduces under-eye dark circles',
+      'Accelerates tissue healing, cellular detox & anti-inflammatory recovery',
+      'Includes double cleanse, CO2 infusion mask, active CLINICARE serum & SPF'
+    ],
+    popular: true,
+  },
+
+  // 10. Clinicare Chemical Peeling
+  {
+    id: 'cliniccare-chemical-peeling',
+    category: 'facial',
+    title: 'Clinicare Chemical Peeling',
+    tagline: 'SUPERFICIAL MEDICAL PEEL • CELLULAR TURNOVER • RADIANCE RENEWAL',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb98f860c7466bcf6c8e73.jpeg',
+    beforeAfterImage: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9396be703c7b305f1f19.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£60',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 60, priceSingle: 60, label: '30–45 min Tailored Medical Peel' },
+    ],
+    description: 'Targeted Swedish superficial chemical peel tailored to your specific skin needs with three medical formulations: Glow / Growth (hyperpigmentation, sun damage & uneven skin), Pure (combination, oily, sensitive or acne-prone skin), and Refresh (skin rejuvenation, ageing, sun damage, fine lines & skin laxity). Formulated with optimal concentrations of Glycolic, Mandelic, Lactic, and Salicylic acids to dissolve dead cells, unclog pores, and stimulate cellular regeneration with zero downtime.',
+    benefits: [
+      'Glow / Growth: Targets hyperpigmentation, sun damage & uneven skin tone',
+      'Pure: Formulated for combination, oily, sensitive & acne-prone skin',
+      'Refresh: Skin rejuvenation, ageing defence, fine lines & skin laxity',
+      'Gentle AHA/BHA chemical exfoliation with zero downtime or peeling',
+      'Includes skin prep, tailored chemical peel, neutralizing soothing mask & SPF50'
+    ],
+    popular: true,
+  },
+
+  // The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy
+  {
+    id: 'elysian-glow-8-in-1-pdt-led-light-therapy',
+    category: 'facial',
+    title: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy',
+    tagline: '8-IN-1 HOT & COLD THERAPY • NANO-MIST HYDRATION • MULTI-SPECTRUM PDT LED',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab95120b4d207ff9dfe763d.jpeg',
+    duration: '30 min Express / 45–60 min Full Ritual',
+    priceDisplay: 'From £30 (30m Express) / £50 (Full Ritual)',
+    priceOptions: [
+      { duration: '30 min — Express PDT LED', priceClinicare: 30, priceSingle: 30 },
+      { duration: '60 min — Full 8-in-1 Ritual (45–60 min)', priceClinicare: 50, priceSingle: 50 },
+    ],
+    description: 'Advanced 8-in-1 facial technology featuring medical-grade PDT LED light therapy, thermal hot and cold pore-calming therapy, and deep nano-sized mist hydration infusion with CLINICARE cosmeceuticals. Complete session includes double cleanse, skin prep, 15–25 minute targeted PDT LED phase, bespoke CLINICARE serum cocktail & finish.',
+    benefits: [
+      '💡 PDT Light Therapy — Targets acne, ageing, pigmentation & cellular repair',
+      '🌫️ Deep Hydration Infusion — Nano-sized mist penetrates deep dermal layers',
+      '🎯 Customised Skin Treatment — Tailored wavelength light targets specific concerns',
+      '⏱️ 45–60 Min Full Session (15–25 min dedicated PDT LED phase)'
     ],
     popular: true,
   },
@@ -44,6 +138,30 @@ export const SPA_SERVICES: Treatment[] = [
       'Reduces Fine Lines, Wrinkles & Skin Laxity',
       'Firms Jawline, Tones & Activates Cellular Renewal'
     ],
+    popular: true,
+  },
+
+  // 1. Hydrodermabrasion Facial
+  {
+    id: 'hydrodemabrasion-facial',
+    category: 'facial',
+    title: 'Hydrodermabrasion Facial',
+    tagline: 'DEEP CLEANSE • HYDRATE • RESURFACE & EXFOLIATE',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abba755cd53dbc0df306c73.jpeg',
+    duration: '30 min Express / 60 min Full Treatment',
+    priceDisplay: 'From £35 (30m Express) / £65 (60m Full)',
+    priceOptions: [
+      { duration: '30 min — Express', priceClinicare: 35, priceSingle: 35 },
+      { duration: '60 min — Full Treatment', priceClinicare: 65, priceSingle: 65 },
+    ],
+    description: 'Vortex-fusion hydrodermabrasion suction deeply extracts impurities and dead skin cells while infusing intensive CLINICARE low-molecular hyaluronic acid and peptide serums.',
+    benefits: [
+      'Pore Hydro-Extraction & Deep Cleansing',
+      'Non-Invasive Gentle Exfoliation & Resurfacing',
+      'Intensive Hydration Infusion (🔬 CLINICARE Active Peptides)',
+      'Zero Downtime Glass-Skin Radiance'
+    ],
+    popular: true,
   },
 
   // 5. ULTRASONIC FACIAL
@@ -113,105 +231,6 @@ export const SPA_SERVICES: Treatment[] = [
     ],
   },
 
-  // The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy
-  {
-    id: 'elysian-glow-8-in-1-pdt-led-light-therapy',
-    category: 'facial',
-    title: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy',
-    tagline: '8-IN-1 HOT & COLD THERAPY • NANO-MIST HYDRATION • MULTI-SPECTRUM PDT LED',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab95120b4d207ff9dfe763d.jpeg',
-    duration: '30 min Express / 45–60 min Full Ritual',
-    priceDisplay: 'From £30 (30m Express) / £50 (Full Ritual)',
-    priceOptions: [
-      { duration: '30 min — Express PDT LED', priceClinicare: 30, priceSingle: 30 },
-      { duration: '60 min — Full 8-in-1 Ritual (45–60 min)', priceClinicare: 50, priceSingle: 50 },
-    ],
-    description: 'Advanced 8-in-1 facial technology featuring medical-grade PDT LED light therapy, thermal hot and cold pore-calming therapy, and deep nano-sized mist hydration infusion with CLINICARE cosmeceuticals. Complete session includes double cleanse, skin prep, 15–25 minute targeted PDT LED phase, bespoke CLINICARE serum cocktail & finish.',
-    benefits: [
-      '💡 PDT Light Therapy — Targets acne, ageing, pigmentation & cellular repair',
-      '🌫️ Deep Hydration Infusion — Nano-sized mist penetrates deep dermal layers',
-      '🎯 Customised Skin Treatment — Tailored wavelength light targets specific concerns',
-      '⏱️ 45–60 Min Full Session (15–25 min dedicated PDT LED phase)',
-      '🔴 Red: Anti-ageing, collagen boost & repair | 🔵 Blue: Kills bacteria & calms acne',
-      '🟢 Green: Balances pigmentation | 🟡 Yellow: Brightens & improves circulation',
-      '🟣 Purple: Heals & reduces inflammation | ⚪ White: Deep cellular rejuvenation',
-      '🟠 Cyan: Calms irritation, soothes sensitivity & accelerates recovery'
-    ],
-    popular: true,
-  },
-
-  // 9. Clinicare Carboxytherapy Face Mask Treatment
-  {
-    id: 'carboxytherapy-face-mask-treatment',
-    category: 'facial',
-    title: 'Clinicare Carboxytherapy Face Mask Treatment',
-    tagline: 'OXYGENATING BOHR EFFECT • CELLULAR METABOLISM • INSTANT FIRMING',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab94e65c13d4373c2c438b1.jpeg',
-    duration: '30-45 mins',
-    priceDisplay: '£45',
-    priceOptions: [
-      { duration: '30-45 mins', priceClinicare: 45, priceSingle: 45, label: '30–45 min Complete Carboxy Ritual' },
-    ],
-    description: 'An advanced non-invasive medical infusion that delivers Carbon Dioxide (CO2) directly beneath the skin surface, triggering the physiological Bohr Effect. The sudden surge of pure oxygen from deep within accelerates cellular metabolism, flushes out stagnant waste toxins, stimulates collagen synthesis, and dramatically tightens and brightens the complexion with zero downtime.',
-    benefits: [
-      'Triggers the Bohr Effect — floods skin cells with fresh oxygen & nutrients',
-      'Stimulates neocollagenesis & restores youthful skin elasticity',
-      'Visibly tightens sagging contours, jawline & shrinks dilated pores',
-      'Brightens dull, fatigued skin & reduces under-eye dark circles',
-      'Accelerates tissue healing, cellular detox & anti-inflammatory recovery',
-      'Includes double cleanse, CO2 infusion mask, active CLINICARE serum & SPF'
-    ],
-    popular: true,
-  },
-
-  // 10. Clinicare Chemical Peeling
-  {
-    id: 'cliniccare-chemical-peeling',
-    category: 'facial',
-    title: 'Clinicare Chemical Peeling',
-    tagline: 'SUPERFICIAL MEDICAL PEEL • CELLULAR TURNOVER • RADIANCE RENEWAL',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb98f860c7466bcf6c8e73.jpeg',
-    beforeAfterImage: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9396be703c7b305f1f19.jpeg',
-    duration: '30-45 mins',
-    priceDisplay: '£60',
-    priceOptions: [
-      { duration: '30-45 mins', priceClinicare: 60, priceSingle: 60, label: '30–45 min Tailored Medical Peel' },
-    ],
-    description: 'Targeted Swedish superficial chemical peel tailored to your specific skin needs with three medical formulations: Glow / Growth (hyperpigmentation, sun damage & uneven skin), Pure (combination, oily, sensitive or acne-prone skin), and Refresh (skin rejuvenation, ageing, sun damage, fine lines & skin laxity). Formulated with optimal concentrations of Glycolic, Mandelic, Lactic, and Salicylic acids to dissolve dead cells, unclog pores, and stimulate cellular regeneration with zero downtime.',
-    benefits: [
-      'Glow / Growth: Targets hyperpigmentation, sun damage & uneven skin tone',
-      'Pure: Formulated for combination, oily, sensitive & acne-prone skin',
-      'Refresh: Skin rejuvenation, ageing defence, fine lines & skin laxity',
-      'Gentle AHA/BHA chemical exfoliation with zero downtime or peeling',
-      'Includes skin prep, tailored chemical peel, neutralizing soothing mask & SPF50'
-    ],
-    popular: true,
-  },
-
-  // 11. CLINICARE Cinderella / Black Tie Facial
-  {
-    id: 'cliniccare-cinderella-black-tie-facial',
-    category: 'facial',
-    title: 'CLINICARE Cinderella / Black Tie Facial',
-    tagline: 'INSTANT RED CARPET GLOW • CELLULAR HYDRATION • PEEL & EGF MASK',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb94b6be703c7b305f3ffb.jpeg',
-    beforeAfterImage: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb939660c7466bcf6be8e1.jpeg',
-    duration: '30-45 mins',
-    priceDisplay: '£30',
-    priceOptions: [
-      { duration: '30-45 mins', priceClinicare: 30, priceSingle: 30, label: '30–45 min Cinderella / Black Tie Ritual' },
-    ],
-    description: 'The ultimate instant red-carpet radiance ritual combining CLINICARE gentle AHA superficial chemical exfoliation with an intensive low-molecular Hyaluronic Acid and biomimetic peptide EGF infusion. Known as the "Cinderella" facial for women and "Black Tie" facial for men, this treatment delivers instant lifting, plumping hydration, and camera-ready luminosity with zero downtime.',
-    benefits: [
-      'Instant Red-Carpet Lift, Tightening & Glass-Skin Luminosity',
-      'Gentle AHA Chemical Resurfacing with Zero Peeling or Downtime',
-      'Clinicare High-Potency EGF & Low-Molecular HA Infusion',
-      'Restores Natural Elasticity, Plumping Fine Lines & Dehydration',
-      'Includes Cleanse, Gentle Peel, EGF Sheet Mask & SPF50 Protection'
-    ],
-    popular: true,
-  },
-
   // 12. High Frequency Facial Treatment
   {
     id: 'high-frequency-facial-treatment',
@@ -219,10 +238,11 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'High Frequency Facial Treatment',
     tagline: 'ANTI-BACTERIAL OXYGENATION • BLEMISH DEFENCE • COLLAGEN BOOST',
     image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9c8f60c7466bcf6cfbff.jpeg',
-    duration: '30-45 mins',
-    priceDisplay: '£35',
+    duration: '30 min Express / 60 min Full Treatment',
+    priceDisplay: '£35 (30m Express) / £55 (60m Full)',
     priceOptions: [
-      { duration: '30-45 mins', priceClinicare: 35, priceSingle: 35, label: '30–45 min High Frequency Therapy' },
+      { duration: '30 min — Express', priceClinicare: 35, priceSingle: 35 },
+      { duration: '60 min — Full Treatment', priceClinicare: 55, priceSingle: 55 },
     ],
     description: 'Advanced electrotherapy utilizing a targeted glass electrode that emits high-frequency alternating electrical currents and generates germicidal ozone (oxygen). This thermal and anti-bacterial action deep cleanses pores, eradicates acne-causing bacteria, calms inflammation, accelerates wound healing, and stimulates blood circulation and collagen production for a clearer, firmer complexion.',
     benefits: [
@@ -581,7 +601,7 @@ export const REVIEWS: Review[] = [
   {
     id: '6',
     author: 'David Pennington',
-    service: 'Swedish Back, Neck & Shoulder Massage',
+    service: 'Clinicare Chemical Peeling',
     rating: 5,
     date: 'July 2026',
     comment: 'Outstanding tension release for upper back knots and desk stiffness. The organic body oils smelled sublime and the therapist had exceptional technique.',
@@ -590,7 +610,7 @@ export const REVIEWS: Review[] = [
   {
     id: '7',
     author: 'Gemma Atherton',
-    service: 'Hydro-Facial (🔬 CLINICARE Low-Molecular HA)',
+    service: 'Clinicare Cinderella & Black Tie Facial',
     rating: 5,
     date: 'June 2026',
     comment: 'The CLINICARE cosmeceutical infusion was incredible! My sensitive skin did not flare up at all; instead, it felt deeply nourished, calm, and visibly glowing for days.',
@@ -599,7 +619,7 @@ export const REVIEWS: Review[] = [
   {
     id: '8',
     author: 'Isabella Rossi',
-    service: 'Diamond Polish & Cryo Glow Ritual',
+    service: 'Clinicare Carboxytheraphy',
     rating: 5,
     date: 'June 2026',
     comment: 'The full body botanical scrub followed by diamond microdermabrasion and cryo-hammer tightening was pure luxury. My skin was silky soft and completely rejuvenated.',
@@ -608,7 +628,7 @@ export const REVIEWS: Review[] = [
   {
     id: '9',
     author: 'Charlotte Davies',
-    service: 'LED Collagen Rejuvenation Mask',
+    service: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy',
     rating: 5,
     date: 'May 2026',
     comment: 'Added the multi-wave LED mask to my facial. It visibly reduced redness and calmed my hormonal breakouts. The calming lavender aromatherapy made it so peaceful.',
@@ -631,7 +651,7 @@ export const FAQS: FaqItem[] = [
   },
   {
     question: 'What is your 50% deposit and cancellation policy?',
-    answer: 'A 50% deposit is required to confirm your booking. The remaining 50% balance is payable upon arrival on the day of your appointment. If you need to cancel, please notify us as soon as possible. Cancellations with 24+ hours notice receive a 100% full refund. In accordance with UK consumer fairness rules, deposits are not automatically non-refundable; charges strictly reflect reasonable saved costs or replacement bookings.',
+    answer: 'A 50% deposit is required to confirm your treatment booking. Once confirmed, the deposit is non-refundable, subject to your statutory cancellation and refund rights. The remaining 50% balance is payable upon arrival on the day of your appointment. If you need to cancel or reschedule, please notify us as soon as possible. You may reschedule at no charge with 24 hours or more notice, subject to availability. Cancellation charges are limited to reasonable costs and losses, taking account of saved costs or replacement bookings. If we cancel and cannot offer an alternative you accept, we refund all payments for services not provided.',
   },
 ];
 

@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, Calendar, Volume2, VolumeX, Sparkles, ShoppingBag, ShieldCheck } from 'lucide-react';
+import { Menu, X, Phone, Calendar, Sparkles, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { PageTab } from '../types';
 
 interface NavbarProps {
   currentPage: PageTab;
   onNavigate: (page: PageTab, categoryFilter?: string) => void;
   onOpenBooking: () => void;
-  isAudioPlaying: boolean;
-  onToggleAudio: () => void;
   cartCount?: number;
   onOpenCRM?: () => void;
 }
@@ -16,8 +14,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentPage,
   onNavigate,
   onOpenBooking,
-  isAudioPlaying,
-  onToggleAudio,
   cartCount = 0,
   onOpenCRM,
 }) => {
@@ -26,11 +22,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems: { id: PageTab; name: string; isShop?: boolean }[] = [
     { id: 'home', name: 'Home' },
     { id: 'treatments', name: 'Treatment Menu' },
-    { id: 'experience', name: 'The Experience' },
     { id: 'shop', name: 'Shop', isShop: true },
-    { id: 'reviews', name: 'Reviews' },
-    { id: 'location', name: 'Location & FAQ' },
-    { id: 'terms', name: 'Deposit Policy' },
+    { id: 'reviews', name: 'Reviews & Experience' },
+    { id: 'location', name: 'Location, FAQ & Policies' },
   ];
 
   const handleNavClick = (page: PageTab) => {
@@ -79,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Desktop Navigation Links */}
         <nav className="hidden lg:flex items-center gap-6 xl:gap-7">
           {navItems.map((item) => {
-            const isActive = currentPage === item.id;
+            const isActive = currentPage === item.id || (item.id === 'location' && currentPage === 'terms');
             return (
               <button
                 key={item.id}
@@ -120,29 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </button>
 
-          {/* Ambient Spa Audio Toggle Button */}
-          <button
-            id="ambient-audio-toggle"
-            onClick={onToggleAudio}
-            title={isAudioPlaying ? "Mute serene spa music" : "Play serene spa music"}
-            className={`p-2.5 rounded-full border transition-all duration-300 flex items-center gap-1.5 text-xs font-sans-clean tracking-wider cursor-pointer ${
-              isAudioPlaying 
-                ? 'bg-[#BE757C]/15 border-[#BE757C] text-[#BE757C]' 
-                : 'border-[#E8BAC0]/60 text-[#5C423E] hover:border-[#BE757C] hover:text-[#BE757C] bg-white/50'
-            }`}
-          >
-            {isAudioPlaying ? (
-              <>
-                <Volume2 className="w-4 h-4 text-[#BE757C] animate-pulse" />
-                <span className="text-[11px] font-medium hidden xl:inline">Zen Audio: ON</span>
-              </>
-            ) : (
-              <>
-                <VolumeX className="w-4 h-4 text-[#5C423E]" />
-                <span className="text-[11px] font-medium hidden xl:inline">Zen Audio</span>
-              </>
-            )}
-          </button>
+
 
           {/* Book Appointment CTA */}
           <button
@@ -174,17 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </button>
 
-          <button
-            onClick={onToggleAudio}
-            className={`p-2 rounded-full border transition-all ${
-              isAudioPlaying 
-                ? 'bg-[#BE757C]/15 border-[#BE757C] text-[#BE757C]' 
-                : 'border-[#E8BAC0]/60 text-[#5C423E]'
-            }`}
-            aria-label="Toggle ambient spa audio"
-          >
-            {isAudioPlaying ? <Volume2 className="w-4 h-4 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
-          </button>
+
 
           <button
             id="mobile-menu-toggle"
@@ -202,7 +164,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="lg:hidden bg-[#FFF9F9] border-b border-[#E8BAC0]/40 px-6 py-6 space-y-4 shadow-lg animate-in slide-in-from-top-4 duration-300">
           <nav className="flex flex-col space-y-2">
             {navItems.map((item) => {
-              const isActive = currentPage === item.id;
+              const isActive = currentPage === item.id || (item.id === 'location' && currentPage === 'terms');
               return (
                 <button
                   key={item.id}

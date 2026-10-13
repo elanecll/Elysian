@@ -11,6 +11,8 @@ import { Store } from "../server/store";
 import { loadConfig } from "../server/config";
 import { londonDate, type BookingRequest } from "../shared/payments";
 import { shopQuote, shopSchema } from "../server/catalogue";
+import { testConsultation } from "./consultation-fixture";
+import { saveConsultation, getConsultation } from "../server/consultation";
 
 const origin = "http://localhost:3000";
 const secret = "whsec_automated_fixture";
@@ -27,11 +29,17 @@ const shop = {
   deliveryAddress: "",
   promoCode: "ELYSIAN10",
 };
+const bookingDate = () => {
+  const date = new Date(Date.now() + 3 * 86400000);
+  while (date.getUTCDay() !== 2) date.setUTCDate(date.getUTCDate() + 1);
+  return londonDate(date);
+};
 const booking = (): BookingRequest => ({
+  consultation: testConsultation(),
   customer,
   treatments: [{ serviceId: "hydrodemabrasion-facial", optionIndex: 0 }],
   customTreatments: [],
-  date: londonDate(new Date(Date.now() + 3 * 86400000)),
+  date: bookingDate(),
   time: "11:00",
   isCourse: false,
 });
@@ -146,12 +154,30 @@ function setup(path = ":memory:") {
     ).body as { url: string; receiptToken: string };
   }
   async function createBooking(data = booking()) {
-    return (
+    const response = (
       await post("/api/bookings")
         .set("Idempotency-Key", randomUUID())
-        .send(data)
+        .send({
+          ...data,
+          consultation: testConsultation(
+            data.treatments.map((t) => t.serviceId),
+            data.customTreatments.length > 0,
+          ),
+        })
         .expect(201)
     ).body as { receipt: { id: string }; receiptToken: string };
+    // Payment tests start after a completed consultation; intake/gating is exercised separately.
+    saveConsultation(store, response.receipt.id, {
+      ...getConsultation(store, response.receipt.id)!,
+      status: "approved",
+      protocolChecked: true,
+      consultationCompleted: true,
+    });
+    store.save({
+      ...store.get(response.receipt.id)!,
+      consultationStatus: "approved",
+    });
+    return response;
   }
   async function webhook(
     type: string,
@@ -355,6 +381,70 @@ test("booking requests stay unpaid until owner approval and verified deposit", a
   assert.equal(paid.totalPence, 3500);
   assert.equal(paid.paidPence, 1750);
   assert.equal(paid.totalPence - paid.paidPence, 1750);
+});
+test("standalone treatments can be requested individually but reject combined bookings", async () => {
+  const f = setup();
+  for (const [serviceId, totalPence] of [
+    ["carboxytherapy-face-mask-treatment", 4500],
+    ["cliniccare-chemical-peeling", 6000],
+  ] as const) {
+    const standalone = { serviceId, optionIndex: 0 };
+    const result = await f.createBooking({
+      ...booking(),
+      treatments: [standalone],
+      time: serviceId === "cliniccare-chemical-peeling" ? "12:30" : "11:00",
+    });
+    assert.equal(f.store.get(result.receipt.id)!.totalPence, totalPence);
+    for (const treatments of [
+      [standalone, { serviceId: "indian-head-massage-addon", optionIndex: 0 }],
+      [...booking().treatments, standalone],
+    ]) {
+      await f
+        .post("/api/bookings")
+        .set("Idempotency-Key", randomUUID())
+        .send({ ...booking(), treatments })
+        .expect(400);
+    }
+    await f
+      .post("/api/bookings")
+      .set("Idempotency-Key", randomUUID())
+      .send({
+        ...booking(),
+        treatments: [standalone],
+        customTreatments: [{ title: "Custom massage", durationMinutes: 30 }],
+      })
+      .expect(400);
+  }
+  assert.equal(f.store.list().length, 2);
+});
+test("removed add-ons cannot be requested through the booking API", async () => {
+  const f = setup();
+  for (const serviceId of ["addon-eye-lip-rescue", "addon-cold-hammer"]) {
+    await f
+      .post("/api/bookings")
+      .set("Idempotency-Key", randomUUID())
+      .send({
+        ...booking(),
+        treatments: [...booking().treatments, { serviceId, optionIndex: 0 }],
+      })
+      .expect(400);
+  }
+  assert.equal(f.store.list().length, 0);
+});
+test("back massage additions are included in the server quote and deposit", async () => {
+  const f = setup();
+  const result = await f.createBooking({
+    ...booking(),
+    treatments: [
+      ...booking().treatments,
+      { serviceId: "swedish-back-massage", optionIndex: 0 },
+      { serviceId: "hot-stone-back-massage", optionIndex: 0 },
+    ],
+  });
+  const record = f.store.get(result.receipt.id)!;
+  assert.equal(record.items.length, 3);
+  assert.equal(record.totalPence, 10500);
+  assert.equal(record.amountDuePence, 5250);
 });
 test("custom treatment quotes require explicit owner prices and preserve course pricing", async () => {
   const f = setup();

@@ -1,7 +1,13 @@
 import { z } from "zod";
+import { consultationSchema } from "./consultation";
 import { SPA_PRODUCTS } from "../src/data/shopData";
 import { SPA_SERVICES } from "../src/data/spaData";
-import { EXTRA_ADDONS, londonDate, type RecordItem } from "../shared/payments";
+import {
+  EXTRA_ADDONS,
+  isStandaloneTreatment,
+  londonDate,
+  type RecordItem,
+} from "../shared/payments";
 
 const customer = z
   .object({
@@ -41,6 +47,7 @@ export const shopSchema = z
   );
 export const bookingSchema = z
   .object({
+    consultation: consultationSchema,
     customer,
     treatments: z
       .array(
@@ -135,7 +142,16 @@ export function shopQuote(input: z.infer<typeof shopSchema>) {
     totalPence: subtotalPence - discountPence + shippingPence,
   };
 }
-export function bookingQuote(input: z.infer<typeof bookingSchema>) {
+export function bookingQuote(
+  input: Omit<z.infer<typeof bookingSchema>, "consultation">,
+) {
+  if (
+    input.treatments.some((t) => isStandaloneTreatment(t.serviceId)) &&
+    (input.treatments.length !== 1 || input.customTreatments.length > 0)
+  )
+    throw new Error(
+      "Chemical peeling and carboxytherapy are standalone treatments. Request each separately without additional treatments or add-ons.",
+    );
   if (
     new Set(input.treatments.map((t) => t.serviceId)).size !==
     input.treatments.length

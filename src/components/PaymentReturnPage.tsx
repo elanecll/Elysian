@@ -57,26 +57,31 @@ export function PaymentReturnPage({
   const refunded =
     record?.paymentStatus === "refunded" ||
     record?.paymentStatus === "partially_refunded";
-  const title = refunded
-    ? "Refund recorded"
-    : paid
-      ? record.type === "booking"
-        ? "Deposit received — appointment confirmed"
-        : "Payment received — order confirmed"
-      : record?.status === "requested"
-        ? "Awaiting owner approval"
-        : record?.paymentStatus === "expired"
-          ? "Checkout expired"
-          : record?.paymentStatus === "failed"
-            ? "Payment failed"
-            : cancelled
-              ? "Checkout cancelled"
-              : checking
-                ? "Checking payment…"
-                : "Awaiting payment";
+  const title =
+    record?.status === "cancelled"
+      ? "Appointment cancelled"
+      : refunded
+        ? "Refund recorded"
+        : paid
+          ? record.type === "booking"
+            ? "Deposit received — appointment confirmed"
+            : "Payment received — order confirmed"
+          : record?.status === "requested"
+            ? "Awaiting owner approval"
+            : record?.paymentStatus === "expired"
+              ? record.type === "booking"
+                ? "Appointment reservation expired"
+                : "Checkout expired"
+              : record?.paymentStatus === "failed"
+                ? "Payment failed"
+                : cancelled
+                  ? "Checkout cancelled"
+                  : checking
+                    ? "Checking payment…"
+                    : "Awaiting payment";
   return (
     <section className="mx-auto max-w-2xl space-y-6 px-5 py-16 text-center">
-      {paid ? (
+      {paid && record?.status !== "cancelled" ? (
         <CheckCircle2 className="mx-auto text-[#BE757C]" size={48} />
       ) : (
         <Clock className="mx-auto text-[#BE757C]" size={48} />
@@ -86,8 +91,25 @@ export function PaymentReturnPage({
       </h1>
       {record?.status === "requested" && (
         <p className="text-sm">
-          Your preferred appointment is a request. The owner checks availability
-          and approves your quote before sending a deposit link.
+          Your appointment time is temporarily held while the owner approves
+          your health questionnaire and quote. Deposit payment confirms your
+          appointment. Contact the spa if you need to update health information;
+          keep it out of payment messages.
+        </p>
+      )}
+      {record?.status === "requested" && record.holdUntil && (
+        <p className="text-sm">
+          Held until{" "}
+          {new Date(record.holdUntil).toLocaleString("en-GB", {
+            timeZone: "Europe/London",
+          })}{" "}
+          UK time. Unapproved requests expire automatically.
+        </p>
+      )}
+      {record?.status === "cancelled" && (
+        <p className="text-sm">
+          This appointment has been cancelled and its time released. Any payment
+          remains recorded; cancellation does not automatically issue a refund.
         </p>
       )}
       {!paid && record?.paymentStatus === "expired" && (

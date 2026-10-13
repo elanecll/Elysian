@@ -2,24 +2,32 @@
 
 @layer base {
   body {
-    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-family:
+      "Montserrat",
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 }
 
 .font-serif-luxury {
-  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
 }
 
 .font-display {
-  font-family: 'Marcellus', 'Cormorant Garamond', Georgia, serif;
+  font-family: "Marcellus", "Cormorant Garamond", Georgia, serif;
 }
 
 .font-playfair {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: "Playfair Display", Georgia, serif;
 }
 
 .font-sans-clean {
-  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Montserrat",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 /* Custom smooth scrollbar */
@@ -39,10 +47,176 @@
 
 /* Subtle ambient pulse */
 @keyframes floatSlow {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(2deg); }
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
 }
 
 .animate-float-slow {
   animation: floatSlow 6s ease-in-out infinite;
+}
+
+/* The homepage banner stays within the first screen, including navigation. */
+.treatment-hero {
+  height: min(620px, calc(100svh - var(--site-header-height, 140px)));
+  container: treatment-hero / size;
+}
+
+.treatment-hero-image {
+  top: 0;
+  right: 0;
+  width: 58%;
+  height: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 22%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 22%);
+}
+
+.treatment-hero-content {
+  width: 42%;
+  height: 100%;
+  padding-block: 24px;
+  background: #fff7f7;
+  overflow-y: auto;
+  justify-content: safe center;
+}
+.treatment-hero-category {
+  margin-bottom: 12px;
+}
+.treatment-hero-title {
+  margin-bottom: 16px;
+  font-size: clamp(1.25rem, 2.5vw, 2.25rem);
+  line-height: 1.16;
+  min-height: 3lh;
+  text-wrap: balance;
+}
+.treatment-hero-description {
+  margin-bottom: 16px;
+}
+.treatment-hero-details {
+  margin-bottom: 20px;
+}
+.treatment-hero-actions {
+  margin-bottom: 10px;
+}
+.treatment-hero-policy {
+  margin-bottom: 16px;
+}
+
+@container treatment-hero (max-height: 480px) {
+  .treatment-hero-content {
+    padding-block: 16px;
+  }
+  .treatment-hero-title {
+    font-size: clamp(1.375rem, 3vw, 2rem);
+    margin-bottom: 12px;
+  }
+  .treatment-hero-policy {
+    display: none;
+  }
+  .treatment-hero-description {
+    margin-bottom: 10px;
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+  .treatment-hero-details {
+    margin-bottom: 16px;
+  }
+  .treatment-hero-actions {
+    margin-bottom: 16px;
+  }
+}
+
+@container treatment-hero (max-height: 320px) {
+  .treatment-hero-content {
+    padding-block: 8px;
+  }
+  .treatment-hero-category {
+    display: none;
+  }
+  .treatment-hero-title {
+    font-size: 1.25rem;
+  }
+  .treatment-hero-details,
+  .treatment-hero-actions {
+    margin-bottom: 8px;
+  }
+}
+
+@container treatment-hero (max-height: 240px) {
+  .treatment-hero-details {
+    display: none;
+  }
+  .treatment-hero-title {
+    min-height: 0;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .treatment-hero-image {
+    width: 100%;
+    height: 42%;
+  }
+  .treatment-hero-content {
+    top: 42%;
+    width: 100%;
+    height: 58%;
+    padding-block: 12px;
+  }
+  .treatment-hero-category {
+    margin-bottom: 6px;
+  }
+  .treatment-hero-title {
+    margin-bottom: 8px;
+    font-size: 1.25rem;
+  }
+  .treatment-hero-policy {
+    display: none;
+  }
+  .treatment-hero-description {
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+  .treatment-hero-details,
+  .treatment-hero-actions {
+    margin-bottom: 8px;
+  }
+
+  @container treatment-hero (max-height: 480px) {
+    .treatment-hero-category,
+    .treatment-hero-details {
+      display: none;
+    }
+    .treatment-hero-image {
+      height: 32%;
+    }
+    .treatment-hero-content {
+      top: 32%;
+      height: 68%;
+    }
+  }
+
+  @container treatment-hero (max-height: 380px) {
+    .treatment-hero-image {
+      height: 30%;
+    }
+    .treatment-hero-content {
+      top: 30%;
+      height: 70%;
+      padding-block: 8px;
+    }
+    .treatment-hero-category,
+    .treatment-hero-details {
+      display: none;
+    }
+    .treatment-hero-title {
+      font-size: 1rem;
+    }
+  }
 }

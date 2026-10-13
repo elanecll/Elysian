@@ -18,7 +18,6 @@ import { TermsAndConditionsPage } from "./components/TermsAndConditionsPage";
 import { Footer } from "./components/Footer";
 import { BookingModal } from "./components/BookingModal";
 import { OwnerCRMModal } from "./components/OwnerCRMModal";
-import { AmbientSoundPlayer } from "./components/AmbientSoundPlayer";
 import { PageBanner } from "./components/PageBanner";
 import { PaymentReturnPage } from "./components/PaymentReturnPage";
 import { SPA_PRODUCTS } from "./data/shopData";
@@ -37,6 +36,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
+const scrollToDepositPolicy = () =>
+  document.getElementById("deposit-policy")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageTab>("home");
   const [treatmentCategory, setTreatmentCategory] = useState<string>("all");
@@ -53,7 +55,6 @@ export default function App() {
   >();
   const [preselectedIsCourse, setPreselectedIsCourse] =
     useState<boolean>(false);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   // Persistent shopping cart state
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -176,7 +177,8 @@ export default function App() {
       ) {
         setCurrentPage("treatments");
       } else if (hash === "experience" || hash === "about") {
-        setCurrentPage("experience");
+        setCurrentPage("reviews");
+        window.history.replaceState(null, "", window.location.pathname + window.location.search + "#reviews");
       } else if (
         hash === "shop" ||
         hash === "boutique" ||
@@ -230,6 +232,12 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (currentPage !== "terms") return;
+    const frame = window.requestAnimationFrame(scrollToDepositPolicy);
+    return () => window.cancelAnimationFrame(frame);
+  }, [currentPage]);
+
   const handleNavigate = (page: PageTab, categoryFilter?: string) => {
     if (page !== "payment") {
       const url = new URL(window.location.href);
@@ -246,7 +254,8 @@ export default function App() {
       setTreatmentCategory(categoryFilter);
     }
     window.location.hash = page === "home" ? "" : `#${page}`;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (page === "terms") scrollToDepositPolicy();
+    else window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleOpenBooking = (
@@ -269,8 +278,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FFF9F9] text-[#3D2B27] flex flex-col selection:bg-[#E8BAC0] selection:text-[#3D2B27]">
-      {/* Ambient Spa Audio Engine (Web Audio Synth) */}
-      <AmbientSoundPlayer isPlaying={isAudioPlaying} />
 
       {/* Header Navigation with Multi-Page Tabs */}
       <Navbar
@@ -278,8 +285,6 @@ export default function App() {
         onNavigate={handleNavigate}
         onOpenBooking={() => handleOpenBooking()}
         onOpenCRM={() => setIsCRMOpen(true)}
-        isAudioPlaying={isAudioPlaying}
-        onToggleAudio={() => setIsAudioPlaying(!isAudioPlaying)}
         cartCount={totalCartCount}
       />
 
@@ -335,7 +340,7 @@ export default function App() {
 
                     <div className="flex flex-wrap items-center justify-center gap-3">
                       <button
-                        onClick={() => handleNavigate("experience")}
+                        onClick={() => handleNavigate("reviews")}
                         className="px-6 py-3 rounded-full border border-[#BE757C]/50 hover:border-[#BE757C] text-[#3D2B27] hover:text-[#BE757C] bg-[#FFF9F9] font-medium text-xs tracking-widest uppercase transition-all cursor-pointer"
                       >
                         Our Philosophy
@@ -371,7 +376,7 @@ export default function App() {
                     onClick={() => handleNavigate("reviews")}
                     className="inline-flex items-center gap-1.5 text-xs text-[#BE757C] hover:text-[#9F5158] font-bold uppercase tracking-widest cursor-pointer underline underline-offset-4"
                   >
-                    <span>Read Verified Guest Reviews</span>
+                    <span>Read Guest Reviews</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -388,8 +393,8 @@ export default function App() {
               transition={{ duration: 0.3 }}
             >
               <PageBanner
-                currentPageName="Treatment Menu"
-                title="Treatment Menu & Tariff"
+                currentPageName="Treatment Menu & Pricing"
+                title="Treatment Menu & Pricing"
                 subtitle="Explore our complete bespoke therapies featuring advanced Swedish CLINICARE medical-grade cosmeceuticals and therapeutic bodywork."
                 tagline="HOLISTIC BEAUTY & BODYWORK"
                 onNavigateHome={() => handleNavigate("home")}
@@ -409,28 +414,6 @@ export default function App() {
                   )
                 }
                 selectedCategory={treatmentCategory}
-              />
-            </motion.div>
-          )}
-
-          {currentPage === "experience" && (
-            <motion.div
-              key="experience-page"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <PageBanner
-                currentPageName="The Experience"
-                title="The Sanctuary Experience"
-                subtitle="Discover how we blend ancient thermal therapies, mindful touch, and pure active botanicals into a transformative wellness retreat."
-                tagline="HOLISTIC HARMONY & COMFORT"
-                onNavigateHome={() => handleNavigate("home")}
-              />
-              <ExperienceSection
-                onOpenBooking={() => handleOpenBooking()}
-                onExploreTreatments={() => handleNavigate("treatments")}
               />
             </motion.div>
           )}
@@ -485,64 +468,42 @@ export default function App() {
               transition={{ duration: 0.3 }}
             >
               <PageBanner
-                currentPageName="Guest Testimonials"
-                title="Guest Reflections & Praise"
-                subtitle="Discover authentic reviews and feedback from guests who have experienced deep somatic calm and renewed radiance."
-                tagline="COMMUNITY & SERENITY"
+                currentPageName="Reviews & Experience"
+                title="Reviews & Experience"
+                subtitle="Read our guests’ reviews, explore treatment results, and discover what to expect at Elysian."
+                tagline="YOUR VISIT TO ELYSIAN"
                 onNavigateHome={() => handleNavigate("home")}
               />
               <Testimonials />
 
-              {/* Bottom booking encouragement */}
-              <div className="py-14 bg-white border-t border-[#E8BAC0]/30 text-center">
-                <div className="max-w-xl mx-auto px-4">
-                  <h3 className="text-2xl font-display text-[#3D2B27] mb-2">
-                    Ready for Your Own Transformative Ritual?
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#5C4A45] font-serif-luxury italic mb-6">
-                    Book online today and enjoy complimentary botanical flower
-                    tea with every reservation.
-                  </p>
-                  <button
-                    onClick={() => handleOpenBooking()}
-                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-xs tracking-widest uppercase shadow-md transition-all cursor-pointer"
-                  >
-                    <Calendar className="w-4 h-4" />
-                    <span>Book Your Appointment</span>
-                  </button>
-                </div>
-              </div>
+              <ExperienceSection
+                onOpenBooking={() => handleOpenBooking()}
+                onExploreTreatments={() => handleNavigate("treatments")}
+              />
             </motion.div>
           )}
 
-          {currentPage === "location" && (
+          {(currentPage === "location" || currentPage === "terms") && (
             <motion.div
               key="location-page"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
+              onAnimationComplete={() => {
+                if (currentPage === "terms") scrollToDepositPolicy();
+              }}
             >
               <PageBanner
-                currentPageName="Location & FAQ"
-                title="Sanctuary Location, Hours & FAQ"
-                subtitle="Everything you need to know for your visit to our Blackpool courtyard sanctuary, concierge details, and treatment questions."
+                currentPageName="Location, FAQ & Policies"
+                title="Location, FAQ & Policies"
+                subtitle="Find our location and opening hours, answers to your questions, and our booking and deposit policies."
                 tagline="VISIT & CONCIERGE"
                 onNavigateHome={() => handleNavigate("home")}
               />
               <LocationAndFaq />
-            </motion.div>
-          )}
-
-          {currentPage === "terms" && (
-            <motion.div
-              key="terms-page"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
               <TermsAndConditionsPage
+                embedded
                 onNavigate={handleNavigate}
                 onOpenBooking={() => handleOpenBooking()}
               />

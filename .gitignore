@@ -8,4 +8,5 @@ coverage/
 .env*
 !.env.example
 /data/
+*.health-key
 /test-results/

@@ -1,3 +1,4 @@
+import type { ConsultationInput, ConsultationStatus } from "./consultation";
 export interface Customer {
   name: string;
   email: string;
@@ -10,6 +11,7 @@ export interface TreatmentSelection {
   optionIndex: number;
 }
 export interface BookingRequest {
+  consultation: ConsultationInput;
   customer: Customer;
   treatments: TreatmentSelection[];
   customTreatments: { title: string; durationMinutes: number }[];
@@ -35,6 +37,7 @@ export interface RecordItem {
 export type PaymentStatus =
   "unpaid" | "paid" | "expired" | "failed" | "partially_refunded" | "refunded";
 export type RecordStatus =
+  | "cancelled"
   | "requested"
   | "awaiting_payment"
   | "confirmed"
@@ -42,6 +45,7 @@ export type RecordStatus =
   | "dispatched"
   | "expired";
 export interface PaymentRecord {
+  consultationStatus?: ConsultationStatus;
   id: string;
   type: "booking" | "sale";
   createdAt: string;
@@ -67,10 +71,14 @@ export interface PaymentRecord {
   checkoutUrl?: string;
   stripeSessionId?: string;
   expiresAt?: number;
+  holdUntil?: number;
+  durationMinutes?: number;
   revision: number;
 }
 export type Receipt = Pick<
   PaymentRecord,
+  | "holdUntil"
+  | "durationMinutes"
   | "id"
   | "type"
   | "items"
@@ -99,24 +107,18 @@ export const londonDate = (date = new Date()) =>
     day: "2-digit",
   }).format(date);
 
+export const isStandaloneTreatment = (serviceId: string) =>
+  [
+    "carboxytherapy-face-mask-treatment",
+    "cliniccare-chemical-peeling",
+  ].includes(serviceId);
+
 // Extra options supplement the main treatment catalogue. Prices are shared with the server.
 export const EXTRA_ADDONS = [
-  {
-    id: "addon-eye-lip-rescue",
-    title: "Collagen Eye & Lip Contour",
-    duration: "15 mins",
-    pricePence: 1200,
-  },
   {
     id: "addon-high-frequency",
     title: "High-Frequency Blemish Buster",
     duration: "10 mins",
     pricePence: 1000,
-  },
-  {
-    id: "addon-cold-hammer",
-    title: "Cold Hammer Cryo Serums Lock",
-    duration: "10 mins",
-    pricePence: 1500,
   },
 ];

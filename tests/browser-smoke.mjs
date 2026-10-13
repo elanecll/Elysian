@@ -25,6 +25,7 @@ let paid = false,
   authenticated = false;
 let shopBody;
 let bookingBody;
+let consultation;
 let record = {
   id: "ELS-browser-test",
   type: "sale",
@@ -63,6 +64,20 @@ await context.route("**/api/**", async (route) => {
       receiptToken: token,
       url: `http://localhost:3000/?receipt=${token}#payment`,
     };
+  } else if (path === "/api/availability") {
+    const selection = route.request().postDataJSON();
+    body = {
+      date: selection.date,
+      slots: ["11:00", "13:00", "16:00"],
+      durationMinutes:
+        30 +
+        selection.customTreatments.reduce(
+          (sum, item) => sum + item.durationMinutes,
+          0,
+        ),
+      breakMinutes: 30,
+      closed: false,
+    };
   } else if (path.startsWith("/api/receipts/"))
     body = {
       receipt: {
@@ -78,6 +93,7 @@ await context.route("**/api/**", async (route) => {
     record = {
       ...record,
       type: "booking",
+      consultationStatus: "awaiting_review",
       status: "requested",
       paymentStatus: "unpaid",
       items: [
@@ -103,6 +119,12 @@ await context.route("**/api/**", async (route) => {
       discountPence: 0,
       paidPence: 0,
     };
+    consultation = {
+      input: bookingBody.consultation,
+      submittedAt: new Date().toISOString(),
+      status: "awaiting_review",
+      notes: "",
+    };
     body = { receipt: record, receiptToken: token };
     status = 201;
   } else if (path === "/api/owner/session") {
@@ -114,7 +136,13 @@ await context.route("**/api/**", async (route) => {
     authenticated = true;
     body = { authenticated: true };
   } else if (path === "/api/owner/records") body = { records: [record] };
-  else if (path.endsWith("/approve")) {
+  else if (path.endsWith("/consultation")) {
+    if (method === "PATCH") {
+      consultation = { ...consultation, ...route.request().postDataJSON() };
+      record = { ...record, consultationStatus: consultation.status };
+    }
+    body = { consultation };
+  } else if (path.endsWith("/approve")) {
     const payload = route.request().postDataJSON();
     assert.equal(payload.customPrices[0].pricePence, 2500);
     record = {
@@ -195,9 +223,24 @@ try {
   await dialog.getByLabel("Full name", { exact: true }).fill(customer.name);
   await dialog.getByLabel("Email", { exact: true }).fill(customer.email);
   await dialog.getByLabel("Phone", { exact: true }).fill(customer.phone);
-  await dialog.getByLabel("Preferred date").fill("2099-10-01");
+  await dialog
+    .getByLabel("Appointment date", { exact: true })
+    .fill(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
   await dialog.getByLabel("Treatment name").fill("Custom relaxation");
   await dialog.getByRole("button", { name: "Add custom treatment" }).click();
+  await dialog
+    .getByLabel("Available time (UK)", { exact: true })
+    .selectOption("11:00");
+  await dialog
+    .getByLabel("Full name for health consent", { exact: true })
+    .fill("Browser Test");
+  const health = dialog.getByRole("region", {
+    name: "Pre-treatment health screening",
+  });
+  for (const select of await health.getByRole("combobox").all())
+    await select.selectOption("no");
+  for (const checkbox of await health.getByRole("checkbox").all())
+    await checkbox.check();
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(
     await page.evaluate(
@@ -220,16 +263,42 @@ try {
   await dialog.waitFor({ state: "hidden" });
   await page.goto("http://localhost:3000/#owner");
   const owner = page.getByRole("dialog", {
-    name: "Owner bookings & payment ledger",
+    name: "Owner dashboard",
   });
   await owner.getByLabel("Username").fill("owner");
   await owner.getByLabel("Password").fill("local-browser-test");
   await owner.getByRole("button", { name: "Sign in", exact: true }).click();
   await owner.getByRole("button", { name: /Browser Test/ }).click();
   await owner
+    .getByRole("button", { name: "Open private health review", exact: true })
+    .click();
+  await owner
+    .getByRole("combobox", { name: "Consultation decision", exact: true })
+    .selectOption("approved");
+  await owner
+    .getByRole("checkbox", {
+      name: "I have checked the selected treatments against the exact product/device protocol, my training and insurance requirements.",
+      exact: true,
+    })
+    .check();
+  await owner
+    .getByRole("checkbox", {
+      name: "I have completed the client consultation and resolved relevant health questions for every guest.",
+      exact: true,
+    })
+    .check();
+  await owner
+    .getByRole("button", { name: "Save private consultation", exact: true })
+    .click();
+  await owner
     .getByLabel("Approve unit price (£) — Custom relaxation")
     .fill("25");
-  await owner.getByRole("checkbox").check();
+  await owner
+    .getByRole("checkbox", {
+      name: "I have checked appointment availability and approved this quote.",
+      exact: true,
+    })
+    .check();
   await owner
     .getByRole("button", { name: "Approve and create 50% deposit link" })
     .click();
