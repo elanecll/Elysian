@@ -422,24 +422,24 @@ export const SPA_SERVICES: Treatment[] = [
     isAddon: true,
   },
 
-  // 18. Bring A Friend - Both Save 15% OFF
+  // 18. Bring A Friend - Both Save 10% OFF
   {
     id: 'bring-a-friend-package',
     category: 'packages',
-    title: 'Bring A Friend (Both Save 15% OFF)',
-    tagline: 'BOOK TOGETHER & BOTH RECEIVE 15% OFF',
+    title: 'Bring A Friend (Both Save 10% OFF)',
+    tagline: 'BOOK TOGETHER & BOTH RECEIVE 10% OFF',
     duration: '30 min Express / 60 min Full Treatment',
-    priceDisplay: 'Both Save 15% OFF',
+    priceDisplay: 'Both Save 10% OFF',
     priceOptions: [
-      { label: 'Twin Facial Ritual (Both save 15%)', duration: '30 - 60 mins each', priceSingle: 'From £38' },
-      { label: 'Twin Back Massage Ritual (Both save 15%)', duration: '30 mins each', priceSingle: 51 },
-      { label: 'Twin Full Body Massage Ritual (Both save 15%)', duration: '60 mins each', priceSingle: 102 },
-      { label: 'Twin Hot & Cold PDT Oxygen Facial (30 mins)', duration: '30 mins each', priceSingle: 76 },
-      { label: 'Twin Hot & Cold PDT Oxygen Facial (60 mins)', duration: '60 mins each', priceSingle: 115 }
+      { label: 'Twin Facial Ritual (Both save 10%)', duration: '30 - 60 mins each', priceSingle: 'From £46.80' },
+      { label: 'Twin Back Massage Ritual (Both save 10%)', duration: '30 mins each', priceSingle: 54 },
+      { label: 'Twin Full Body Massage Ritual (Both save 10%)', duration: '60 mins each', priceSingle: 108 },
+      { label: 'Twin Hot & Cold PDT Oxygen Facial (30 mins, both save 10%)', duration: '30 mins each', priceSingle: 54 },
+      { label: 'Twin Hot & Cold PDT Oxygen Facial (60 mins, both save 10%)', duration: '60 mins each', priceSingle: 90 }
     ],
-    description: 'Book together & both receive 15% OFF! Because beautiful skin is even better when shared. Introduce a friend to ELYSIAN BEAUTY SPA and you both save 15% on qualifying treatments.',
+    description: 'Book together & both receive 10% OFF! Because beautiful skin is even better when shared. Introduce a friend to ELYSIAN BEAUTY SPA and you both save 10% on qualifying treatments. Package prices below are the total for both guests, with the discount already included.',
     benefits: [
-      'Book Together & Both Receive 15% OFF Qualifying Treatments',
+      'Book Together & Both Receive 10% OFF Qualifying Treatments',
       'Because Beautiful Skin Is Even Better When Shared',
       'Valid on Facials, Massages & Holistic Body Therapies',
       'Complimentary Skin Consultation & Herbal Tea for Both'
@@ -486,27 +486,6 @@ export const SPA_SERVICES: Treatment[] = [
       '4-in-1 Oxygen & LED Illumination Facial',
       'Indian Head Acupressure Scalp Ritual',
       'Complimentary Post-Ritual Herbal Elixir'
-    ],
-    popular: true,
-  },
-
-  // 18. The Ultimate Radiance & Sculpt Course (3 Sessions)
-  {
-    id: 'radiance-sculpt-course-package',
-    category: 'packages',
-    title: 'Radiance & Sculpt Dermal Course (Package of 3)',
-    tagline: '3X ADVANCED EMS & RADIO FREQUENCY SESSIONS',
-    duration: '3 x 45 mins',
-    priceDisplay: '£175 (Save £35)',
-    priceOptions: [
-      { label: 'Course of 3 Sessions (🔬 CLINICARE)', duration: '3 x 45 mins', priceSingle: 175 }
-    ],
-    description: 'A transformative 3-session clinical course alternating EMS contour lifting and deep Radio Frequency thermal collagen stimulation with CLINICARE bio-actives to visibly sculpt jawline contours and smooth fine lines.',
-    benefits: [
-      'Course of 3 Dedicated 45-Min Sessions',
-      'Dual EMS Lifting & RF Thermal Collagen Matrix',
-      'Visible Jawline & Cheekbone Sculpting',
-      'Complimentary Soothing Hydration Sheet Mask'
     ],
     popular: true,
   },

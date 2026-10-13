@@ -18,6 +18,8 @@ export interface BookingRequest {
   date: string;
   time: string;
   isCourse: boolean;
+  courseSessions?: 3 | 6;
+  courseRewardSelection?: TreatmentSelection;
 }
 export interface ShopRequest {
   customer: Customer;
@@ -54,6 +56,13 @@ export interface PaymentRecord {
   date?: string;
   time?: string;
   isCourse?: boolean;
+  courseSessions?: 3 | 6;
+  courseReward?: {
+    name: string;
+    valuePence: number;
+    serviceId?: string;
+    optionIndex?: number;
+  };
   deliveryOption?: "collection" | "delivery";
   deliveryAddress?: string;
   promoCode?: string;
@@ -85,6 +94,8 @@ export type Receipt = Pick<
   | "date"
   | "time"
   | "isCourse"
+  | "courseSessions"
+  | "courseReward"
   | "totalPence"
   | "amountDuePence"
   | "paidPence"
@@ -99,6 +110,14 @@ export const money = (pence: number) =>
   new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(
     pence / 100,
   );
+export const courseOfferDescription = (
+  record: Pick<PaymentRecord, "isCourse" | "courseSessions" | "courseReward">,
+) =>
+  record.courseSessions
+    ? `${record.courseSessions} paid sessions + ${record.courseReward?.name || (record.courseSessions === 3 ? "free £30 Cinderella / Black Tie Facial" : "free treatment worth £60")}`
+    : record.isCourse
+      ? "Four sessions, pay for three (previous offer)"
+      : "";
 export const londonDate = (date = new Date()) =>
   new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/London",

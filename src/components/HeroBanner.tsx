@@ -41,7 +41,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   const [pageVisible, setPageVisible] = useState(true);
   const [headerHeight, setHeaderHeight] = useState(140);
   const reduceMotion = useReducedMotion();
-  const treatment = SPA_SERVICES[activeIndex];
+  const slideIndex = activeIndex % SPA_SERVICES.length;
+  const treatment = SPA_SERVICES[slideIndex];
   const rotating = playing && pageVisible;
 
   useEffect(() => {
@@ -119,7 +120,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               key={treatment.id}
               role="group"
               aria-roledescription="slide"
-              aria-label={`${activeIndex + 1} of ${SPA_SERVICES.length}: ${treatment.title}`}
+              aria-label={`${slideIndex + 1} of ${SPA_SERVICES.length}: ${treatment.title}`}
               initial={reduceMotion ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.35 }}
@@ -192,7 +193,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               className="px-2 text-xs tabular-nums text-[#5C4A45]"
               aria-hidden="true"
             >
-              {String(activeIndex + 1).padStart(2, "0")} / {SPA_SERVICES.length}
+              {String(slideIndex + 1).padStart(2, "0")} / {SPA_SERVICES.length}
             </span>
             <button
               type="button"

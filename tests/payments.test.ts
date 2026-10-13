@@ -9,8 +9,14 @@ import Stripe from "stripe";
 import { createApp } from "../server/app";
 import { Store } from "../server/store";
 import { loadConfig } from "../server/config";
-import { londonDate, type BookingRequest } from "../shared/payments";
-import { shopQuote, shopSchema } from "../server/catalogue";
+import { londonDate, type BookingRequest, type Receipt } from "../shared/payments";
+import {
+  bookingQuote,
+  bookingSchema,
+  shopQuote,
+  shopSchema,
+} from "../server/catalogue";
+import { SPA_SERVICES } from "../src/data/spaData";
 import { testConsultation } from "./consultation-fixture";
 import { saveConsultation, getConsultation } from "../server/consultation";
 
@@ -165,7 +171,7 @@ function setup(path = ":memory:") {
           ),
         })
         .expect(201)
-    ).body as { receipt: { id: string }; receiptToken: string };
+    ).body as { receipt: Receipt; receiptToken: string };
     // Payment tests start after a completed consultation; intake/gating is exercised separately.
     saveConsultation(store, response.receipt.id, {
       ...getConsultation(store, response.receipt.id)!,
@@ -474,6 +480,128 @@ test("custom treatment quotes require explicit owner prices and preserve course 
     .send({ customPrices: [{ id: "custom-0", pricePence: 2600 }] })
     .expect(409);
 });
+test("three-session courses record a complimentary £30 facial without charging for it", async () => {
+  const f = setup();
+  const result = await f.createBooking({
+    ...booking(),
+    isCourse: true,
+    courseSessions: 3,
+  });
+  const record = f.store.get(result.receipt.id)!;
+  assert.equal(record.items[0].quantity, 3);
+  assert.equal(record.totalPence, 10500);
+  assert.equal(record.amountDuePence, 5250);
+  assert.equal(record.courseSessions, 3);
+  assert.equal(
+    record.courseReward!.serviceId,
+    "cliniccare-cinderella-black-tie-facial",
+  );
+  assert.equal(record.courseReward!.valuePence, 3000);
+  assert.deepEqual(result.receipt.courseReward, record.courseReward);
+  assert.equal(result.receipt.courseSessions, 3);
+  assert.equal(record.durationMinutes, 30);
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${record.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  assert.equal(f.store.get(record.id)!.totalPence, 10500);
+});
+test("six-session courses preserve the selected free £60 treatment in receipts and owner records", async () => {
+  const f = setup();
+  const data = {
+    ...booking(),
+    isCourse: true,
+    courseSessions: 6 as const,
+    courseRewardSelection: {
+      serviceId: "swedish-full-body-massage",
+      optionIndex: 0,
+    },
+  };
+  const result = await f.createBooking(data);
+  const record = f.store.get(result.receipt.id)!;
+  assert.equal(record.items[0].quantity, 6);
+  assert.equal(record.totalPence, 21000);
+  assert.equal(record.amountDuePence, 10500);
+  assert.equal(record.courseReward!.valuePence, 6000);
+  assert.equal(record.courseReward!.serviceId, "swedish-full-body-massage");
+  assert.equal(record.durationMinutes, 30);
+  const receipt = await request(f.app)
+    .get(`/api/receipts/${result.receiptToken}`)
+    .expect(200);
+  assert.equal(receipt.body.receipt.courseSessions, 6);
+  assert.deepEqual(receipt.body.receipt.courseReward, record.courseReward);
+  const cookie = await f.login();
+  const owner = await request(f.app)
+    .get("/api/owner/records")
+    .set("Cookie", cookie)
+    .expect(200);
+  assert.deepEqual(owner.body.records[0].courseReward, record.courseReward);
+  const pending = bookingQuote({
+    ...booking(),
+    isCourse: true,
+    courseSessions: 6,
+  });
+  assert.equal(pending.courseReward!.valuePence, 6000);
+  assert.equal(pending.courseReward!.serviceId, undefined);
+});
+test("course rewards reject invalid tiers, ineligible treatments and client-supplied prices", () => {
+  assert.equal(
+    bookingSchema.safeParse({
+      ...booking(),
+      isCourse: true,
+      courseSessions: 12,
+    }).success,
+    false,
+  );
+  assert.equal(
+    bookingSchema.safeParse({
+      ...booking(),
+      isCourse: true,
+      courseSessions: 6,
+      courseRewardSelection: {
+        serviceId: "swedish-full-body-massage",
+        optionIndex: 0,
+        pricePence: 0,
+      },
+    }).success,
+    false,
+  );
+  assert.throws(
+    () => bookingQuote({ ...booking(), isCourse: false, courseSessions: 6 }),
+    /Select a course/,
+  );
+  assert.throws(
+    () =>
+      bookingQuote({
+        ...booking(),
+        isCourse: true,
+        courseSessions: 3,
+        courseRewardSelection: {
+          serviceId: "swedish-full-body-massage",
+          optionIndex: 0,
+        },
+      }),
+    /six-session/,
+  );
+  assert.throws(
+    () =>
+      bookingQuote({
+        ...booking(),
+        isCourse: true,
+        courseSessions: 6,
+        courseRewardSelection: {
+          serviceId: "clinicare-microneedling",
+          optionIndex: 0,
+        },
+      }),
+    /priced at £60/,
+  );
+  const single = bookingQuote(booking());
+  assert.equal(single.courseReward, undefined);
+  assert.equal(single.items[0].quantity, 1);
+});
 test("past and impossible dates, price tampering and invalid treatment options are rejected", async () => {
   const f = setup();
   for (const body of [
@@ -769,6 +897,60 @@ test("configuration refuses live keys", () => {
     if (previous === undefined) delete process.env.STRIPE_SECRET_KEY;
     else process.env.STRIPE_SECRET_KEY = previous;
   }
+});
+
+test("Bring a Friend quotes apply 10% off both guests and calculate the deposit", () => {
+  const pair = SPA_SERVICES.find(
+    (service) => service.id === "bring-a-friend-package",
+  )!;
+  assert.match(pair.title, /10% OFF/);
+  const options = [
+    { pairIndex: 1, serviceId: "swedish-back-massage", singleIndex: 0 },
+    { pairIndex: 2, serviceId: "swedish-full-body-massage", singleIndex: 0 },
+    {
+      pairIndex: 3,
+      serviceId: "elysian-glow-8-in-1-pdt-led-light-therapy",
+      singleIndex: 0,
+    },
+    {
+      pairIndex: 4,
+      serviceId: "elysian-glow-8-in-1-pdt-led-light-therapy",
+      singleIndex: 1,
+    },
+  ];
+  for (const option of options) {
+    const service = SPA_SERVICES.find(
+      (value) => value.id === option.serviceId,
+    )!;
+    const price = service.priceOptions![option.singleIndex];
+    const singlePence = Math.round(
+      Number(price.priceClinicare ?? price.priceSingle) * 100,
+    );
+    const expectedPence = Math.round(singlePence * 2 * 0.9);
+    const quote = bookingQuote({
+      ...booking(),
+      treatments: [{ serviceId: pair.id, optionIndex: option.pairIndex }],
+    });
+    assert.equal(quote.totalPence, expectedPence);
+    assert.equal(quote.amountDuePence, Math.round(expectedPence / 2));
+    assert.equal(quote.items[0].name, pair.title);
+  }
+  const facialPrices = SPA_SERVICES.filter(
+    (service) => service.category === "facial",
+  )
+    .flatMap(
+      (service) =>
+        service.priceOptions?.map((price) =>
+          Number(price.priceClinicare ?? price.priceSingle),
+        ) || [],
+    )
+    .filter(Number.isFinite);
+  const startingPrice =
+    Math.round(Math.min(...facialPrices) * 100 * 2 * 0.9) / 100;
+  assert.equal(
+    pair.priceOptions![0].priceSingle,
+    `From £${startingPrice.toFixed(2)}`,
+  );
 });
 
 test("catalogue treatments with variable prices require an owner quote", async () => {

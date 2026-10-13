@@ -5,6 +5,12 @@ import { blankConsultation } from "../../shared/consultation";
 import { Calendar, Plus, Trash2, CheckCircle2 } from "lucide-react";
 import { SPA_SERVICES } from "../data/spaData";
 import {
+  THREE_SESSION_OFFER,
+  SIX_SESSION_OFFER,
+  courseRewardOptions,
+  courseReward,
+} from "../../shared/courseOffers";
+import {
   EXTRA_ADDONS,
   isStandaloneTreatment,
   londonDate,
@@ -51,7 +57,26 @@ function BookingForm(props: BookingModalProps) {
       ) ?? 0,
     ),
   );
-  const [isCourse, setIsCourse] = useState(!!props.initialIsCourse);
+  const [paidSessions, setPaidSessions] = useState<1 | 3 | 6>(
+    props.initialIsCourse ? 3 : 1,
+  );
+  const isCourse = paidSessions !== 1;
+  const [rewardChoice, setRewardChoice] = useState("");
+  const rewardOptions = courseRewardOptions();
+  const selectedReward =
+    paidSessions === 6
+      ? rewardOptions.find(
+          (reward) =>
+            `${reward.serviceId}:${reward.optionIndex}` === rewardChoice,
+        )
+      : undefined;
+  const courseRewardSelection = selectedReward
+    ? {
+        serviceId: selectedReward.serviceId,
+        optionIndex: selectedReward.optionIndex,
+      }
+    : undefined;
+  const reward = courseReward(paidSessions, courseRewardSelection);
   const [addons, setAddons] = useState<string[]>(
     initialService?.isAddon ? [initialService.id] : [],
   );
@@ -106,7 +131,6 @@ function BookingForm(props: BookingModalProps) {
   ].filter((a) => a.id !== serviceId);
   const option = service.priceOptions?.[optionIndex];
   const unitPrice = option?.priceClinicare ?? option?.priceSingle;
-  const paidSessions = isCourse ? 3 : 1;
   const priceItems = [
     {
       id: serviceId,
@@ -161,6 +185,8 @@ function BookingForm(props: BookingModalProps) {
       date,
       time,
       isCourse,
+      courseSessions: paidSessions === 1 ? undefined : paidSessions,
+      courseRewardSelection,
     };
     key.current = submissionKey(key.current, body);
     try {
@@ -182,6 +208,13 @@ function BookingForm(props: BookingModalProps) {
           questionnaire and approve your quote before asking for a 50% deposit.
           Your appointment is confirmed after payment.
         </p>
+        {submitted.receipt.courseReward && (
+          <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
+            {submitted.receipt.courseSessions} paid sessions plus{" "}
+            {submitted.receipt.courseReward.name}. Later course visits and your
+            complimentary treatment are arranged separately with the owner.
+          </p>
+        )}
         {submitted.receipt.holdUntil && (
           <p className="text-sm">
             Awaiting approval until{" "}
@@ -249,14 +282,59 @@ function BookingForm(props: BookingModalProps) {
           Chemical peeling and carboxytherapy are standalone treatments. Please
           request each separately, without additional treatments or add-ons.
         </p>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={isCourse}
-            onChange={(e) => setIsCourse(e.target.checked)}
-          />{" "}
-          Buy 3 sessions, get the 4th free
-        </label>
+        <fieldset className="space-y-2">
+          <legend className="mb-2 font-semibold">Course offers</legend>
+          {(
+            [
+              { sessions: 1, label: "Single session" },
+              { sessions: 3, label: THREE_SESSION_OFFER },
+              { sessions: 6, label: SIX_SESSION_OFFER },
+            ] as const
+          ).map((offer) => (
+            <label
+              key={offer.sessions}
+              className="flex items-start gap-3 rounded-xl border border-[#E8BAC0]/50 p-3 text-sm"
+            >
+              <input
+                type="radio"
+                name="course-offer"
+                className="mt-1"
+                checked={paidSessions === offer.sessions}
+                onChange={() => {
+                  setPaidSessions(offer.sessions);
+                  setRewardChoice("");
+                }}
+              />
+              <span>{offer.label}</span>
+            </label>
+          ))}
+          {paidSessions === 6 && (
+            <Field label="Choose your free £60 treatment">
+              <select
+                className={inputClass}
+                value={rewardChoice}
+                onChange={(event) => setRewardChoice(event.target.value)}
+              >
+                <option value="">Choose later with the owner</option>
+                {rewardOptions.map((choice) => (
+                  <option
+                    key={`${choice.serviceId}:${choice.optionIndex}`}
+                    value={`${choice.serviceId}:${choice.optionIndex}`}
+                  >
+                    {choice.title} — {choice.duration}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+          {isCourse && (
+            <p className="text-xs text-[#7A5852]">
+              Pay for {paidSessions} sessions of each selected treatment and
+              add-on. Your complimentary treatment is a separate visit arranged
+              with the owner.
+            </p>
+          )}
+        </fieldset>
         {!isStandalone && (
           <>
             <div>
@@ -367,6 +445,8 @@ function BookingForm(props: BookingModalProps) {
             ],
             customTreatments: customs,
             isCourse,
+            courseSessions: paidSessions === 1 ? undefined : paidSessions,
+            courseRewardSelection,
           }}
           date={date}
           time={time}
@@ -444,9 +524,10 @@ function BookingForm(props: BookingModalProps) {
         </h3>
         {isCourse && (
           <p className="rounded-lg bg-[#FAF0F2] p-3 mb-4 text-[#5C4A45] leading-relaxed">
-            Buy 3 sessions, get the 4th free: pay for 3 sessions of each
-            selected treatment, including add-ons. The 4th session of each is
-            included free.
+            {paidSessions === 3 ? THREE_SESSION_OFFER : SIX_SESSION_OFFER}. Pay
+            for {paidSessions} sessions of each selected treatment, including
+            add-ons. {reward?.name} is included at no extra charge and arranged
+            as a separate visit with the owner.
           </p>
         )}
         <ul

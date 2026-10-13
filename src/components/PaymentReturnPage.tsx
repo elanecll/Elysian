@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, Clock, RefreshCw } from "lucide-react";
-import { money, type Receipt } from "../../shared/payments";
+import {
+  money,
+  courseOfferDescription,
+  type Receipt,
+} from "../../shared/payments";
 import { getReceipt } from "../data/paymentApi";
 import { buttonClass, ErrorMessage } from "./PaymentUI";
 import type { PageTab } from "../types";
@@ -132,7 +136,7 @@ export function PaymentReturnPage({
           {record.date && (
             <p>
               {record.date} at {record.time}
-              {record.isCourse ? " · Four sessions, pay for three" : ""}
+              {record.isCourse ? ` · ${courseOfferDescription(record)}` : ""}
             </p>
           )}
           {record.items.map((item) => (

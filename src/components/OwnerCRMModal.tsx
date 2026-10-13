@@ -3,6 +3,7 @@ import { Download, RefreshCw, LogOut, Copy } from "lucide-react";
 import {
   money,
   londonDate,
+  courseOfferDescription,
   type PaymentRecord,
   type BookingRequest,
 } from "../../shared/payments";
@@ -282,7 +283,7 @@ function RecordDetails({
       {record.date && (
         <p className="text-sm">
           Requested appointment: {record.date} at {record.time}
-          {record.isCourse ? " · Four sessions, pay for three" : ""}
+          {record.isCourse ? ` · ${courseOfferDescription(record)}` : ""}
         </p>
       )}
       {record.deliveryOption && (

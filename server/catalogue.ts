@@ -2,6 +2,7 @@ import { z } from "zod";
 import { consultationSchema } from "./consultation";
 import { SPA_PRODUCTS } from "../src/data/shopData";
 import { SPA_SERVICES } from "../src/data/spaData";
+import { courseReward } from "../shared/courseOffers";
 import {
   EXTRA_ADDONS,
   isStandaloneTreatment,
@@ -84,6 +85,14 @@ export const bookingSchema = z
       }, "Select a valid date today or later."),
     time: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/),
     isCourse: z.boolean().default(false),
+    courseSessions: z.union([z.literal(3), z.literal(6)]).optional(),
+    courseRewardSelection: z
+      .object({
+        serviceId: z.string().max(100),
+        optionIndex: z.number().int().min(0).max(20),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
   .refine((r) => {
@@ -145,6 +154,10 @@ export function shopQuote(input: z.infer<typeof shopSchema>) {
 export function bookingQuote(
   input: Omit<z.infer<typeof bookingSchema>, "consultation">,
 ) {
+  if (!input.isCourse && (input.courseSessions || input.courseRewardSelection))
+    throw new Error("Select a course before choosing course offers.");
+  const paidSessions = input.courseSessions ?? (input.isCourse ? 3 : 1);
+  const reward = courseReward(paidSessions, input.courseRewardSelection);
   if (
     input.treatments.some((t) => isStandaloneTreatment(t.serviceId)) &&
     (input.treatments.length !== 1 || input.customTreatments.length > 0)
@@ -170,7 +183,7 @@ export function bookingQuote(
       return {
         id: addon.id,
         name: addon.title,
-        quantity: input.isCourse ? 3 : 1,
+        quantity: paidSessions,
         unitPricePence: addon.pricePence,
         duration: addon.duration,
       };
@@ -182,7 +195,7 @@ export function bookingQuote(
       return {
         id: service.id,
         name: service.title,
-        quantity: input.isCourse ? 3 : 1,
+        quantity: paidSessions,
         unitPricePence: null,
         duration: option.duration,
         custom: true,
@@ -192,7 +205,7 @@ export function bookingQuote(
     return {
       id: service.id,
       name: service.title,
-      quantity: input.isCourse ? 3 : 1,
+      quantity: paidSessions,
       unitPricePence: Math.round(price * 100),
       duration: option.duration,
     };
@@ -202,7 +215,7 @@ export function bookingQuote(
       id: `custom-${index}`,
       name: t.title,
       duration: `${t.durationMinutes} mins`,
-      quantity: input.isCourse ? 3 : 1,
+      quantity: paidSessions,
       unitPricePence: null,
       custom: true,
     })),
@@ -213,6 +226,8 @@ export function bookingQuote(
   );
   return {
     items,
+    courseSessions: paidSessions === 1 ? undefined : paidSessions,
+    courseReward: reward,
     subtotalPence: totalPence,
     totalPence,
     amountDuePence: Math.round(totalPence / 2),

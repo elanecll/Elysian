@@ -15,6 +15,8 @@ interface TreatmentMenuProps {
 }
 
 const panelClass = 'rounded-2xl border border-[#E8BAC0]/40 bg-white p-5 sm:p-6 shadow-xs';
+const formatTreatmentPrice = (price: number | string | undefined) =>
+  typeof price === 'number' ? `£${price.toFixed(2).replace('.00', '')}` : price || 'Price on approval';
 const filterButtonClass = (active: boolean) =>
   `inline-flex min-h-12 items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm sm:text-base font-semibold transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#87464D] ${active
     ? 'border-[#87464D] bg-[#87464D] text-white'
@@ -190,10 +192,13 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
               const opt60 = treatment.priceOptions?.find((o) =>
                 o.duration.toLowerCase().includes('60')
               );
-              const hasDurationChoice = !!(opt30 && opt60);
+              const hasDurationChoice = treatment.category === 'facial' && !!(opt30 && opt60);
               const activeCardDur = getActiveDurationForCard(treatment.id);
               const activeOpt = activeCardDur === '60' && opt60 ? opt60 : opt30 || treatment.priceOptions?.[0];
-              const badge = treatment.id === 'bring-a-friend-package' ? 'Both Save 15% OFF'
+              const activePrice = activeOpt?.priceClinicare ?? activeOpt?.priceSingle;
+              const activeDeposit = typeof activePrice === 'number' && Number.isFinite(activePrice)
+                ? formatTreatmentPrice(Math.round(activePrice * 100 / 2) / 100) : undefined;
+              const badge = treatment.id === 'bring-a-friend-package' ? treatment.priceDisplay
                 : treatment.id === 'facial-product-bundle-package' ? '10% OFF Skincare'
                 : treatment.category === 'packages' ? 'Curated Package'
                 : treatment.popular ? 'Most Requested'
@@ -279,13 +284,13 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                                 {activeCardDur === '30' ? '30m Express:' : '60m Full:'}
                               </span>
                               <span className="text-base font-bold text-[#BE757C] font-display">
-                                £{activeCardDur === '30' ? (opt30?.priceClinicare ?? opt30?.priceSingle) : (opt60?.priceClinicare ?? opt60?.priceSingle)}
+                                {formatTreatmentPrice(activePrice)}
                               </span>
                               <span className="text-[10px] text-[#8C3F48] font-semibold bg-[#FCE8EB] px-1.5 py-0.5 rounded">
-                                50% dep: £{(Number(activeCardDur === '30' ? (opt30?.priceClinicare ?? opt30?.priceSingle) : (opt60?.priceClinicare ?? opt60?.priceSingle)) * 0.5).toFixed(2).replace('.00', '')}
+                                {activeDeposit ? `50% dep: ${activeDeposit}` : 'Deposit confirmed on approval'}
                               </span>
                               <span className="text-[10px] text-[#7A5852]">
-                                {activeCardDur === '30' ? `(60m: £${opt60?.priceClinicare ?? opt60?.priceSingle})` : `(30m: £${opt30?.priceClinicare ?? opt30?.priceSingle})`}
+                                {activeCardDur === '30' ? `(60m: ${formatTreatmentPrice(opt60?.priceClinicare ?? opt60?.priceSingle)})` : `(30m: ${formatTreatmentPrice(opt30?.priceClinicare ?? opt30?.priceSingle)})`}
                               </span>
                             </div>
 
@@ -318,7 +323,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                               <div className="flex items-center gap-3">
                                 {(opt.priceClinicare !== undefined || opt.priceSingle !== undefined) && (
                                   <span className="font-bold text-[#BE757C]">
-                                    £{opt.priceClinicare ?? opt.priceSingle}
+                                    {formatTreatmentPrice(opt.priceClinicare ?? opt.priceSingle)}
                                   </span>
                                 )}
                               </div>
@@ -356,7 +361,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                         {hasDurationChoice ? (
                           <span>
                             <span className="font-bold text-[#BE757C]">
-                              £{activeCardDur === '30' ? (opt30?.priceClinicare ?? opt30?.priceSingle) : (opt60?.priceClinicare ?? opt60?.priceSingle)}
+                              {formatTreatmentPrice(activePrice)}
                             </span>{' '}
                             <span className="text-xs text-[#5C4A45] font-sans-clean font-normal">
                               (🔬 CLINICARE)

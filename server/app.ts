@@ -81,6 +81,8 @@ const receipt = (r: PaymentRecord): Receipt => ({
   date: r.date,
   time: r.time,
   isCourse: r.isCourse,
+  courseSessions: r.courseSessions,
+  courseReward: r.courseReward,
   totalPence: r.totalPence,
   amountDuePence: r.amountDuePence,
   paidPence: r.paidPence,
@@ -504,11 +506,20 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
           createdAt: new Date().toISOString(),
         };
         store.insertReview(review, key, fingerprint);
-        return { id: review.id, status: "pending" as const, published: false, created: true };
+        return {
+          id: review.id,
+          status: "pending" as const,
+          published: false,
+          created: true,
+        };
       });
       res
         .status(result.created ? 201 : 200)
-        .json({ id: result.id, status: result.status, published: result.published });
+        .json({
+          id: result.id,
+          status: result.status,
+          published: result.published,
+        });
     }),
   );
   app.get(
@@ -520,7 +531,10 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
     "/api/owner/reviews/:id",
     authenticate,
     route((req, res) => {
-      const input = z.object({ status: z.enum(["published", "hidden"]) }).strict().parse(req.body);
+      const input = z
+        .object({ status: z.enum(["published", "hidden"]) })
+        .strict()
+        .parse(req.body);
       if (!store.setReviewStatus(req.params.id, input.status))
         throw new HttpError(404, "Review not found.");
       res.json({ updated: true });

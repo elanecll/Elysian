@@ -19,7 +19,7 @@ import {
   makeEntry,
 } from "../server/calendar";
 import { DEFAULT_HOURS, shiftDate } from "../shared/calendar";
-import { londonDate } from "../shared/payments";
+import { londonDate, type BookingRequest } from "../shared/payments";
 import { testConsultation } from "./consultation-fixture";
 
 const origin = "http://localhost:3000";
@@ -35,7 +35,7 @@ const futureTuesday = () => {
     date = shiftDate(date, 1);
   return date;
 };
-const booking = (time = "13:00", optionIndex = 1) => ({
+const booking = (time = "13:00", optionIndex = 1): BookingRequest => ({
   consultation: testConsultation(),
   customer,
   date: futureTuesday(),
@@ -122,6 +122,8 @@ function setup(path = ":memory:") {
       treatments: body.treatments,
       customTreatments: body.customTreatments,
       isCourse: body.isCourse,
+      courseSessions: body.courseSessions,
+      courseRewardSelection: body.courseRewardSelection,
     });
   const login = async () =>
     (
@@ -268,6 +270,18 @@ test("calendar validates dates, closing time, slot boundaries, quantities and se
     .available({ ...booking(), isCourse: true })
     .expect(200);
   assert.equal(course.body.durationMinutes, 60);
+  const six = await f
+    .available({
+      ...booking(),
+      isCourse: true,
+      courseSessions: 6,
+      courseRewardSelection: {
+        serviceId: "swedish-full-body-massage",
+        optionIndex: 0,
+      },
+    })
+    .expect(200);
+  assert.equal(six.body.durationMinutes, 60);
   const twin = await f
     .available({
       ...booking(),
