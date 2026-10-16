@@ -1,9 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Request, Response } from "express";
 import { Pool } from "pg";
-import { createApp } from "../server/app";
-import { loadConfig } from "../server/config";
-import { PostgresStore, SCHEMA_SQL } from "../server/postgres";
+import { createApp } from "../server/app.js";
+import { loadConfig } from "../server/config.js";
+import { PostgresStore, SCHEMA_SQL } from "../server/postgres.js";
 
 let pool: Pool | undefined;
 let initialized = false;

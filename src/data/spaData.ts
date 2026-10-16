@@ -1,4 +1,4 @@
-import { Treatment, Review, FaqItem } from '../types';
+import type { Treatment, Review, FaqItem } from '../types.js';
 
 export const SPA_SERVICES: Treatment[] = [
   // Clinicare Microneedling

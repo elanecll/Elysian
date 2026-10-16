@@ -1,4 +1,4 @@
-import type { ConsultationInput, ConsultationStatus } from "./consultation";
+import type { ConsultationInput, ConsultationStatus } from "./consultation.js";
 export interface Customer {
   name: string;
   email: string;

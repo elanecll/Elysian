@@ -1,8 +1,8 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import type { PaymentRecord } from "../shared/payments";
-import type { ClientReview, StoredReview, ReviewFeed } from "../shared/reviews";
+import type { PaymentRecord } from "../shared/payments.js";
+import type { ClientReview, StoredReview, ReviewFeed } from "../shared/reviews.js";
 
 export interface Attempt {
   key: string;

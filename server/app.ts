@@ -18,8 +18,8 @@ import {
   bookingQuote,
   shopSchema,
   shopQuote,
-} from "./catalogue";
-import type { Storage as Store } from "./storage";
+} from "./catalogue.js";
+import type { Storage as Store } from "./storage.js";
 import {
   CalendarError,
   checkoutDeadline,
@@ -41,23 +41,23 @@ import {
   expireRequests,
   updateBookingEntry,
   migrateDiary,
-} from "./calendar";
-import { shiftDate } from "../shared/calendar";
-import { reviewSchema, reviewTreatment } from "./reviews";
-import type { ClientReview } from "../shared/reviews";
-import { exclusive } from "./storage";
-import type { Config } from "./config";
+} from "./calendar.js";
+import { shiftDate } from "../shared/calendar.js";
+import { reviewSchema, reviewTreatment } from "./reviews.js";
+import type { ClientReview } from "../shared/reviews.js";
+import { exclusive } from "./storage.js";
+import type { Config } from "./config.js";
 import {
   consultationReviewSchema,
   getConsultation,
   saveConsultation,
   validateConsultation,
-} from "./consultation";
+} from "./consultation.js";
 import {
   londonDate,
   type PaymentRecord,
   type Receipt,
-} from "../shared/payments";
+} from "../shared/payments.js";
 const hash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
 class HttpError extends Error {

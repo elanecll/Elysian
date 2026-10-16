@@ -1,14 +1,14 @@
 import { z } from "zod";
-import { consultationSchema } from "./consultation";
-import { SPA_PRODUCTS } from "../src/data/shopData";
-import { SPA_SERVICES } from "../src/data/spaData";
-import { courseReward } from "../shared/courseOffers";
+import { consultationSchema } from "./consultation.js";
+import { SPA_PRODUCTS } from "../src/data/shopData.js";
+import { SPA_SERVICES } from "../src/data/spaData.js";
+import { courseReward } from "../shared/courseOffers.js";
 import {
   EXTRA_ADDONS,
   isStandaloneTreatment,
   londonDate,
   type RecordItem,
-} from "../shared/payments";
+} from "../shared/payments.js";
 
 const customer = z
   .object({

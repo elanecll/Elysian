@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SPA_SERVICES } from "../src/data/spaData";
+import { SPA_SERVICES } from "../src/data/spaData.js";
 
 export const reviewSchema = z
   .object({

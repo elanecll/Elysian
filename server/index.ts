@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { createApp } from "./app";
-import { loadConfig } from "./config";
-import { Store } from "./store";
+import { createApp } from "./app.js";
+import { loadConfig } from "./config.js";
+import { Store } from "./store.js";
 
 const config = loadConfig();
 const store = new Store(config.databasePath);

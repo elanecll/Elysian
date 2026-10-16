@@ -1,7 +1,7 @@
 import type { PoolClient } from "pg";
-import type { PaymentRecord } from "../shared/payments";
-import type { ClientReview, StoredReview, ReviewFeed } from "../shared/reviews";
-import type { Attempt } from "./store";
+import type { PaymentRecord } from "../shared/payments.js";
+import type { ClientReview, StoredReview, ReviewFeed } from "../shared/reviews.js";
+import type { Attempt } from "./store.js";
 function postgresSQL(sql: string) {
   let index = 0;
   const ignore = sql.includes("INSERT OR IGNORE");

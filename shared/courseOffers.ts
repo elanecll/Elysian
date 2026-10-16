@@ -1,5 +1,5 @@
-import { SPA_SERVICES } from "../src/data/spaData";
-import type { TreatmentSelection } from "./payments";
+import { SPA_SERVICES } from "../src/data/spaData.js";
+import type { TreatmentSelection } from "./payments.js";
 
 export const THREE_SESSION_OFFER =
   "Buy 3 sessions, receive a free £30 Cinderella / Black Tie Facial";

@@ -1,5 +1,5 @@
-import { Product } from '../types';
-import { CLINICARE_PRODUCTS } from './cliniccareProducts';
+import type { Product } from '../types.js';
+import { CLINICARE_PRODUCTS } from './cliniccareProducts.js';
 
 export const TROPIC_PRODUCTS: Product[] = [
   // --- 🌿 TROPIC SKINCARE PRODUCTS ---

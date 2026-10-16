@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import type { Storage as Store } from "./storage";
+import type { Storage as Store } from "./storage.js";
 import {
   CONSULTATION_VERSION,
   healthQuestions,
   guestCount,
   type PrivateConsultation,
-} from "../shared/consultation";
+} from "../shared/consultation.js";
 export const consultationSchema = z
   .object({
     version: z.literal(CONSULTATION_VERSION),

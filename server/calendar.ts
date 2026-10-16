@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import type { Storage as Store } from "./storage";
-import { bookingSchema, bookingQuote } from "./catalogue";
+import type { Storage as Store } from "./storage.js";
+import { bookingSchema, bookingQuote } from "./catalogue.js";
 import {
   londonDate,
   type PaymentRecord,
   type RecordItem,
-} from "../shared/payments";
+} from "../shared/payments.js";
 import {
   BREAK_MINUTES,
   BOOKING_DAYS,
@@ -17,7 +17,7 @@ import {
   shiftDate,
   type DiaryEntry,
   type OpeningDay,
-} from "../shared/calendar";
+} from "../shared/calendar.js";
 export class CalendarError extends Error {
   constructor(
     public status: number,
