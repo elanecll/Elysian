@@ -9,7 +9,11 @@ import Stripe from "stripe";
 import { createApp } from "../server/app";
 import { Store } from "../server/store";
 import { loadConfig } from "../server/config";
-import { londonDate, type BookingRequest, type Receipt } from "../shared/payments";
+import {
+  londonDate,
+  type BookingRequest,
+  type Receipt,
+} from "../shared/payments";
 import {
   bookingQuote,
   bookingSchema,
@@ -173,8 +177,8 @@ function setup(path = ":memory:") {
         .expect(201)
     ).body as { receipt: Receipt; receiptToken: string };
     // Payment tests start after a completed consultation; intake/gating is exercised separately.
-    saveConsultation(store, response.receipt.id, {
-      ...getConsultation(store, response.receipt.id)!,
+    await saveConsultation(store, response.receipt.id, {
+      ...(await getConsultation(store, response.receipt.id))!,
       status: "approved",
       protocolChecked: true,
       consultationCompleted: true,

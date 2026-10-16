@@ -227,6 +227,21 @@ export class Store {
     this.db.exec("BEGIN IMMEDIATE");
     try {
       const result = fn();
+      if (
+        result &&
+        typeof (result as unknown as PromiseLike<unknown>).then === "function"
+      ) {
+        return Promise.resolve(result).then(
+          (value) => {
+            this.db.exec("COMMIT");
+            return value;
+          },
+          (error) => {
+            this.db.exec("ROLLBACK");
+            throw error;
+          },
+        ) as T;
+      }
       this.db.exec("COMMIT");
       return result;
     } catch (error) {

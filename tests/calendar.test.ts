@@ -21,7 +21,6 @@ import {
 import { DEFAULT_HOURS, shiftDate } from "../shared/calendar";
 import { londonDate, type BookingRequest } from "../shared/payments";
 import { testConsultation } from "./consultation-fixture";
-
 const origin = "http://localhost:3000";
 const customer = {
   name: "Calendar Test Client",
@@ -176,13 +175,12 @@ function setup(path = ":memory:") {
     },
   };
 }
-
 test("1pm hour treatment reserves until 2:30 and rejects overlaps in either direction", async () => {
   const f = setup();
   const result = await f.submit().expect(201);
   const id = result.body.receipt.id;
-  assert.equal(entry(f.store, id)!.endTime, "14:00");
-  assert.equal(entry(f.store, id)!.availableAfter, "14:30");
+  assert.equal((await entry(f.store, id))!.endTime, "14:00");
+  assert.equal((await entry(f.store, id))!.availableAfter, "14:30");
   const slots = (await f.available().expect(200)).body.slots as string[];
   assert.ok(!slots.includes("12:00"));
   assert.ok(!slots.includes("13:00"));
@@ -198,7 +196,7 @@ test("different concurrent submissions reserve once; identical retries return th
   const f = setup();
   const results = await Promise.all([f.submit(), f.submit()]);
   assert.deepEqual(results.map((r) => r.status).sort(), [201, 409]);
-  assert.equal(entries(f.store).length, 1);
+  assert.equal((await entries(f.store)).length, 1);
   const retry = setup();
   const key = randomUUID();
   const responses = await Promise.all(
@@ -206,7 +204,7 @@ test("different concurrent submissions reserve once; identical retries return th
   );
   assert.equal(new Set(responses.map((r) => r.body.receipt.id)).size, 1);
   assert.ok(responses.every((r) => [200, 201].includes(r.status)));
-  assert.equal(entries(retry.store).length, 1);
+  assert.equal((await entries(retry.store)).length, 1);
   await retry.submit(booking("16:00"), key).expect(409);
 });
 test("overlap prevention and reservations survive separate app processes and database restart", async () => {
@@ -306,7 +304,10 @@ test("approval holds expire automatically; expired requests cannot take a newly 
   const f = setup();
   const first = await f.submit().expect(201);
   const id = first.body.receipt.id;
-  saveEntry(f.store, { ...entry(f.store, id)!, holdUntil: Date.now() - 1 });
+  await saveEntry(f.store, {
+    ...(await entry(f.store, id))!,
+    holdUntil: Date.now() - 1,
+  });
   assert.ok((await f.available().expect(200)).body.slots.includes("13:00"));
   assert.equal(f.store.get(id)!.status, "expired");
   await f.submit().expect(201);
@@ -330,7 +331,7 @@ test("payment close to expiry retains reservation even without return page; expi
   session.payment_status = "paid";
   const feed = await f.available().expect(200);
   assert.ok(!feed.body.slots.includes("13:00"));
-  assert.equal(entry(f.store, id)!.kind, "confirmed");
+  assert.equal((await entry(f.store, id))!.kind, "confirmed");
   assert.equal(f.store.get(id)!.paidPence, 3250);
   const unpaid = setup();
   const other = await unpaid.submit().expect(201);
@@ -342,7 +343,7 @@ test("payment close to expiry retains reservation even without return page; expi
   assert.ok(
     (await unpaid.available().expect(200)).body.slots.includes("13:00"),
   );
-  assert.equal(entry(unpaid.store, before.id)!.cancelled, true);
+  assert.equal((await entry(unpaid.store, before.id))!.cancelled, true);
 });
 test("Stripe failures and open sessions never release an approved reservation", async () => {
   const f = setup();
@@ -351,7 +352,7 @@ test("Stripe failures and open sessions never release an approved reservation", 
   const cookie = await f.login();
   f.lost();
   await f.approve(id, cookie).expect(500);
-  assert.equal(entry(f.store, id)!.kind, "payment");
+  assert.equal((await entry(f.store, id))!.kind, "payment");
   await f.submit().expect(409);
   await f.approve(id, cookie).expect(200);
   assert.equal(f.sessions.size, 1);
@@ -360,7 +361,7 @@ test("Stripe failures and open sessions never release an approved reservation", 
   assert.ok(!(await f.available().expect(200)).body.slots.includes("13:00"));
   f.offline();
   await f.available().expect(500);
-  assert.equal(entry(f.store, id)!.cancelled, false);
+  assert.equal((await entry(f.store, id))!.cancelled, false);
 });
 test("owner diary protects manual bookings and holidays, requires authentication, is idempotent and releases cancelled time", async () => {
   const f = setup();
@@ -429,7 +430,7 @@ test("cancelling active checkout expires its link first; paid cancellation prese
   ps.status = "complete";
   ps.payment_status = "paid";
   await paid.cancel(oid, pc).expect(409);
-  assert.equal(entry(paid.store, oid)!.cancelled, false);
+  assert.equal((await entry(paid.store, oid))!.cancelled, false);
   await request(paid.app)
     .get(`/api/receipts/${other.body.receiptToken}`)
     .expect(200);
@@ -459,7 +460,7 @@ test("cancelling active checkout expires its link first; paid cancellation prese
     .send(payload)
     .expect(200);
   assert.equal(paid.store.get(oid)!.status, "cancelled");
-  assert.equal(entry(paid.store, oid)!.cancelled, true);
+  assert.equal((await entry(paid.store, oid))!.cancelled, true);
 });
 test("opening hours are owner controlled; changes retain existing reservations", async () => {
   const f = setup();
@@ -479,11 +480,13 @@ test("opening hours are owner controlled; changes retain existing reservations",
     hours: DEFAULT_HOURS.map((d) => ({ ...d, enabled: false })),
   }).expect(200);
   assert.deepEqual((await f.available().expect(200)).body.slots, []);
-  assert.equal(entry(f.store, result.body.receipt.id)!.cancelled, false);
+  assert.equal(
+    (await entry(f.store, result.body.receipt.id))!.cancelled,
+    false,
+  );
   const response = await request(f.app).get("/api/calendar/hours").expect(200);
   assert.ok(response.body.hours.every((d: { enabled: boolean }) => !d.enabled));
 });
-
 test("UK summer/winter times and daylight-saving transitions are handled safely", () => {
   assert.equal(
     londonInstant("2026-10-13", "13:00"),
@@ -556,7 +559,7 @@ test("persistent booking rate limits roll back rejected reservations and permit 
   await f
     .submit({ ...booking(), date: shiftDate(futureTuesday(), 7) })
     .expect(429);
-  assert.equal(entries(f.store).length, 6);
+  assert.equal((await entries(f.store)).length, 6);
   assert.equal(f.store.list().length, 6);
   await f.submit(booking("10:00"), key).expect(200);
 });

@@ -1,4 +1,4 @@
-# Elysian Spa — local Stripe test payments
+# Elysian Spa — storefront, payments and CRM
 
 The React storefront now uses an Express API and a local SQLite database. Customer bookings start as requests; the owner approves availability and custom prices before sending a 50% deposit checkout link. Boutique orders charge the full server-calculated total. Stripe-hosted Checkout collects card details. There are no simulated payments or browser-only owner credentials.
 
@@ -96,7 +96,7 @@ The page refreshes approved submissions every 30 seconds while visible and loads
 
 Submission identifiers prevent duplicate publication on retries. The server validates treatment IDs, rating, lengths and publishing consent, rejects markup and populated spam-trap fields, and allows three new reviews per client IP per hour. Limits persist across API restarts. Behind a production proxy, configure trusted proxy handling for accurate client IPs; do not broadly trust forwarded IP headers.
 
-This works on the local full-stack preview. Deploying only Vite's `dist` folder to Vercel does not host the review API or SQLite database. Public client submissions require a deployed HTTPS API, a same-origin `/api` route, production-compatible configuration and durable database storage; the current backend intentionally permits localhost only.
+This works on the local full-stack preview. Deploying only Vite's `dist` folder to Vercel does not host the review API or SQLite database. Public client submissions use the deployed HTTPS API and Neon storage described below. Local development still uses SQLite.
 
 ### Review API
 
@@ -119,4 +119,27 @@ Browser mutations require an `Origin` matching `APP_URL`. Owner cookies are Http
 
 ## Before going live
 
-Live keys are deliberately rejected. Production hosting, public HTTPS webhooks, a durable hosted database, backups, production authentication review, account activation, real receipts/notifications, inventory management and external calendar synchronisation are separate work. The local booking calendar reserves appointment slots automatically; its API and durable database must be deployed before the public website can use it. PayPal and direct bank transfers are deferred. Existing catalogue prices are treated as final consumer prices; this milestone adds no separate tax calculation.
+Live keys require explicit `STRIPE_MODE=live`, a public HTTPS origin, and a matching `sk_live_` key. Production account activation, backups, real receipts/notifications, inventory management and external calendar synchronisation still require owner configuration. The local booking calendar reserves appointment slots automatically; its API and durable database must be deployed before the public website can use it. PayPal and direct bank transfers are deferred. Existing catalogue prices are treated as final consumer prices; this milestone adds no separate tax calculation.
+
+
+## Vercel + Neon deployment
+
+The Vite storefront and `api/[...path].ts` deploy together. The API uses a dedicated Neon Postgres schema (`elysian_spa`); local development and the original test suite continue using SQLite. No local customer data, sessions, passwords, health keys or `.env` files are deployed with the source.
+
+Connect a Neon database to the Vercel project. Set these **Production** environment variables before enabling real payments:
+
+- `DATABASE_URL_UNPOOLED` (or `POSTGRES_URL_NON_POOLING`): the integration's direct SSL connection. The transaction pooler cannot be used because the API uses a session advisory lock.
+- `APP_URL=https://elysianbeautyspa.co.uk`: exact canonical customer-facing origin.
+- `NODEJS_HELPERS=0`: disable Vercel request helpers so Express receives the exact raw Stripe webhook bytes.
+- `STRIPE_MODE=live` and `STRIPE_SECRET_KEY=sk_live_...`: matching live Stripe account credentials. Keep test credentials in local development.
+- `STRIPE_WEBHOOK_SECRET=whsec_...`: signing secret for the **live** endpoint `https://elysianbeautyspa.co.uk/api/stripe/webhook`.
+- `OWNER_USERNAME` and `OWNER_PASSWORD`: owner credentials; password minimum 12 characters. These are server-only, never `VITE_` variables.
+- `HEALTH_DATA_KEY`: a permanent cryptographically random 32-byte value encoded as base64. Store it separately in a password manager/secure backup. Losing or replacing it makes existing private health records unreadable. PostgreSQL deployments never create a key on ephemeral disk.
+
+Redeploy after changing environment variables. `GET /api/health` exposes configuration booleans without secrets. A browser visit to `/api/stripe/webhook` returns HTTP **405** with `Allow: POST`; unsigned requests are never acknowledged as payments. Incomplete Stripe settings return HTTP **503**, preventing checkout until the webhook signing secret is configured. Production previews are disabled from using the production payment/CRM API.
+
+Register **Your account / Snapshot / API 2026-08-26.dahlia** with these six Stripe events: `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `payment_intent.payment_failed`, `charge.refunded`.
+
+Each API request leases a direct Postgres connection and a cross-instance advisory lock. This conservatively serializes access for this single-therapist application, including appointment overlap checks and payment reconciliation. Short database transactions preserve atomic booking/consultation changes; committed pending checkout attempts survive Stripe request failures. The lock is not a transaction held over external payment calls. Login rate limits, sessions, payment deduplication, reviews and calendar data persist in Neon. API responses are not cached. Configure provider backups and retention before collecting production client data.
+
+Optional database integration verification: set `NEON_TEST_DATABASE_URL` privately and run `node --import tsx --test tests/postgres.test.ts`. The test creates a unique temporary schema, uses synthetic customer/Stripe fixtures, verifies persistence and encrypted consultation storage, and drops only that schema. It never calls Stripe or moves money.

@@ -457,7 +457,7 @@ function RecordDetails({
       </div>
       <p className="text-xs text-[#7A5852]">
         Customer messages are sent manually. Refunds are initiated in the Stripe
-        sandbox dashboard and synced when its refund event arrives.
+        dashboard and synced when its refund event arrives.
       </p>
       <ErrorMessage error={error} />
       {message && (

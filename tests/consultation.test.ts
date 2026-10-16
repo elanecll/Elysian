@@ -12,7 +12,6 @@ import { getConsultation } from "../server/consultation";
 import { londonDate, type BookingRequest } from "../shared/payments";
 import { shiftDate } from "../shared/calendar";
 import { testConsultation } from "./consultation-fixture";
-
 const origin = "http://localhost:3000";
 const stores: Store[] = [];
 const dirs: string[] = [];
@@ -206,7 +205,7 @@ test("flagged answers remain unpaid and require authenticated consultation appro
   assert.equal(f.creates.length, 1);
   assert.equal(f.store.get(id)!.status, "awaiting_payment");
   await f.review(id, cookie, { status: "deferred" }).expect(409);
-  assert.equal(getConsultation(f.store, id)!.status, "approved");
+  assert.equal((await getConsultation(f.store, id))!.status, "approved");
   await f
     .post(`/owner/calendar/${id}/cancel`)
     .set("Cookie", cookie)
@@ -239,7 +238,6 @@ test("microneedling reserves 45 minutes and quotes £80 with a £40 deposit only
   assert.equal(f.creates.length, 1);
   assert.equal(f.creates[0].line_items![0].price_data!.unit_amount, 4000);
 });
-
 test("private answers stay encrypted and out of receipt, ledger, diary and Stripe payloads; endpoint is authenticated", async () => {
   const f = setup();
   const value = body();
@@ -316,9 +314,12 @@ test("health and booking records are atomic, persistent and idempotent, includin
       .count,
     1,
   );
-  const original = getConsultation(f.store, first.receipt.id)!;
+  const original = (await getConsultation(f.store, first.receipt.id))!;
   const restored = setup(path);
-  assert.deepEqual(getConsultation(restored.store, first.receipt.id), original);
+  assert.deepEqual(
+    await getConsultation(restored.store, first.receipt.id),
+    original,
+  );
   assert.equal(readFileSync(`${path}.health-key`).length, 32);
   const cookie = await restored.login();
   await request(restored.app)
@@ -390,6 +391,6 @@ test("legacy bookings need a documented private consultation; paid receipts neve
     healthChangesReviewed: true,
     treatmentConsentObtained: true,
   }).expect(200);
-  assert.equal(getConsultation(f.store, id)!.dayOfChecks!.length, 1);
+  assert.equal((await getConsultation(f.store, id))!.dayOfChecks!.length, 1);
   await complete().expect(200);
 });

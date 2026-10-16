@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
-import { Store } from "./store";
+import type { Storage as Store } from "./storage";
 import { bookingSchema, bookingQuote } from "./catalogue";
 import {
   londonDate,
@@ -18,7 +18,6 @@ import {
   type DiaryEntry,
   type OpeningDay,
 } from "../shared/calendar";
-
 export class CalendarError extends Error {
   constructor(
     public status: number,
@@ -87,7 +86,6 @@ export const manualSchema = z
       (r.customerName.length >= 2 && r.durationMinutes <= 480),
     "Manual appointments need a client name and a duration up to eight hours.",
   );
-
 // Course quantities are prices for separate visits, not consecutive treatments.
 // One therapist treats twin clients consecutively, including an internal break.
 export function treatmentMinutes(items: RecordItem[]) {
@@ -105,26 +103,40 @@ export function treatmentMinutes(items: RecordItem[]) {
     );
   }, 0);
 }
-export function readHours(store: Store): OpeningDay[] {
-  const row = store.db
+export async function readHours(store: Store): Promise<OpeningDay[]> {
+  const row = (await store.db
     .prepare("SELECT data FROM calendar_settings WHERE id=1")
-    .get() as { data: string } | undefined;
+    .get()) as
+    | {
+        data: string;
+      }
+    | undefined;
   return row ? JSON.parse(row.data) : DEFAULT_HOURS;
 }
-export function entry(store: Store, id: string): DiaryEntry | undefined {
-  const row = store.db.prepare("SELECT data FROM diary WHERE id=?").get(id) as
-    { data: string } | undefined;
+export async function entry(
+  store: Store,
+  id: string,
+): Promise<DiaryEntry | undefined> {
+  const row = (await store.db
+    .prepare("SELECT data FROM diary WHERE id=?")
+    .get(id)) as
+    | {
+        data: string;
+      }
+    | undefined;
   return row && JSON.parse(row.data);
 }
-export function entries(store: Store): DiaryEntry[] {
+export async function entries(store: Store): Promise<DiaryEntry[]> {
   return (
-    store.db.prepare("SELECT data FROM diary ORDER BY date, start").all() as {
+    (await store.db
+      .prepare("SELECT data FROM diary ORDER BY date, start")
+      .all()) as {
       data: string;
     }[]
   ).map((r) => JSON.parse(r.data));
 }
-export function saveEntry(store: Store, e: DiaryEntry) {
-  store.db
+export async function saveEntry(store: Store, e: DiaryEntry) {
+  await store.db
     .prepare(
       "INSERT INTO diary(id, date, start, finish, data) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET date=excluded.date, start=excluded.start, finish=excluded.finish, data=excluded.data",
     )
@@ -139,13 +151,13 @@ export function saveEntry(store: Store, e: DiaryEntry) {
 export function active(e: DiaryEntry, now = Date.now()) {
   return !e.cancelled && (e.kind !== "request" || (e.holdUntil ?? 0) > now);
 }
-function overlaps(store: Store, e: DiaryEntry) {
+async function overlaps(store: Store, e: DiaryEntry) {
   return (
-    store.db
+    (await store.db
       .prepare(
         "SELECT data FROM diary WHERE date=? AND id<>? AND start<? AND finish>?",
       )
-      .all(e.date, e.id, minutes(e.availableAfter), minutes(e.time)) as {
+      .all(e.date, e.id, minutes(e.availableAfter), minutes(e.time))) as {
       data: string;
     }[]
   ).some((r) => active(JSON.parse(r.data)));
@@ -246,10 +258,14 @@ export function makeEntry(
     cancelled: false,
   };
 }
-export function reserve(store: Store, e: DiaryEntry, enforceHours = true) {
+export async function reserve(
+  store: Store,
+  e: DiaryEntry,
+  enforceHours = true,
+) {
   assertFuture(e.date, e.time, enforceHours);
   if (enforceHours) {
-    const day = readHours(store).find(
+    const day = (await readHours(store)).find(
       (d) => d.day === new Date(`${e.date}T12:00:00Z`).getUTCDay(),
     )!;
     if (
@@ -263,12 +279,12 @@ export function reserve(store: Store, e: DiaryEntry, enforceHours = true) {
         "Choose an available time within opening hours, including the 30-minute break.",
       );
   }
-  if (overlaps(store, e))
+  if (await overlaps(store, e))
     throw new CalendarError(
       409,
       "That time has just been reserved. Please choose another available time.",
     );
-  saveEntry(store, e);
+  await saveEntry(store, e);
 }
 export function forBooking(
   record: PaymentRecord,
@@ -299,8 +315,8 @@ export function forBooking(
       : {}),
   };
 }
-export function updateBookingEntry(store: Store, record: PaymentRecord) {
-  const e = entry(store, record.id);
+export async function updateBookingEntry(store: Store, record: PaymentRecord) {
+  const e = await entry(store, record.id);
   if (!e) return;
   if (record.status === "cancelled" || record.status === "expired")
     e.cancelled = true;
@@ -311,36 +327,36 @@ export function updateBookingEntry(store: Store, record: PaymentRecord) {
     e.kind = "payment";
     e.holdUntil = record.expiresAt;
   }
-  saveEntry(store, e);
+  await saveEntry(store, e);
 }
-export function expireRequests(store: Store) {
-  store.transaction(() => {
-    for (const e of entries(store)) {
+export async function expireRequests(store: Store) {
+  await store.transaction(async () => {
+    for (const e of await entries(store)) {
       if (
         e.kind !== "request" ||
         e.cancelled ||
         (e.holdUntil ?? 0) > Date.now()
       )
         continue;
-      const r = store.get(e.recordId!);
+      const r = await store.get(e.recordId!);
       if (r?.status === "requested") {
         r.status = "expired";
         r.paymentStatus = "expired";
-        store.save(r);
+        await store.save(r);
       }
       e.cancelled = true;
-      saveEntry(store, e);
+      await saveEntry(store, e);
     }
   });
 }
-export function availability(
+export async function availability(
   store: Store,
   date: string,
   durationMinutes: number,
 ) {
   if (date > shiftDate(londonDate(), BOOKING_DAYS))
     throw new CalendarError(400, `Book within the next ${BOOKING_DAYS} days.`);
-  const day = readHours(store).find(
+  const day = (await readHours(store)).find(
     (d) => d.day === new Date(`${date}T12:00:00Z`).getUTCDay(),
   )!;
   const slots: string[] = [];
@@ -365,7 +381,7 @@ export function availability(
           "availability",
         );
         assertFuture(date, e.time);
-        if (!overlaps(store, e)) slots.push(e.time);
+        if (!(await overlaps(store, e))) slots.push(e.time);
       } catch {
         continue;
       }
@@ -394,11 +410,16 @@ export function durationForSelection(
     }).items,
   );
 }
-export function migrateDiary(store: Store) {
+export async function migrateDiary(store: Store) {
   // Preserve all existing commitments, even if legacy records overlap or sit outside hours.
-  store.transaction(() => {
-    for (const r of store.list()) {
-      if (r.type !== "booking" || !r.date || !r.time || entry(store, r.id))
+  await store.transaction(async () => {
+    for (const r of await store.list()) {
+      if (
+        r.type !== "booking" ||
+        !r.date ||
+        !r.time ||
+        (await entry(store, r.id))
+      )
         continue;
       const e = forBooking(
         r,
@@ -413,7 +434,7 @@ export function migrateDiary(store: Store) {
           ? Date.parse(r.createdAt) + HOLD_HOURS * 3600000
           : r.expiresAt;
       e.cancelled = r.status === "expired" || r.status === "cancelled";
-      saveEntry(store, e);
+      await saveEntry(store, e);
     }
   });
 }

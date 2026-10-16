@@ -1,14 +1,13 @@
 import { z } from "zod";
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import type { Store } from "./store";
+import type { Storage as Store } from "./storage";
 import {
   CONSULTATION_VERSION,
   healthQuestions,
   guestCount,
   type PrivateConsultation,
 } from "../shared/consultation";
-
 export const consultationSchema = z
   .object({
     version: z.literal(CONSULTATION_VERSION),
@@ -56,15 +55,27 @@ export function validateConsultation(
   );
 }
 const keys = new WeakMap<Store, Buffer>();
-function key(store: Store) {
+async function key(store: Store) {
   const previous = keys.get(store);
   if (previous) return previous;
   let value: Buffer;
-  if (store.path === ":memory:") value = randomBytes(32);
+  if (store.path === "postgres") {
+    const encoded = process.env.HEALTH_DATA_KEY;
+    if (!encoded || !/^[A-Za-z0-9+/]{43}=$/.test(encoded))
+      throw new Error(
+        "Set a permanent HEALTH_DATA_KEY for private consultations.",
+      );
+    value = Buffer.from(encoded, "base64");
+    if (value.length !== 32) throw new Error("Invalid HEALTH_DATA_KEY.");
+  } else if (store.path === ":memory:") value = randomBytes(32);
   else {
     const path = `${store.path}.health-key`;
     if (!existsSync(path)) {
-      if (store.db.prepare("SELECT record_id FROM consultations LIMIT 1").get())
+      if (
+        await store.db
+          .prepare("SELECT record_id FROM consultations LIMIT 1")
+          .get()
+      )
         throw new Error(
           "The consultation encryption key is missing. Restore the original key.",
         );
@@ -81,13 +92,13 @@ function key(store: Store) {
   keys.set(store, value);
   return value;
 }
-export function saveConsultation(
+export async function saveConsultation(
   store: Store,
   id: string,
   value: PrivateConsultation,
 ) {
   const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", key(store), iv);
+  const cipher = createCipheriv("aes-256-gcm", await key(store), iv);
   cipher.setAAD(Buffer.from(id));
   const ciphertext = Buffer.concat([
     cipher.update(JSON.stringify(value), "utf8"),
@@ -96,24 +107,28 @@ export function saveConsultation(
   const data = Buffer.concat([iv, cipher.getAuthTag(), ciphertext]).toString(
     "base64",
   );
-  store.db
+  await store.db
     .prepare(
       "INSERT INTO consultations VALUES(?,?) ON CONFLICT(record_id) DO UPDATE SET data=excluded.data",
     )
     .run(id, data);
 }
-export function getConsultation(
+export async function getConsultation(
   store: Store,
   id: string,
-): PrivateConsultation | undefined {
-  const row = store.db
+): Promise<PrivateConsultation | undefined> {
+  const row = (await store.db
     .prepare("SELECT data FROM consultations WHERE record_id=?")
-    .get(id) as { data: string } | undefined;
+    .get(id)) as
+    | {
+        data: string;
+      }
+    | undefined;
   if (!row) return;
   const data = Buffer.from(row.data, "base64");
   const decipher = createDecipheriv(
     "aes-256-gcm",
-    key(store),
+    await key(store),
     data.subarray(0, 12),
   );
   decipher.setAAD(Buffer.from(id));
