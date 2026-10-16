@@ -124,7 +124,7 @@ Live keys require explicit `STRIPE_MODE=live`, a public HTTPS origin, and a matc
 
 ## Vercel + Neon deployment
 
-The Vite storefront and `api/[...path].ts` deploy together. The API uses a dedicated Neon Postgres schema (`elysian_spa`); local development and the original test suite continue using SQLite. No local customer data, sessions, passwords, health keys or `.env` files are deployed with the source.
+The Vite storefront and `api/index.ts` deploy together. The API uses a dedicated Neon Postgres schema (`elysian_spa`); local development and the original test suite continue using SQLite. No local customer data, sessions, passwords, health keys or `.env` files are deployed with the source.
 
 Connect a Neon database to the Vercel project. Set these **Production** environment variables before enabling real payments:
 
