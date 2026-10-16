@@ -11,6 +11,13 @@ interface ShopSectionProps {
   onViewBasket?: () => void;
 }
 
+const shopPanelClass = 'rounded-2xl border border-[#E8BAC0]/40 bg-white p-5 sm:p-6 shadow-xs';
+const shopButtonClass = 'inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm sm:text-base font-semibold transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#87464D]';
+const shopFilterClass = (active: boolean) => `${shopButtonClass} border ${active
+  ? 'border-[#87464D] bg-[#87464D] text-white'
+  : 'border-[#E8BAC0]/40 bg-white text-[#5C4A45] hover:bg-[#FFF0F2] hover:border-[#BE757C]'}`;
+const shopActionClass = `${shopButtonClass} bg-[#87464D] hover:bg-[#71383F] text-white shadow-xs`;
+
 export const ShopSection: React.FC<ShopSectionProps> = ({
   onAddToCart,
   cartCount = 0,
@@ -100,73 +107,63 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
       : allCategories;
 
   return (
-    <section id="shop" className="py-20 lg:py-24 bg-[#FFF9F9] relative overflow-hidden border-b border-[#E8BAC0]/30">
+    <section id="shop" className="pb-20 lg:pb-24 bg-[#FFF9F9] relative overflow-hidden border-b border-[#E8BAC0]/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFF0F2] border border-[#BE757C]/30 text-[#BE757C] text-xs uppercase tracking-[0.2em] font-semibold mb-3">
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>SPA BOUTIQUE &amp; RETAIL</span>
+        <div className="text-center mb-6">
+          <div className="relative isolate pt-20 lg:pt-24 pb-8">
+            <div aria-hidden="true" className="absolute inset-y-0 left-1/2 w-screen -translate-x-1/2 pointer-events-none -z-10">
+              <img
+                src="/images/banners/boutique-skincare.jpeg"
+                alt=""
+                className="h-full w-full object-cover object-[70%_center] sm:object-[center_35%] saturate-75"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,249,249,0.319872),rgba(255,246,247,0.327488)_50%,rgba(255,240,242,0.0986272))]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,249,249,0.405)_40%,rgba(255,249,249,0)_70%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,249,249,0.10)_50%,rgba(255,249,249,1))]" />
+            </div>
+            <h2 className="max-w-3xl mx-auto text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-[#3D2B27] mt-2 mb-4">
+              <span className="block text-[#8C3F48]">
+                🔬 CLINICARE Skincare Bar{' '}
+                <span className="text-[#3D2B27]">&amp;</span>
+              </span>
+              <span className="block text-[#3F6848]">🌿 TROPIC Skincare Bar</span>
+            </h2>
+
+            <div className="w-40 mx-auto my-3">
+              <SpaHeartDivider className="justify-center" />
+            </div>
+
+            <p className="text-sm sm:text-base text-[#5C4A45] max-w-2xl mx-auto leading-relaxed">
+              {activeBrand === 'cliniccare' ? (
+                <>
+                  Take home Sweden's premier medical-grade cosmeceuticals — formulated with 5nm low-molecular hyaluronic acid, biomimetic peptides, and EGF growth factors for advanced barrier recovery, post-facial soothing, and daily protection.
+                </>
+              ) : activeBrand === 'tropic' ? (
+                <>
+                  Extend your sanctuary ritual home with freshly made 🌿 Tropic Skincare botanicals — 100% freshly crafted, natural, vegan, and clinically proven to nourish, protect, and transform your skin barrier.
+                </>
+              ) : (
+                <>
+                  Curated retail formulations featuring Sweden's 🔬 CLINICARE medical cosmeceuticals and fresh handcrafted 🌿 Tropic organic botanicals for complete at-home skin wellness.
+                </>
+              )}
+            </p>
           </div>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-[#3D2B27] mt-2 mb-4">
-            {activeBrand === 'cliniccare' ? (
-              <>
-                Elysian Boutique: <span className="text-[#8C3F48]">🔬 CLINICARE Skincare Bar</span>{' '}
-                <span className="text-[#3D2B27] font-normal">&amp;</span>{' '}
-                <span className="text-[#3F6848]">🌿 TROPIC Skincare Bar</span>
-              </>
-            ) : activeBrand === 'tropic' ? (
-              <>
-                Elysian Boutique: <span className="text-[#3F6848]">🌿 TROPIC Skincare Bar</span>{' '}
-                <span className="text-[#3D2B27] font-normal">&amp;</span>{' '}
-                <span className="text-[#8C3F48]">🔬 CLINICARE Skincare Bar</span>
-              </>
-            ) : (
-              <>
-                Elysian Boutique: <span className="text-[#8C3F48]">🔬 CLINICARE Skincare Bar</span>{' '}
-                <span className="text-[#3D2B27] font-normal">&amp;</span>{' '}
-                <span className="text-[#3F6848]">🌿 TROPIC Skincare Bar</span>
-              </>
-            )}
-          </h2>
-
-          <div className="w-40 mx-auto my-3">
-            <SpaHeartDivider className="justify-center" />
-          </div>
-
-          <p className="text-sm sm:text-base text-[#5C4A45] max-w-2xl mx-auto leading-relaxed">
-            {activeBrand === 'cliniccare' ? (
-              <>
-                Take home Sweden's premier medical-grade cosmeceuticals — formulated with 5nm low-molecular hyaluronic acid, biomimetic peptides, and EGF growth factors for advanced barrier recovery, post-facial soothing, and daily protection.
-              </>
-            ) : activeBrand === 'tropic' ? (
-              <>
-                Extend your sanctuary ritual home with freshly made 🌿 Tropic Skincare botanicals — 100% freshly crafted, natural, vegan, and clinically proven to nourish, protect, and transform your skin barrier.
-              </>
-            ) : (
-              <>
-                Curated retail formulations featuring Sweden's 🔬 CLINICARE medical cosmeceuticals and fresh handcrafted 🌿 Tropic organic botanicals for complete at-home skin wellness.
-              </>
-            )}
-          </p>
 
           {/* Targeted Selected Element: Skincare Bar & Category Filter Container */}
-          <div className="mt-8 space-y-4">
+          <div className="space-y-6">
             {/* Master Brand Switcher Bar */}
-            <div className="inline-flex p-1.5 bg-white/95 backdrop-blur-xs rounded-full border border-[#E8BAC0]/60 shadow-xs max-w-full overflow-x-auto">
+            <div className={`${shopPanelClass} grid grid-cols-1 sm:grid-cols-2 gap-3`} aria-label="Skincare brands">
               <button
                 type="button"
                 onClick={() => {
                   setActiveBrand('cliniccare');
                   setActiveCategory('all');
                 }}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 cursor-pointer whitespace-nowrap ${
-                  activeBrand === 'cliniccare'
-                    ? 'bg-[#8C3F48] text-white shadow-sm'
-                    : 'text-[#5C4A45] hover:text-[#8C3F48] hover:bg-[#FFF0F2]'
-                }`}
+                aria-pressed={activeBrand === 'cliniccare'}
+                className={`${shopFilterClass(activeBrand === 'cliniccare')} flex-wrap`}
               >
                 <span>🔬 CLINICARE Skincare Bar</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
@@ -182,11 +179,8 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                   setActiveBrand('tropic');
                   setActiveCategory('all');
                 }}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 cursor-pointer whitespace-nowrap ${
-                  activeBrand === 'tropic'
-                    ? 'bg-[#3F6848] text-white shadow-sm'
-                    : 'text-[#5C4A45] hover:text-[#3F6848] hover:bg-[#F2F7F3]'
-                }`}
+                aria-pressed={activeBrand === 'tropic'}
+                className={`${shopFilterClass(activeBrand === 'tropic')} flex-wrap`}
               >
                 <span>🌿 TROPIC Skincare Bar</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
@@ -196,38 +190,17 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                 </span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveBrand('all');
-                  setActiveCategory('all');
-                }}
-                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 cursor-pointer whitespace-nowrap ${
-                  activeBrand === 'all'
-                    ? 'bg-[#BE757C] text-white shadow-sm'
-                    : 'text-[#5C4A45] hover:text-[#BE757C] hover:bg-[#FFF0F2]'
-                }`}
-              >
-                <span>✨ All Skincare</span>
-              </button>
             </div>
 
             {/* Sub-Category Filter Pills Bar */}
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <div className={`${shopPanelClass} grid grid-cols-2 lg:grid-cols-3 gap-3`} aria-label="Skincare categories">
               {currentCategories.map((cat) => (
                 <button
                   key={cat.key}
                   type="button"
                   onClick={() => setActiveCategory(cat.key)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs tracking-wider uppercase font-medium transition-all duration-200 cursor-pointer whitespace-nowrap ${
-                    activeCategory === cat.key
-                      ? activeBrand === 'cliniccare'
-                        ? 'bg-[#8C3F48] text-white shadow-xs'
-                        : activeBrand === 'tropic'
-                        ? 'bg-[#3F6848] text-white shadow-xs'
-                        : 'bg-[#BE757C] text-white shadow-xs'
-                      : 'bg-white text-[#5C4A45] hover:bg-[#FFF0F2] border border-[#E8BAC0]/40'
-                  }`}
+                  aria-pressed={activeCategory === cat.key}
+                  className={shopFilterClass(activeCategory === cat.key)}
                 >
                   {cat.label}
                 </button>
@@ -240,7 +213,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mt-4 p-4 bg-gradient-to-r from-[#FFF5F6] via-white to-[#FFF5F6] rounded-2xl border border-[#8C3F48]/25 text-center max-w-3xl mx-auto shadow-xs space-y-3"
+                className={`${shopPanelClass} text-center space-y-3`}
               >
                 <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-[#5C4A45]">
                   <span className="font-semibold text-[#8C3F48] flex items-center gap-1">
@@ -265,9 +238,9 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
 
                 {/* Range Guide Note */}
                 <div className="pt-2 border-t border-[#E8BAC0]/30 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left">
-                  <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80">
-                    <div className="text-[11px] font-bold text-amber-900 tracking-wider flex items-center gap-1.5 mb-1">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                  <div className="p-3.5 rounded-xl bg-[#FFF9F9] border border-[#E8BAC0]/40">
+                    <div className="text-xs font-bold text-[#3D2B27] tracking-wider flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
                       GLOW RANGE
                     </div>
                     <p className="text-xs text-[#5C4A45] leading-snug">
@@ -275,9 +248,9 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80">
-                    <div className="text-[11px] font-bold text-emerald-900 tracking-wider flex items-center gap-1.5 mb-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                  <div className="p-3.5 rounded-xl bg-[#FFF9F9] border border-[#E8BAC0]/40">
+                    <div className="text-xs font-bold text-[#3D2B27] tracking-wider flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
                       PURE RANGE
                     </div>
                     <p className="text-xs text-[#5C4A45] leading-snug">
@@ -285,9 +258,9 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                     </p>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200/80">
-                    <div className="text-[11px] font-bold text-blue-900 tracking-wider flex items-center gap-1.5 mb-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                  <div className="p-3.5 rounded-xl bg-[#FFF9F9] border border-[#E8BAC0]/40">
+                    <div className="text-xs font-bold text-[#3D2B27] tracking-wider flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
                       REFRESH RANGE
                     </div>
                     <p className="text-xs text-[#5C4A45] leading-snug">
@@ -311,7 +284,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
             <button
               type="button"
               onClick={() => setActiveCategory('all')}
-              className="px-4 py-2 rounded-full bg-[#8C3F48] text-white text-xs font-semibold uppercase tracking-wider cursor-pointer"
+              className={shopActionClass}
             >
               View All {activeBrand === 'cliniccare' ? `CLINICARE (${products.filter(p => p.brandType === 'clinicare').length})` : 'Products'}
             </button>
@@ -328,11 +301,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4 }}
-                  className={`bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group border ${
-                    isCliniccare
-                      ? 'border-[#8C3F48]/25 hover:border-[#8C3F48]/50'
-                      : 'border-[#E8BAC0]/40 hover:border-[#BE757C]/50'
-                  }`}
+                  className="bg-white rounded-2xl overflow-hidden border border-[#E8BAC0]/40 hover:border-[#BE757C]/60 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group"
                 >
                   {/* Image Container - uncropped, crisp and preserved */}
                   <div
@@ -402,7 +371,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                     </p>
 
                     {/* Price & Order Action */}
-                    <div className="pt-3 border-t border-[#E8BAC0]/30 flex items-center justify-between mt-auto">
+                    <div className="pt-3 border-t border-[#E8BAC0]/30 flex flex-wrap items-center justify-between gap-3 mt-auto">
                       <div>
                         <span className="text-[11px] text-[#8C6B64] block">Price</span>
                         <span
@@ -417,12 +386,10 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
                       <button
                         type="button"
                         onClick={() => handleBuyItNow(product)}
-                        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-white text-xs font-medium tracking-wider uppercase transition-all shadow-xs cursor-pointer ${
+                        className={`${shopButtonClass} w-full shadow-xs text-white ${
                           justAddedId === product.id
-                            ? 'bg-[#25D366] scale-105'
-                            : isCliniccare
-                            ? 'bg-[#8C3F48] hover:bg-[#72323A]'
-                            : 'bg-[#BE757C] hover:bg-[#A9636A]'
+                            ? 'bg-[#3F6848]'
+                            : 'bg-[#87464D] hover:bg-[#71383F]'
                         }`}
                       >
                         {justAddedId === product.id ? (
@@ -447,16 +414,16 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
 
         {/* View Basket Banner if items in cart */}
         {cartCount > 0 && onViewBasket && (
-          <div className="mt-8 p-4 bg-[#BE757C] text-white rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md max-w-2xl mx-auto">
+          <div className={`${shopPanelClass} mt-6 text-[#5C4A45] flex flex-col sm:flex-row items-center justify-between gap-5`}>
             <div className="flex items-center gap-3 text-center sm:text-left">
-              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <ShoppingBag className="w-4 h-4 text-white" />
+              <div className="w-12 h-12 rounded-xl bg-[#FFF0F2] flex items-center justify-center shrink-0">
+                <ShoppingBag className="w-6 h-6 text-[#BE757C]" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider">
+                <p className="text-sm font-semibold text-[#3D2B27]">
                   {cartCount} {cartCount === 1 ? 'Product' : 'Products'} in your sanctuary basket
                 </p>
-                <p className="text-[11px] text-white/85">
+                <p className="text-xs mt-1 text-[#5C4A45]">
                   Ready for purchase with collection or tracked delivery.
                 </p>
               </div>
@@ -464,7 +431,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
 
             <button
               onClick={onViewBasket}
-              className="px-5 py-2 rounded-full bg-white text-[#BE757C] hover:bg-[#FFF0F2] text-xs font-bold uppercase tracking-wider transition-colors shadow-xs shrink-0 flex items-center gap-1.5 cursor-pointer"
+              className={`${shopActionClass} w-full sm:w-auto shrink-0`}
             >
               <span>View Basket &amp; Checkout</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -473,7 +440,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
         )}
 
         {/* Boutique Assistance Note */}
-        <div className="mt-12 bg-white rounded-2xl p-6 border border-[#E8BAC0]/40 max-w-3xl mx-auto text-center shadow-xs">
+        <div className={`${shopPanelClass} mt-6 text-center`}>
           <div className="flex items-center justify-center gap-2 text-[#BE757C] mb-2 font-display text-base">
             <Sparkles className="w-4 h-4" />
             <span>Personalized Skincare Consultation &amp; Collection</span>
@@ -486,7 +453,7 @@ export const ShopSection: React.FC<ShopSectionProps> = ({
               href="https://wa.me/447707328060?text=Hi%20Elaine,%20I'd%20love%20a%20personalized%20skincare%20recommendation"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#5C423E] hover:bg-[#4A352F] text-white text-xs font-medium tracking-widest uppercase transition-colors"
+              className={`${shopActionClass} w-full sm:w-auto`}
             >
               <MessageCircle className="w-3.5 h-3.5 text-[#E8BAC0]" />
               <span>Ask Elaine on WhatsApp</span>

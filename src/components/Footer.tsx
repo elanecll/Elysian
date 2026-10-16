@@ -137,8 +137,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
             </h4>
             <ul className="space-y-2.5 text-xs text-[#D8BFC2]">
               <li>
-                <button onClick={() => handleNav('experience')} className="hover:text-white transition-colors text-left cursor-pointer">
-                  Our Philosophy &amp; Experience
+                <button onClick={() => handleNav('reviews')} className="hover:text-white transition-colors text-left cursor-pointer">
+                  Reviews &amp; Experience
                 </button>
               </li>
               <li>
@@ -147,18 +147,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNav('reviews')} className="hover:text-white transition-colors text-left cursor-pointer">
-                  Guest Testimonials
-                </button>
-              </li>
-              <li>
                 <button onClick={() => handleNav('location')} className="hover:text-white transition-colors text-left cursor-pointer">
-                  Location &amp; Opening Hours
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleNav('location')} className="hover:text-white transition-colors text-left cursor-pointer">
-                  Frequently Asked Questions
+                  Location, FAQ &amp; Policies
                 </button>
               </li>
               <li>
@@ -169,11 +159,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
               <li>
                 <button onClick={() => handleNav('basket')} className="hover:text-white transition-colors text-left cursor-pointer">
                   Shopping Basket &amp; Checkout
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleNav('terms')} className="text-[#E8BAC0] hover:text-white transition-colors text-left cursor-pointer font-medium flex items-center gap-1">
-                  <span>Terms &amp; 50% Deposit Policy</span>
                 </button>
               </li>
             </ul>
@@ -235,8 +220,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
           <div className="flex items-center gap-6">
             <button onClick={() => handleNav('home')} className="hover:text-white transition-colors cursor-pointer">Home</button>
             <button onClick={() => handleNav('treatments')} className="hover:text-white transition-colors cursor-pointer">Treatments</button>
-            <button onClick={() => handleNav('location')} className="hover:text-white transition-colors cursor-pointer">Contact &amp; FAQ</button>
-            <button onClick={() => handleNav('terms')} className="hover:text-white text-[#E8BAC0] transition-colors cursor-pointer underline underline-offset-2">Terms &amp; 50% Deposit Policy</button>
+            <button onClick={() => handleNav('location')} className="hover:text-white transition-colors cursor-pointer">Location, FAQ &amp; Policies</button>
             {onOpenCRM && (
               <button
                 onClick={onOpenCRM}

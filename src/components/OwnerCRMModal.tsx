@@ -3,6 +3,7 @@ import { Download, RefreshCw, LogOut, Copy } from "lucide-react";
 import {
   money,
   londonDate,
+  courseOfferDescription,
   type PaymentRecord,
   type BookingRequest,
 } from "../../shared/payments";
@@ -22,6 +23,15 @@ import {
   Modal,
 } from "./PaymentUI";
 import { OwnerAuthGate } from "./OwnerAuthGate";
+import { OwnerCalendar } from "./OwnerCalendar";
+import { AvailableAppointments } from "./AvailableAppointments";
+import { OwnerReviews } from "./OwnerReviews";
+import { HealthScreening } from "./HealthScreening";
+import { OwnerConsultation } from "./OwnerConsultation";
+import {
+  blankConsultation,
+  CONSULTATION_LABELS,
+} from "../../shared/consultation";
 
 function exportRecords(records: PaymentRecord[]) {
   // Neutralize spreadsheet formula prefixes as well as escaping CSV quotes.
@@ -78,6 +88,7 @@ function exportRecords(records: PaymentRecord[]) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function ManualBooking({ onSaved }: { onSaved: () => void }) {
+  const [consultation, setConsultation] = useState(blankConsultation);
   const [customer, setCustomer] = useState({
     name: "",
     phone: "",
@@ -87,15 +98,17 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
   const [serviceId, setServiceId] = useState(SPA_SERVICES[0].id);
   const [optionIndex, setOptionIndex] = useState(0);
   const [date, setDate] = useState(londonDate());
-  const [time, setTime] = useState("11:00");
+  const [time, setTime] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const key = useRef<{ fingerprint: string; key: string } | null>(null);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (busy || !time) return;
     setBusy(true);
     setError("");
     const body: BookingRequest = {
+      consultation,
       customer,
       treatments: [{ serviceId, optionIndex }],
       customTreatments: [],
@@ -117,7 +130,9 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
     <form className="space-y-4" onSubmit={submit}>
       <h3 className="font-display text-xl">Add a booking request</h3>
       <p className="text-xs">
-        Manual entries remain unpaid until a Stripe deposit is verified.
+        Complete the health questionnaire with the client and obtain their
+        explicit consent. Manual requests need private consultation approval
+        before a deposit link can be issued.
       </p>
       <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-2">
         <Field label="Customer name">
@@ -182,28 +197,27 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
             )}
           </select>
         </Field>
-        <Field label="Date">
-          <input
-            className={inputClass}
-            type="date"
-            min={londonDate()}
-            required
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </Field>
-        <Field label="Time">
-          <input
-            className={inputClass}
-            type="time"
-            required
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-          />
-        </Field>
+      </fieldset>
+      <AvailableAppointments
+        selection={{
+          treatments: [{ serviceId, optionIndex }],
+          customTreatments: [],
+          isCourse: false,
+        }}
+        date={date}
+        time={time}
+        onDate={setDate}
+        onTime={setTime}
+      />
+      <fieldset disabled={busy}>
+        <HealthScreening
+          serviceIds={[serviceId]}
+          value={consultation}
+          onChange={setConsultation}
+        />
       </fieldset>
       <ErrorMessage error={error} />
-      <button className={buttonClass} disabled={busy}>
+      <button className={buttonClass} disabled={busy || !time}>
         Save unpaid request
       </button>
     </form>
@@ -269,7 +283,7 @@ function RecordDetails({
       {record.date && (
         <p className="text-sm">
           Requested appointment: {record.date} at {record.time}
-          {record.isCourse ? " · Four sessions, pay for three" : ""}
+          {record.isCourse ? ` · ${courseOfferDescription(record)}` : ""}
         </p>
       )}
       {record.deliveryOption && (
@@ -302,7 +316,15 @@ function RecordDetails({
       {record.customer.notes && (
         <p className="text-sm">Customer notes: {record.customer.notes}</p>
       )}
+      {record.type === "booking" && (
+        <OwnerConsultation
+          record={record}
+          onUpdated={onUpdated}
+          onAuthError={onAuthError}
+        />
+      )}
       {record.type === "booking" &&
+        record.status !== "cancelled" &&
         !record.paidPence &&
         !record.checkoutUrl && (
           <form
@@ -345,9 +367,20 @@ function RecordDetails({
               />
               I have checked appointment availability and approved this quote.
             </label>
-            <button className={buttonClass} disabled={busy || !checked}>
+            <button
+              className={buttonClass}
+              disabled={
+                busy || !checked || record.consultationStatus !== "approved"
+              }
+            >
               Approve and create 50% deposit link
             </button>
+            {record.consultationStatus !== "approved" && (
+              <p className="text-sm">
+                Approve the private health consultation above before creating a
+                deposit link.
+              </p>
+            )}
           </form>
         )}
       {record.checkoutUrl && !record.paidPence && (
@@ -381,6 +414,12 @@ function RecordDetails({
           onChange={(e) => setNotes(e.target.value)}
         />
       </Field>
+      {record.type === "booking" && (
+        <p className="text-xs">
+          Keep health information in Private consultation notes above. General
+          owner notes appear in routine CSV exports.
+        </p>
+      )}
       <div className="flex flex-wrap gap-3">
         <button
           type="button"
@@ -440,6 +479,8 @@ function Dashboard() {
   const [status, setStatus] = useState("all");
   const [error, setError] = useState("");
   const [manual, setManual] = useState(false);
+  const [reviewMode, setReviewMode] = useState(false);
+  const [calendarMode, setCalendarMode] = useState(false);
   const signOutState = useCallback(() => {
     setAuth("signed_out");
     setRecords([]);
@@ -511,29 +552,33 @@ function Dashboard() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          className="flex items-center gap-2 text-sm underline"
-          onClick={reload}
-        >
-          <RefreshCw size={16} />
-          Refresh
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-2 text-sm underline"
-          onClick={() => exportRecords(filtered)}
-        >
-          <Download size={16} />
-          Export CSV
-        </button>
-        <button
-          type="button"
-          className="text-sm underline"
-          onClick={() => setManual(!manual)}
-        >
-          {manual ? "View records" : "Add booking request"}
-        </button>
+        {!reviewMode && !calendarMode && (
+          <>
+            <button
+              type="button"
+              className="flex items-center gap-2 text-sm underline"
+              onClick={reload}
+            >
+              <RefreshCw size={16} />
+              Refresh
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-2 text-sm underline"
+              onClick={() => exportRecords(filtered)}
+            >
+              <Download size={16} />
+              Export CSV
+            </button>
+            <button
+              type="button"
+              className="text-sm underline"
+              onClick={() => setManual(!manual)}
+            >
+              {manual ? "View records" : "Add booking request"}
+            </button>
+          </>
+        )}
         <button
           type="button"
           className="ml-auto flex items-center gap-2 text-sm underline"
@@ -543,8 +588,59 @@ function Dashboard() {
           Sign out
         </button>
       </div>
+      <div className="flex flex-wrap gap-3 border-b border-[#E8BAC0]/40 pb-3">
+        <button
+          type="button"
+          className="text-sm underline"
+          aria-pressed={!reviewMode && !calendarMode}
+          onClick={() => {
+            setReviewMode(false);
+            setCalendarMode(false);
+          }}
+        >
+          Bookings & orders
+        </button>
+        <button
+          type="button"
+          className="text-sm underline"
+          aria-pressed={reviewMode && !calendarMode}
+          onClick={() => {
+            setReviewMode(true);
+            setCalendarMode(false);
+          }}
+        >
+          Client reviews
+        </button>
+        <button
+          type="button"
+          className="text-sm underline"
+          aria-pressed={calendarMode}
+          onClick={() => {
+            setCalendarMode(true);
+            setReviewMode(false);
+          }}
+        >
+          Appointment diary
+        </button>
+      </div>
       <ErrorMessage error={error} />
-      {manual ? (
+      {calendarMode ? (
+        <OwnerCalendar
+          onAuthError={signOutState}
+          onOpenRecord={(id) => {
+            setSelected(id);
+            setCalendarMode(false);
+            setReviewMode(false);
+            setManual(false);
+            setFilter("all");
+            setStatus("all");
+            setQuery("");
+            void reload();
+          }}
+        />
+      ) : reviewMode ? (
+        <OwnerReviews onAuthError={signOutState} />
+      ) : manual ? (
         <ManualBooking
           onSaved={() => {
             setManual(false);
@@ -616,6 +712,15 @@ function Dashboard() {
                       ? `${r.date} ${r.time}`
                       : "Shop order"}
                   </span>
+                  {r.type === "booking" && (
+                    <span className="block mt-1 text-xs text-[#7A5852]">
+                      {
+                        CONSULTATION_LABELS[
+                          r.consultationStatus ?? "awaiting_review"
+                        ]
+                      }
+                    </span>
+                  )}
                 </span>
                 <span className="text-xs">
                   {money(r.totalPence)} · {r.status.replaceAll("_", " ")} ·{" "}
@@ -648,7 +753,7 @@ export function OwnerCRMModal({
   onClose: () => void;
 }) {
   return isOpen ? (
-    <Modal title="Owner bookings & payment ledger" onClose={onClose}>
+    <Modal title="Owner dashboard" onClose={onClose}>
       <Dashboard />
     </Modal>
   ) : null;

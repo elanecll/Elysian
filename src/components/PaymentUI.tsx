@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 export const inputClass =
   "w-full rounded-xl border border-[#E8BAC0] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#BE757C]/40";
@@ -90,7 +91,7 @@ export function Modal({
       }
     }
   }
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm">
       <div
         ref={ref}
@@ -113,6 +114,7 @@ export function Modal({
         </div>
         <div className="p-5 sm:p-8">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

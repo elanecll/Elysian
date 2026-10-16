@@ -17,35 +17,38 @@ import {
   Printer
 } from 'lucide-react';
 import { PageTab } from '../types';
+import { infoCardClass, infoInsetClass, infoButtonClass } from './infoStyles';
 
 interface TermsAndConditionsPageProps {
   onNavigate: (page: PageTab) => void;
   onOpenBooking: () => void;
+  embedded?: boolean;
 }
 
 export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
   onNavigate,
   onOpenBooking,
+  embedded = false,
 }) => {
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="bg-[#FFF9F9] min-h-screen pb-20">
+    <div className={`bg-[#FFF9F9] pb-20 ${embedded ? '' : 'min-h-screen'}`}>
       {/* Top Banner with Breadcrumb */}
-      <PageBanner
+      {!embedded && <PageBanner
         currentPageName="Terms & Conditions"
         title="Terms & Conditions & Booking Policy"
         subtitle="Transparent, fair consumer policies for our sanctuary treatments, 50% deposit guidelines, and guest care standards."
         tagline="SANCTUARY POLICIES & GUEST RIGHTS"
         onNavigateHome={() => onNavigate('home')}
-      />
+      />}
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 ${embedded ? '' : 'mt-10'}`}>
         
         {/* Quick Summary Notice Banner */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8BAC0] shadow-sm mb-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className={`${infoCardClass} mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6`}>
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-[#FFF0F2] text-[#BE757C] border border-[#BE757C]/30 flex items-center justify-center shrink-0">
               <Scale className="w-6 h-6" />
@@ -63,10 +66,10 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0 self-stretch sm:self-auto">
+          <div className="flex flex-wrap items-center gap-3 shrink-0 self-stretch sm:self-auto">
             <button
               onClick={handlePrint}
-              className="px-4 py-2.5 rounded-full border border-[#BE757C]/40 hover:border-[#BE757C] text-[#3D2B27] hover:text-[#BE757C] text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-2 cursor-pointer bg-white"
+              className={`${infoButtonClass} border border-[#E8BAC0]/40 hover:border-[#BE757C] text-[#5C4A45] bg-white`}
               title="Print or Save as PDF"
             >
               <Printer className="w-3.5 h-3.5" />
@@ -74,7 +77,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
             </button>
             <button
               onClick={onOpenBooking}
-              className="px-5 py-2.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white text-xs font-semibold uppercase tracking-wider shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+              className={`${infoButtonClass} bg-[#87464D] hover:bg-[#71383F] text-white shadow-xs`}
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Book Ritual</span>
@@ -85,10 +88,8 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
         {/* PRIMARY HIGHLIGHTED SECTION: 50% Deposit Policy */}
         <section 
           id="deposit-policy" 
-          className="bg-gradient-to-br from-[#FFF0F2] via-white to-[#FFF5F7] rounded-3xl p-6 sm:p-10 border-2 border-[#BE757C] shadow-md mb-12 relative overflow-hidden"
+          className={`${infoCardClass} scroll-mt-44 mb-6 relative overflow-hidden`}
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#BE757C]/10 rounded-full blur-2xl pointer-events-none" />
-
           <div className="flex items-center gap-3 mb-4">
             <span className="px-3 py-1 rounded-full bg-[#BE757C] text-white text-[11px] font-bold uppercase tracking-wider">
               Core Booking Policy
@@ -98,7 +99,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
             </span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display text-[#3D2B27] mb-4">
+          <h2 className="text-2xl sm:text-3xl font-display text-[#3D2B27] mb-4">
             50% Deposit Policy
           </h2>
 
@@ -108,25 +109,25 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
 
           {/* Exact required text nicely formatted for optimal readability */}
           <div className="space-y-4 text-sm sm:text-base text-[#4A352F] leading-relaxed">
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/90 border border-[#E8BAC0] shadow-xs">
+            <div className={`${infoInsetClass} p-4 sm:p-5`}>
               <p className="font-medium text-[#3D2B27]">
                 A deposit of <strong>50% of the total price</strong> is required to confirm your booking. The remaining <strong>50%</strong> is due upon arrival on the day of your appointment (or before the start of your treatment session). We will confirm your booking and payment dates in writing.
               </p>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/90 border border-[#E8BAC0] shadow-xs">
+            <div className={`${infoInsetClass} p-4 sm:p-5`}>
               <p className="font-medium text-[#3D2B27]">
-                If you need to cancel, please tell us as soon as possible. We will refund any amount paid above the reasonable costs and losses caused by your cancellation, taking account of any costs we save or any replacement booking we secure. The deposit is not automatically non-refundable.
+                Once your treatment booking is confirmed, the <strong>50% deposit is non-refundable</strong>, subject to your statutory cancellation and refund rights. If you need to cancel, please tell us as soon as possible. We will refund any amount paid above the reasonable costs and losses caused by your cancellation, taking account of any costs we save or any replacement booking we secure.
               </p>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/90 border border-[#E8BAC0] shadow-xs">
+            <div className={`${infoInsetClass} p-4 sm:p-5`}>
               <p className="font-medium text-[#3D2B27]">
                 If we cancel and cannot offer you an alternative you accept, we will refund all payments for services we have not provided.
               </p>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/90 border border-[#E8BAC0] shadow-xs">
+            <div className={`${infoInsetClass} p-4 sm:p-5`}>
               <p className="font-medium text-[#3D2B27]">
                 Any statutory cancellation and refund rights you have still apply. Please contact{' '}
                 <a 
@@ -146,9 +147,9 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
               </p>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#5C423E] text-[#FFF0F2] border border-[#5C423E] shadow-xs">
+            <div className={`${infoInsetClass} p-4 sm:p-5 text-[#5C4A45]`}>
               <div className="flex items-start gap-3">
-                <ShieldCheck className="w-5 h-5 text-[#E8BAC0] shrink-0 mt-0.5" />
+                <ShieldCheck className="w-5 h-5 text-[#BE757C] shrink-0 mt-0.5" />
                 <p className="text-xs sm:text-sm font-medium leading-relaxed">
                   <strong>UK Consumer Fairness Principle:</strong> For UK consumer bookings, keeping the whole 50% automatically could be unfair; cancellation charges should reflect genuine losses.
                 </p>
@@ -158,38 +159,38 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
 
           {/* Practical Breakdown of Policy Steps */}
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-[#E8BAC0]">
-            <div className="bg-white/80 p-4 rounded-xl border border-[#E8BAC0]/70">
-              <div className="w-7 h-7 rounded-full bg-[#FFF0F2] text-[#BE757C] text-xs font-bold flex items-center justify-center mb-2">
+            <div className={`${infoInsetClass} p-4`}>
+              <div className="w-8 h-8 rounded-full bg-[#FFF0F2] text-[#BE757C] text-sm font-bold flex items-center justify-center mb-3">
                 1
               </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27] mb-1">
+              <h4 className="text-sm sm:text-base font-bold uppercase tracking-wide text-[#3D2B27] mb-2">
                 After Owner Approval
               </h4>
-              <p className="text-xs text-[#5C4A45]">
+              <p className="text-sm text-[#5C4A45] leading-relaxed">
                 Request an appointment first. Once the owner approves availability and your quote, pay the 50% deposit using the Stripe checkout link.
               </p>
             </div>
 
-            <div className="bg-white/80 p-4 rounded-xl border border-[#E8BAC0]/70">
-              <div className="w-7 h-7 rounded-full bg-[#FFF0F2] text-[#BE757C] text-xs font-bold flex items-center justify-center mb-2">
+            <div className={`${infoInsetClass} p-4`}>
+              <div className="w-8 h-8 rounded-full bg-[#FFF0F2] text-[#BE757C] text-sm font-bold flex items-center justify-center mb-3">
                 2
               </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27] mb-1">
+              <h4 className="text-sm sm:text-base font-bold uppercase tracking-wide text-[#3D2B27] mb-2">
                 Written Confirmation
               </h4>
-              <p className="text-xs text-[#5C4A45]">
+              <p className="text-sm text-[#5C4A45] leading-relaxed">
                 View your appointment, reference, deposit received, and outstanding balance on the payment status page after verification.
               </p>
             </div>
 
-            <div className="bg-white/80 p-4 rounded-xl border border-[#E8BAC0]/70">
-              <div className="w-7 h-7 rounded-full bg-[#FFF0F2] text-[#BE757C] text-xs font-bold flex items-center justify-center mb-2">
+            <div className={`${infoInsetClass} p-4`}>
+              <div className="w-8 h-8 rounded-full bg-[#FFF0F2] text-[#BE757C] text-sm font-bold flex items-center justify-center mb-3">
                 3
               </div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27] mb-1">
+              <h4 className="text-sm sm:text-base font-bold uppercase tracking-wide text-[#3D2B27] mb-2">
                 Day of Appointment
               </h4>
-              <p className="text-xs text-[#5C4A45]">
+              <p className="text-sm text-[#5C4A45] leading-relaxed">
                 Remaining 50% balance payable at our sanctuary reception prior to or upon completion of treatment.
               </p>
             </div>
@@ -200,7 +201,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
         <div className="space-y-6">
 
           {/* Section 1: Bookings & Confirmations */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8BAC0]/60 shadow-xs">
+          <div className={infoCardClass}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center shrink-0">
                 <FileText className="w-4 h-4" />
@@ -223,7 +224,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
           </div>
 
           {/* Section 2: Cancellation & Rescheduling Details */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8BAC0]/60 shadow-xs">
+          <div className={infoCardClass}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center shrink-0">
                 <Clock className="w-4 h-4" />
@@ -234,7 +235,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
             </div>
             <div className="text-xs sm:text-sm text-[#5C4A45] leading-relaxed space-y-2.5 pl-11">
               <p>
-                2.1. <strong>More than 24 hours notice:</strong> If you notify us 24 hours or more before your scheduled appointment, you are entitled to reschedule at no charge or receive a full refund of your 50% deposit.
+                2.1. <strong>24 hours or more notice:</strong> If you notify us 24 hours or more before your scheduled appointment, you may reschedule at no charge, subject to availability. Once the treatment booking is confirmed, the 50% deposit is non-refundable, subject to your statutory cancellation and refund rights. Giving notice does not automatically entitle you to a full deposit refund.
               </p>
               <p>
                 2.2. <strong>Under 24 hours notice:</strong> We will make every genuine commercial effort to re-fill your reserved suite with another client from our standby list. If a replacement booking is secured, your deposit will be refunded in full minus any unavoidable direct admin cost.
@@ -246,7 +247,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
           </div>
 
           {/* Section 3: Curated Treatment Packages & Bundles */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8BAC0]/60 shadow-xs">
+          <div className={infoCardClass}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4" />
@@ -269,7 +270,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
           </div>
 
           {/* Section 4: Arrival, Health & Medical Consultation */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8BAC0]/60 shadow-xs">
+          <div className={infoCardClass}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center shrink-0">
                 <AlertCircle className="w-4 h-4" />
@@ -280,10 +281,10 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
             </div>
             <div className="text-xs sm:text-sm text-[#5C4A45] leading-relaxed space-y-2.5 pl-11">
               <p>
-                4.1. Please arrive 10 minutes prior to your scheduled time to relax with our complimentary botanical flower tea and complete your digital consultation questionnaire.
+                4.1. Complete the confidential health questionnaire when requesting your appointment. The owner reviews treatment suitability with you before issuing a deposit link. Please arrive 10 minutes prior to your scheduled time for a check of any health or medication changes and separate treatment consent.
               </p>
               <p>
-                4.2. Certain aesthetic technologies (such as Radio Frequency, EMS, or active AHA chemical peel solutions) require health screening. Please inform our therapists if you have a pacemaker, metal implants, epilepsy, active skin infections, or are pregnant.
+                4.2. Suitability depends on the selected treatment, exact product/device instructions and your individual circumstances. A questionnaire or deposit does not provide medical clearance. Tell the therapist about relevant conditions, medication, allergies and recent procedures, and report changes before every visit. Further consultation or medical advice may be needed; never stop prescribed medication to receive a treatment.
               </p>
               <p>
                 4.3. If you arrive late, we will make every effort to deliver as much of your treatment as possible within the remaining time; however, the session may need to conclude at the scheduled finish time to avoid delaying subsequent guests.
@@ -292,7 +293,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
           </div>
 
           {/* Section 5: Boutique Skincare Products & Vouchers */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8BAC0]/60 shadow-xs">
+          <div className={infoCardClass}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-4 h-4" />
@@ -312,7 +313,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
           </div>
 
           {/* Section 6: Contact & Inquiries */}
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8BAC0]/60 shadow-xs">
+          <div className={infoCardClass}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-lg bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center shrink-0">
                 <HelpCircle className="w-4 h-4" />
@@ -328,7 +329,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <a 
                   href="mailto:elianecll@hotmail.com" 
-                  className="p-3 rounded-xl bg-[#FAF0F2] hover:bg-[#F5E0E4] border border-[#E8BAC0] transition-colors flex items-center gap-3"
+                  className={`${infoInsetClass} p-4 hover:bg-[#FFF0F2] transition-colors flex flex-wrap items-center gap-3`}
                 >
                   <Mail className="w-4 h-4 text-[#BE757C] shrink-0" />
                   <div>
@@ -339,7 +340,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
 
                 <a 
                   href="tel:+447707328060" 
-                  className="p-3 rounded-xl bg-[#FAF0F2] hover:bg-[#F5E0E4] border border-[#E8BAC0] transition-colors flex items-center gap-3"
+                  className={`${infoInsetClass} p-4 hover:bg-[#FFF0F2] transition-colors flex flex-wrap items-center gap-3`}
                 >
                   <Phone className="w-4 h-4 text-[#BE757C] shrink-0" />
                   <div>
@@ -357,7 +358,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
         </div>
 
         {/* Bottom Navigation CTA */}
-        <div className="mt-12 text-center p-8 bg-[#FAF3F3] rounded-3xl border border-[#E8BAC0]/50">
+        <div className={`${infoCardClass} mt-6 text-center`}>
           <h3 className="text-xl sm:text-2xl font-display text-[#3D2B27] mb-2">
             Ready to Reserve Your Sanctuary Appointment?
           </h3>
@@ -367,13 +368,13 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => onNavigate('treatments')}
-              className="px-6 py-3 rounded-full border border-[#BE757C]/50 hover:border-[#BE757C] text-[#3D2B27] hover:text-[#BE757C] bg-white font-medium text-xs tracking-widest uppercase transition-all cursor-pointer"
+              className={`${infoButtonClass} border border-[#E8BAC0]/40 hover:border-[#BE757C] text-[#5C4A45] bg-white`}
             >
               View Treatments &amp; Packages
             </button>
             <button
               onClick={onOpenBooking}
-              className="px-6 py-3 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-xs tracking-widest uppercase transition-all shadow-md cursor-pointer flex items-center gap-2"
+              className={`${infoButtonClass} bg-[#87464D] hover:bg-[#71383F] text-white shadow-xs`}
             >
               <Calendar className="w-4 h-4" />
               <span>Book Appointment (50% Deposit)</span>

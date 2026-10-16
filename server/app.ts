@@ -20,7 +20,38 @@ import {
   shopQuote,
 } from "./catalogue";
 import { Store } from "./store";
+import {
+  CalendarError,
+  checkoutDeadline,
+  availabilitySchema,
+  hoursSchema,
+  manualSchema,
+  dateSchema,
+  availability,
+  durationForSelection,
+  treatmentMinutes,
+  forBooking,
+  reserve,
+  entries,
+  entry,
+  saveEntry,
+  active,
+  makeEntry,
+  readHours,
+  expireRequests,
+  updateBookingEntry,
+  migrateDiary,
+} from "./calendar";
+import { shiftDate } from "../shared/calendar";
+import { reviewSchema, reviewTreatment } from "./reviews";
+import type { ClientReview } from "../shared/reviews";
 import type { Config } from "./config";
+import {
+  consultationReviewSchema,
+  getConsultation,
+  saveConsultation,
+  validateConsultation,
+} from "./consultation";
 import {
   londonDate,
   type PaymentRecord,
@@ -50,6 +81,8 @@ const receipt = (r: PaymentRecord): Receipt => ({
   date: r.date,
   time: r.time,
   isCourse: r.isCourse,
+  courseSessions: r.courseSessions,
+  courseReward: r.courseReward,
   totalPence: r.totalPence,
   amountDuePence: r.amountDuePence,
   paidPence: r.paidPence,
@@ -59,9 +92,12 @@ const receipt = (r: PaymentRecord): Receipt => ({
   shippingPence: r.shippingPence,
   discountPence: r.discountPence,
   deliveryOption: r.deliveryOption,
+  holdUntil: r.holdUntil,
+  durationMinutes: r.durationMinutes,
 });
 
 export function createApp(config: Config, store: Store, gateway?: Stripe) {
+  migrateDiary(store);
   const app = express();
   app.disable("x-powered-by");
   const stripe =
@@ -127,13 +163,15 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
           if (record.paidPence === 0) {
             record.paidPence = attempt.expectedPence;
             record.paymentStatus = "paid";
-            record.status = "confirmed";
+            if (record.status !== "cancelled") record.status = "confirmed";
             record.checkoutUrl = undefined;
             store.save(record);
+            if (record.type === "booking") updateBookingEntry(store, record);
           }
           store.attachIntent(session.id, intent);
         } else if (
           session.status === "expired" &&
+          record.status !== "cancelled" &&
           (!record.stripeSessionId || record.stripeSessionId === session.id) &&
           record.paidPence === 0
         ) {
@@ -141,13 +179,36 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
           record.status = "expired";
           record.checkoutUrl = undefined;
           store.save(record);
+          if (record.type === "booking") updateBookingEntry(store, record);
         }
       });
       return store.get(record.id)!;
     });
   }
+  async function refreshCalendar() {
+    expireRequests(store);
+    for (const record of store.list()) {
+      if (
+        record.type === "booking" &&
+        !record.paidPence &&
+        record.status === "awaiting_payment" &&
+        (record.expiresAt ?? Infinity) <= Date.now()
+      ) {
+        if (record.stripeSessionId) await reconcile(record.stripeSessionId);
+        else if (store.attemptByKey(`${record.id}:${record.revision}`)) {
+          // Recover a lost Stripe create response before checking expiry.
+          await checkout(record);
+          const recovered = store.get(record.id)!;
+          if (recovered.stripeSessionId)
+            await reconcile(recovered.stripeSessionId);
+        }
+      }
+    }
+  }
   async function checkout(record: PaymentRecord) {
     const gateway = paymentGateway();
+    if (record.status === "cancelled")
+      throw new HttpError(409, "This booking was cancelled.");
     if (record.paidPence > 0)
       return { receiptToken: record.receiptToken, recordId: record.id };
     if (record.checkoutUrl && (record.expiresAt ?? 0) > Date.now())
@@ -168,7 +229,10 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
       );
     // Persist expiry before calling Stripe: all parameters must stay identical on a retry.
     if (!record.expiresAt) {
-      record.expiresAt = (Math.floor(Date.now() / 1000) + 24 * 60 * 60) * 1000;
+      record.expiresAt =
+        record.type === "booking"
+          ? checkoutDeadline(record)
+          : (Math.floor(Date.now() / 1000) + 24 * 60 * 60) * 1000;
       store.save(record);
     }
     store.addAttempt({
@@ -218,12 +282,20 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
       store.save({
         ...current,
         stripeSessionId: session.id,
-        checkoutUrl: current.paidPence ? undefined : session.url!,
+        checkoutUrl:
+          current.paidPence || current.status === "cancelled"
+            ? undefined
+            : session.url!,
         expiresAt: session.expires_at * 1000,
       });
+      if (current.type === "booking")
+        updateBookingEntry(store, store.get(current.id)!);
     });
     return {
-      url: current.paidPence ? undefined : session.url,
+      url:
+        current.paidPence || current.status === "cancelled"
+          ? undefined
+          : session.url,
       receiptToken: current.receiptToken,
       recordId: current.id,
     };
@@ -379,6 +451,95 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
       return next(new HttpError(401, "Sign in to the owner dashboard."));
     next();
   }
+  app.get(
+    "/api/reviews",
+    route((req, res) => {
+      const cursor =
+        req.query.cursor === undefined
+          ? undefined
+          : z.coerce
+              .number()
+              .int()
+              .positive()
+              .max(Number.MAX_SAFE_INTEGER)
+              .parse(req.query.cursor);
+      res.json(store.publicReviews(cursor));
+    }),
+  );
+  app.post(
+    "/api/reviews",
+    route((req, res) => {
+      const input = reviewSchema.parse(req.body);
+      const key = req.get("idempotency-key");
+      if (!key || !/^[a-zA-Z0-9-]{20,100}$/.test(key))
+        throw new HttpError(400, "A valid submission identifier is required.");
+      const fingerprint = hash(JSON.stringify(input));
+      const result = store.transaction(() => {
+        const existing = store.reviewBySubmission(key);
+        if (existing) {
+          if (existing.fingerprint !== fingerprint)
+            throw new HttpError(
+              409,
+              "This submission identifier has already been used for different review details.",
+            );
+          return {
+            id: existing.review.id,
+            status: existing.review.status,
+            published: existing.review.status === "published",
+            created: false,
+          };
+        }
+        if (!store.consumeReviewLimit(hash(req.ip || "local"))) {
+          res.set("Retry-After", "3600");
+          throw new HttpError(
+            429,
+            "Too many reviews submitted. Please try again in one hour.",
+          );
+        }
+        const review: ClientReview = {
+          id: `REV-${randomUUID()}`,
+          author: input.author,
+          serviceId: input.serviceId,
+          ...reviewTreatment(input.serviceId),
+          rating: input.rating,
+          comment: input.comment,
+          createdAt: new Date().toISOString(),
+        };
+        store.insertReview(review, key, fingerprint);
+        return {
+          id: review.id,
+          status: "pending" as const,
+          published: false,
+          created: true,
+        };
+      });
+      res
+        .status(result.created ? 201 : 200)
+        .json({
+          id: result.id,
+          status: result.status,
+          published: result.published,
+        });
+    }),
+  );
+  app.get(
+    "/api/owner/reviews",
+    authenticate,
+    route((_req, res) => res.json({ reviews: store.ownerReviews() })),
+  );
+  app.patch(
+    "/api/owner/reviews/:id",
+    authenticate,
+    route((req, res) => {
+      const input = z
+        .object({ status: z.enum(["published", "hidden"]) })
+        .strict()
+        .parse(req.body);
+      if (!store.setReviewStatus(req.params.id, input.status))
+        throw new HttpError(404, "Review not found.");
+      res.json({ updated: true });
+    }),
+  );
   app.get("/api/health", (_req, res) =>
     res.json({
       ok: true,
@@ -499,9 +660,182 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
     };
   }
   app.post(
-    "/api/bookings",
+    "/api/availability",
+    route(async (req, res) => {
+      const input = availabilitySchema.parse(req.body);
+      let duration;
+      try {
+        duration = durationForSelection(input);
+      } catch (error) {
+        throw new HttpError(400, (error as Error).message);
+      }
+      await refreshCalendar();
+      res.json(availability(store, input.date, duration));
+    }),
+  );
+  app.get(
+    "/api/calendar/hours",
+    route((_req, res) => res.json({ hours: readHours(store) })),
+  );
+  app.get(
+    "/api/owner/calendar",
+    authenticate,
+    route(async (req, res) => {
+      const from = dateSchema.parse(req.query.from);
+      const to = dateSchema.parse(req.query.to);
+      if (to < from || to > shiftDate(from, 31))
+        throw new HttpError(400, "Select a diary range of up to 31 days.");
+      await refreshCalendar();
+      const diary = entries(store)
+        .filter((e) => e.date >= from && e.date <= to)
+        .map((e) => {
+          const r = e.recordId && store.get(e.recordId);
+          return {
+            ...e,
+            ...(r
+              ? {
+                  paymentStatus: r.paymentStatus,
+                  recordStatus: r.status,
+                  checkoutUrl: r.checkoutUrl,
+                }
+              : {}),
+          };
+        });
+      res.json({ entries: diary, hours: readHours(store) });
+    }),
+  );
+  app.patch(
+    "/api/owner/calendar/hours",
+    authenticate,
     route((req, res) => {
+      const input = hoursSchema.parse(req.body);
+      store.db
+        .prepare(
+          "INSERT INTO calendar_settings VALUES(1,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+        )
+        .run(JSON.stringify(input.hours));
+      res.json({ hours: readHours(store) });
+    }),
+  );
+  app.post(
+    "/api/owner/calendar",
+    authenticate,
+    route(async (req, res) => {
+      const input = manualSchema.parse(req.body);
+      const key = req.get("idempotency-key");
+      if (!key || !/^[a-zA-Z0-9-]{20,100}$/.test(key))
+        throw new HttpError(400, "A valid submission identifier is required.");
+      await refreshCalendar();
+      const fingerprint = hash(JSON.stringify(input));
+      const result = store.transaction(() => {
+        const previous = store.db
+          .prepare("SELECT * FROM diary_submissions WHERE key=?")
+          .get(key) as { fingerprint: string; entry_id: string } | undefined;
+        if (previous) {
+          if (previous.fingerprint !== fingerprint)
+            throw new HttpError(
+              409,
+              "This identifier was used for different details.",
+            );
+          return { entry: entry(store, previous.entry_id), created: false };
+        }
+        const value = makeEntry(input);
+        reserve(store, value, false);
+        store.db
+          .prepare("INSERT INTO diary_submissions VALUES(?,?,?)")
+          .run(key, fingerprint, value.id);
+        return { entry: value, created: true };
+      });
+      res.status(result.created ? 201 : 200).json(result);
+    }),
+  );
+  app.post(
+    "/api/owner/calendar/:id/cancel",
+    authenticate,
+    route(async (req, res) => {
+      z.object({}).strict().parse(req.body);
+      // Serialize with approval; never release a slot while its checkout can still take payment.
+      await locked(req.params.id, async () => {
+        let e = entry(store, req.params.id);
+        if (!e) throw new HttpError(404, "Diary entry not found.");
+        if (e.cancelled) return;
+        let r = e.recordId ? store.get(e.recordId) : undefined;
+        if (r && !r.paidPence && r.status === "awaiting_payment") {
+          if (!r.stripeSessionId && store.attemptByKey(`${r.id}:${r.revision}`))
+            await checkout(r);
+          r = store.get(r.id)!;
+          if (r.stripeSessionId) {
+            const gateway = paymentGateway();
+            let session = await gateway.checkout.sessions.retrieve(
+              r.stripeSessionId,
+            );
+            if (session.status === "open") {
+              try {
+                session = await gateway.checkout.sessions.expire(session.id);
+              } catch {
+                throw new HttpError(
+                  409,
+                  "Checkout may have completed. Refresh the record before cancelling.",
+                );
+              }
+            }
+            if (
+              session.payment_status === "paid" ||
+              session.status !== "expired"
+            )
+              throw new HttpError(
+                409,
+                "Payment may have completed. Refresh the record before cancelling.",
+              );
+            // An unverified session must not be trusted to release this record.
+            if (
+              session.client_reference_id !== r.id ||
+              session.metadata?.recordId !== r.id ||
+              session.amount_total !== r.amountDuePence ||
+              session.currency !== "gbp" ||
+              session.livemode
+            )
+              throw new HttpError(
+                409,
+                "Checkout could not be safely cancelled.",
+              );
+          }
+        }
+        store.transaction(() => {
+          if (r && JSON.stringify(store.get(r.id)) !== JSON.stringify(r))
+            throw new HttpError(
+              409,
+              "This booking changed while cancellation was being checked. Refresh and try again.",
+            );
+          e = entry(store, req.params.id)!;
+          e.cancelled = true;
+          saveEntry(store, e);
+          if (r) {
+            r = store.get(r.id)!;
+            r.status = "cancelled";
+            r.checkoutUrl = undefined;
+            store.save(r);
+          }
+        });
+      });
+      res.json({ cancelled: true });
+    }),
+  );
+  app.post(
+    "/api/bookings",
+    route(async (req, res) => {
       const data = bookingSchema.parse(req.body);
+      if (
+        !validateConsultation(
+          data.consultation,
+          data.treatments.map((t) => t.serviceId),
+          data.customTreatments.length > 0,
+        )
+      )
+        throw new HttpError(
+          400,
+          "Complete the current health questions for every guest, including details for Yes or Unsure answers.",
+        );
       const sub = submission(req, "booking", data);
       if (sub.existing)
         return res.json({
@@ -514,17 +848,52 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
       } catch (error) {
         throw new HttpError(400, (error as Error).message);
       }
-      const record = {
-        ...newRecord("booking", data.customer),
-        ...quote,
-        date: data.date,
-        time: data.time,
-        isCourse: data.isCourse,
-      };
-      store.insert(record, sub.submissionKey, sub.fingerprint);
-      res
-        .status(201)
-        .json({ receipt: receipt(record), receiptToken: record.receiptToken });
+      await refreshCalendar();
+      const result = store.transaction(() => {
+        const retry = store.bySubmission(sub.submissionKey);
+        if (retry) return { record: retry.record, created: false };
+        const record: PaymentRecord = {
+          ...newRecord("booking", data.customer),
+          ...quote,
+          date: data.date,
+          time: data.time,
+          isCourse: data.isCourse,
+          consultationStatus: "awaiting_review",
+        };
+        const reservation = forBooking(record);
+        record.holdUntil = reservation.holdUntil;
+        record.durationMinutes = reservation.durationMinutes;
+        reserve(store, reservation);
+        const ip = hash(req.ip || "local");
+        store.db
+          .prepare("DELETE FROM booking_limits WHERE reset_at <= ?")
+          .run(Date.now());
+        const bucket = store.db
+          .prepare("SELECT count FROM booking_limits WHERE key=?")
+          .get(ip) as { count: number } | undefined;
+        if ((bucket?.count ?? 0) >= 6)
+          throw new HttpError(
+            429,
+            "Too many appointment requests. Contact the spa to book.",
+          );
+        store.db
+          .prepare(
+            "INSERT INTO booking_limits VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1",
+          )
+          .run(ip, Date.now() + 86400000);
+        store.insert(record, sub.submissionKey, sub.fingerprint);
+        saveConsultation(store, record.id, {
+          input: data.consultation,
+          submittedAt: new Date().toISOString(),
+          status: "awaiting_review",
+          notes: "",
+        });
+        return { record, created: true };
+      });
+      res.status(result.created ? 201 : 200).json({
+        receipt: receipt(result.record),
+        receiptToken: result.record.receiptToken,
+      });
     }),
   );
   app.post(
@@ -580,6 +949,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
     route(async (req, res) => {
       if (!/^[a-f0-9]{64}$/.test(req.params.token))
         throw new HttpError(404, "Receipt not found.");
+      expireRequests(store);
       let record = store.byReceipt(req.params.token);
       if (!record) throw new HttpError(404, "Receipt not found.");
       // Server retrieval also confirms payment when the webhook is delayed; the URL alone never does.
@@ -595,6 +965,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
     "/api/owner/records",
     authenticate,
     route(async (_req, res) => {
+      await refreshCalendar();
       for (const record of store.list())
         if (
           record.stripeSessionId &&
@@ -610,6 +981,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
     authenticate,
     route(async (req, res) => {
       const input = approvalSchema.parse(req.body);
+      await refreshCalendar();
       const id = req.params.id;
       // Reconcile an expired attempt before permitting a new payment attempt.
       const before = store.get(id);
@@ -623,6 +995,21 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
         let record = store.get(id);
         if (!record || record.type !== "booking")
           throw new HttpError(404, "Booking request not found.");
+        const consultation = getConsultation(store, record.id);
+        if (
+          consultation?.status !== "approved" ||
+          !consultation.protocolChecked ||
+          !consultation.consultationCompleted
+        )
+          throw new HttpError(
+            409,
+            "Complete and approve the private health consultation before creating a deposit link.",
+          );
+        if (record.status === "cancelled")
+          throw new HttpError(
+            409,
+            "This appointment was cancelled. Submit a new request.",
+          );
         if (record.paidPence)
           throw new HttpError(
             409,
@@ -648,6 +1035,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
             );
           return { ...(await checkout(record)), record };
         }
+        const approvalSnapshot = JSON.stringify(record);
         const customs = record.items.filter((i) => i.custom);
         if (
           input.customPrices.length !== customs.length ||
@@ -694,9 +1082,21 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
           record.checkoutUrl = undefined;
           record.expiresAt = undefined;
         }
+        if (!record.expiresAt) record.expiresAt = checkoutDeadline(record);
         record.status = "awaiting_payment";
         record.paymentStatus = "unpaid";
-        store.save(record);
+        store.transaction(() => {
+          if (JSON.stringify(store.get(record.id)) !== approvalSnapshot)
+            throw new HttpError(
+              409,
+              "This booking changed during approval. Refresh and try again.",
+            );
+          const reservation = forBooking(record, "payment");
+          reserve(store, reservation);
+          record.holdUntil = undefined;
+          record.durationMinutes = reservation.durationMinutes;
+          store.save(record);
+        });
         await checkout(record);
         return { record: store.get(id)! };
       });
@@ -719,14 +1119,128 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
         if (!record) throw new HttpError(404, "Record not found.");
         if (
           input.status &&
-          (record.paymentStatus !== "paid" ||
+          (record.status === "cancelled" ||
+            record.paymentStatus !== "paid" ||
             (input.status === "dispatched" && record.type !== "sale") ||
             (input.status === "completed" && record.type !== "booking"))
         )
           throw new HttpError(409, "Only verified payments can be fulfilled.");
+        if (
+          input.status === "completed" &&
+          !getConsultation(store, record.id)?.dayOfChecks?.length
+        )
+          throw new HttpError(
+            409,
+            "Record the day-of-treatment health check and treatment consent first.",
+          );
         store.save({ ...record, ...input });
       });
       res.json({ record: store.get(req.params.id) });
+    }),
+  );
+  app.get(
+    "/api/owner/records/:id/consultation",
+    authenticate,
+    route((req, res) => {
+      const record = store.get(req.params.id);
+      if (!record || record.type !== "booking")
+        throw new HttpError(404, "Booking request not found.");
+      res.json({
+        consultation: getConsultation(store, record.id) ?? {
+          status: "awaiting_review",
+          notes: "",
+        },
+      });
+    }),
+  );
+  app.patch(
+    "/api/owner/records/:id/consultation",
+    authenticate,
+    route(async (req, res) => {
+      const input = consultationReviewSchema.parse(req.body);
+      await locked(req.params.id, async () =>
+        store.transaction(() => {
+          const record = store.get(req.params.id);
+          if (!record || record.type !== "booking")
+            throw new HttpError(404, "Booking request not found.");
+          if (
+            (record.checkoutUrl || record.paidPence) &&
+            record.status !== "cancelled" &&
+            input.status !== "approved"
+          )
+            throw new HttpError(
+              409,
+              "Cancel the appointment before changing an approved consultation while checkout or a payment exists. Cancellation does not automatically refund payment.",
+            );
+          const previous = getConsultation(store, record.id);
+          if (
+            !previous?.input &&
+            (input.status === "approved" || input.notes) &&
+            !input.offlineDataConsent
+          )
+            throw new HttpError(
+              400,
+              "Obtain and record the client's explicit health-data consent for this older booking before storing health notes or approving.",
+            );
+          saveConsultation(store, record.id, {
+            ...previous,
+            ...input,
+            reviewedAt: new Date().toISOString(),
+            reviewedBy: config.ownerUsername,
+          });
+          store.save({ ...record, consultationStatus: input.status });
+        }),
+      );
+      res.json({ saved: true });
+    }),
+  );
+  app.post(
+    "/api/owner/records/:id/consultation/day-of-check",
+    authenticate,
+    route(async (req, res) => {
+      z.object({
+        healthChangesReviewed: z.literal(true),
+        treatmentConsentObtained: z.literal(true),
+      })
+        .strict()
+        .parse(req.body);
+      await locked(req.params.id, async () =>
+        store.transaction(() => {
+          const record = store.get(req.params.id);
+          if (!record || record.type !== "booking")
+            throw new HttpError(404, "Booking request not found.");
+          if (
+            !record.paidPence ||
+            !["confirmed", "completed"].includes(record.status) ||
+            record.date! > londonDate()
+          )
+            throw new HttpError(
+              409,
+              "Day-of checks can be recorded from the appointment date for confirmed bookings.",
+            );
+          const consultation = getConsultation(store, record.id);
+          if (consultation?.status !== "approved")
+            throw new HttpError(
+              409,
+              "Complete the private consultation first.",
+            );
+          const date = londonDate();
+          if (!consultation.dayOfChecks?.some((c) => c.date === date)) {
+            consultation.dayOfChecks = [
+              ...(consultation.dayOfChecks ?? []),
+              {
+                date,
+                checkedAt: new Date().toISOString(),
+                checkedBy: config.ownerUsername!,
+                healthChangesReviewed: true,
+                treatmentConsentObtained: true,
+              },
+            ];
+            saveConsultation(store, record.id, consultation);
+          }
+        }),
+      );
+      res.json({ saved: true });
     }),
   );
   app.use("/api", (_req, _res, next) =>
@@ -740,7 +1254,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
             .map((i) => `${i.path.join(".") || "Request"}: ${i.message}`)
             .join("; "),
         });
-      if (error instanceof HttpError)
+      if (error instanceof HttpError || error instanceof CalendarError)
         return res.status(error.status).json({ error: error.message });
       if (error instanceof SyntaxError)
         return res.status(400).json({ error: "Invalid request body." });
