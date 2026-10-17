@@ -2,7 +2,7 @@ import { z } from "zod";
 import { consultationSchema } from "./consultation.js";
 import { SPA_PRODUCTS } from "../src/data/shopData.js";
 import { SPA_SERVICES } from "../src/data/spaData.js";
-import { courseReward } from "../shared/courseOffers.js";
+import { coursePricing } from "../shared/courseOffers.js";
 import {
   EXTRA_ADDONS,
   isStandaloneTreatment,
@@ -85,14 +85,7 @@ export const bookingSchema = z
       }, "Select a valid date today or later."),
     time: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/),
     isCourse: z.boolean().default(false),
-    courseSessions: z.union([z.literal(3), z.literal(6)]).optional(),
-    courseRewardSelection: z
-      .object({
-        serviceId: z.string().max(100),
-        optionIndex: z.number().int().min(0).max(20),
-      })
-      .strict()
-      .optional(),
+    courseSessions: z.union([z.literal(5), z.literal(10)]).optional(),
   })
   .strict()
   .refine((r) => {
@@ -154,10 +147,11 @@ export function shopQuote(input: z.infer<typeof shopSchema>) {
 export function bookingQuote(
   input: Omit<z.infer<typeof bookingSchema>, "consultation">,
 ) {
-  if (!input.isCourse && (input.courseSessions || input.courseRewardSelection))
+  if (!input.isCourse && input.courseSessions)
     throw new Error("Select a course before choosing course offers.");
-  const paidSessions = input.courseSessions ?? (input.isCourse ? 3 : 1);
-  const reward = courseReward(paidSessions, input.courseRewardSelection);
+  const paidSessions = input.courseSessions ?? (input.isCourse ? 5 : 1);
+  if (![1, 5, 10].includes(paidSessions))
+    throw new Error("Choose a course of 5 or 10 treatments.");
   if (
     input.treatments.some((t) => isStandaloneTreatment(t.serviceId)) &&
     (input.treatments.length !== 1 || input.customTreatments.length > 0)
@@ -220,18 +214,21 @@ export function bookingQuote(
       custom: true,
     })),
   );
-  const totalPence = items.reduce(
+  const subtotalPence = items.reduce(
     (sum, i) => sum + (i.unitPricePence ?? 0) * i.quantity,
     0,
+  );
+  const { totalPence, discountPence } = coursePricing(
+    subtotalPence,
+    paidSessions,
   );
   return {
     items,
     courseSessions: paidSessions === 1 ? undefined : paidSessions,
-    courseReward: reward,
-    subtotalPence: totalPence,
+    subtotalPence,
     totalPence,
     amountDuePence: Math.round(totalPence / 2),
-    discountPence: 0,
+    discountPence,
     shippingPence: 0,
   };
 }

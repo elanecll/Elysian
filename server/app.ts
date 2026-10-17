@@ -42,6 +42,7 @@ import {
   updateBookingEntry,
   migrateDiary,
 } from "./calendar.js";
+import { coursePricing } from "../shared/courseOffers.js";
 import { shiftDate } from "../shared/calendar.js";
 import { reviewSchema, reviewTreatment } from "./reviews.js";
 import type { ClientReview } from "../shared/reviews.js";
@@ -1196,11 +1197,14 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
               }
             : item,
         );
-        record.totalPence = record.items.reduce(
+        record.subtotalPence = record.items.reduce(
           (sum, item) => sum + item.unitPricePence! * item.quantity,
           0,
         );
-        record.subtotalPence = record.totalPence;
+        Object.assign(
+          record,
+          coursePricing(record.subtotalPence, record.courseSessions),
+        );
         record.amountDuePence = Math.round(record.totalPence / 2);
         if (record.paymentStatus === "expired") {
           record.revision++;

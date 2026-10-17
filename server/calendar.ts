@@ -43,7 +43,6 @@ export const availabilitySchema = z
     customTreatments: bookingSchema.shape.customTreatments,
     isCourse: bookingSchema.shape.isCourse,
     courseSessions: bookingSchema.shape.courseSessions,
-    courseRewardSelection: bookingSchema.shape.courseRewardSelection,
   })
   .strict();
 export const hoursSchema = z

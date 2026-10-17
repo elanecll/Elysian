@@ -144,11 +144,13 @@ export function PaymentReturnPage({
               <span>
                 {item.quantity}× {item.name}
               </span>
-              <span>
-                {item.unitPricePence === null
-                  ? "Quote pending"
-                  : money(item.unitPricePence * item.quantity)}
-              </span>
+              {record.courseSessions !== 5 && record.courseSessions !== 10 && (
+                <span>
+                  {item.unitPricePence === null
+                    ? "Quote pending"
+                    : money(item.unitPricePence * item.quantity)}
+                </span>
+              )}
             </div>
           ))}
           <div className="border-t border-[#E8BAC0]/50 pt-3">

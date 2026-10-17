@@ -11,6 +11,7 @@ import { Store } from "../server/store";
 import { loadConfig } from "../server/config";
 import {
   londonDate,
+  courseOfferDescription,
   type BookingRequest,
   type Receipt,
 } from "../shared/payments";
@@ -473,138 +474,143 @@ test("custom treatment quotes require explicit owner prices and preserve course 
   await f
     .post(`/api/owner/records/${result.receipt.id}/approve`)
     .set("Cookie", cookie)
-    .send({ customPrices: [{ id: "custom-0", pricePence: 2500 }] })
+    .send({ customPrices: [{ id: "custom-0", pricePence: 2502 }] })
     .expect(200);
   const record = f.store.get(result.receipt.id)!;
-  assert.equal(record.totalPence, 27000);
-  assert.equal(record.amountDuePence, 13500);
+  assert.equal(record.subtotalPence, 45010);
+  assert.equal(record.discountPence, 4501);
+  assert.equal(record.totalPence, 40509);
+  assert.equal(record.amountDuePence, 20255);
   await f
     .post(`/api/owner/records/${record.id}/approve`)
     .set("Cookie", cookie)
     .send({ customPrices: [{ id: "custom-0", pricePence: 2600 }] })
     .expect(409);
 });
-test("three-session courses record a complimentary £30 facial without charging for it", async () => {
-  const f = setup();
-  const result = await f.createBooking({
-    ...booking(),
-    isCourse: true,
-    courseSessions: 3,
-  });
-  const record = f.store.get(result.receipt.id)!;
-  assert.equal(record.items[0].quantity, 3);
-  assert.equal(record.totalPence, 19500);
-  assert.equal(record.amountDuePence, 9750);
-  assert.equal(record.courseSessions, 3);
-  assert.equal(
-    record.courseReward!.serviceId,
-    "cliniccare-cinderella-black-tie-facial",
-  );
-  assert.equal(record.courseReward!.valuePence, 3000);
-  assert.deepEqual(result.receipt.courseReward, record.courseReward);
-  assert.equal(result.receipt.courseSessions, 3);
-  assert.equal(record.durationMinutes, 60);
-  const cookie = await f.login();
-  await f
-    .post(`/api/owner/records/${record.id}/approve`)
-    .set("Cookie", cookie)
-    .send({ customPrices: [] })
-    .expect(200);
-  assert.equal(f.store.get(record.id)!.totalPence, 19500);
-});
-test("six-session courses preserve the selected free £60 treatment in receipts and owner records", async () => {
-  const f = setup();
-  const data = {
-    ...booking(),
-    isCourse: true,
-    courseSessions: 6 as const,
-    courseRewardSelection: {
-      serviceId: "swedish-full-body-massage",
-      optionIndex: 0,
-    },
-  };
-  const result = await f.createBooking(data);
-  const record = f.store.get(result.receipt.id)!;
-  assert.equal(record.items[0].quantity, 6);
-  assert.equal(record.totalPence, 39000);
-  assert.equal(record.amountDuePence, 19500);
-  assert.equal(record.courseReward!.valuePence, 6000);
-  assert.equal(record.courseReward!.serviceId, "swedish-full-body-massage");
-  assert.equal(record.durationMinutes, 60);
-  const receipt = await request(f.app)
-    .get(`/api/receipts/${result.receiptToken}`)
-    .expect(200);
-  assert.equal(receipt.body.receipt.courseSessions, 6);
-  assert.deepEqual(receipt.body.receipt.courseReward, record.courseReward);
-  const cookie = await f.login();
-  const owner = await request(f.app)
-    .get("/api/owner/records")
-    .set("Cookie", cookie)
-    .expect(200);
-  assert.deepEqual(owner.body.records[0].courseReward, record.courseReward);
-  const pending = bookingQuote({
-    ...booking(),
-    isCourse: true,
-    courseSessions: 6,
-  });
-  assert.equal(pending.courseReward!.valuePence, 6000);
-  assert.equal(pending.courseReward!.serviceId, undefined);
-});
-test("course rewards reject invalid tiers, ineligible treatments and client-supplied prices", () => {
-  assert.equal(
-    bookingSchema.safeParse({
+test("new courses apply the discount to booking, receipt, owner approval and Stripe deposit", async () => {
+  for (const [sessions, subtotal, discount, total, deposit] of [
+    [5, 30000, 3000, 27000, 13500],
+    [10, 60000, 9000, 51000, 25500],
+  ] as const) {
+    const f = setup();
+    const result = await f.createBooking({
       ...booking(),
       isCourse: true,
-      courseSessions: 12,
-    }).success,
-    false,
-  );
-  assert.equal(
-    bookingSchema.safeParse({
-      ...booking(),
-      isCourse: true,
-      courseSessions: 6,
+      courseSessions: sessions,
+      treatments: [{ serviceId: "swedish-full-body-massage", optionIndex: 0 }],
+    });
+    const record = f.store.get(result.receipt.id)!;
+    assert.equal(record.items[0].quantity, sessions);
+    assert.equal(record.courseSessions, sessions);
+    assert.equal(record.subtotalPence, subtotal);
+    assert.equal(record.discountPence, discount);
+    assert.equal(record.totalPence, total);
+    assert.equal(record.amountDuePence, deposit);
+    assert.equal(record.courseReward, undefined);
+    assert.equal(record.durationMinutes, 60);
+    assert.equal(result.receipt.courseSessions, sessions);
+    assert.equal(result.receipt.totalPence, total);
+    const receipt = await request(f.app)
+      .get(`/api/receipts/${result.receiptToken}`)
+      .expect(200);
+    assert.equal(receipt.body.receipt.totalPence, total);
+    const cookie = await f.login();
+    await f
+      .post(`/api/owner/records/${record.id}/approve`)
+      .set("Cookie", cookie)
+      .send({ customPrices: [] })
+      .expect(200);
+    const approved = f.store.get(record.id)!;
+    assert.equal(approved.totalPence, total);
+    assert.equal(approved.discountPence, discount);
+    assert.equal(approved.amountDuePence, deposit);
+    assert.equal(
+      f.sessions.get(approved.stripeSessionId!)!.amount_total,
+      deposit,
+    );
+    const owner = await request(f.app)
+      .get("/api/owner/records")
+      .set("Cookie", cookie)
+      .expect(200);
+    assert.equal(owner.body.records[0].courseSessions, sessions);
+    assert.equal(owner.body.records[0].totalPence, total);
+  }
+});
+test("course discounts include selected add-ons", () => {
+  const quote = bookingQuote({
+    ...booking(),
+    isCourse: true,
+    courseSessions: 10,
+    treatments: [
+      ...booking().treatments,
+      { serviceId: "swedish-back-massage", optionIndex: 0 },
+    ],
+  });
+  assert.equal(quote.subtotalPence, 95000);
+  assert.equal(quote.discountPence, 14250);
+  assert.equal(quote.totalPence, 80750);
+  assert.equal(quote.amountDuePence, 40375);
+});
+test("retired offers and client-supplied discounts or free rewards cannot create new bookings", () => {
+  for (const extra of [
+    { courseSessions: 3 },
+    { courseSessions: 6 },
+    { courseSessions: 12 },
+    { courseSessions: 5, discountPence: 10000 },
+    {
+      courseSessions: 10,
       courseRewardSelection: {
         serviceId: "swedish-full-body-massage",
         optionIndex: 0,
-        pricePence: 0,
       },
-    }).success,
-    false,
-  );
+    },
+  ])
+    assert.equal(
+      bookingSchema.safeParse({ ...booking(), isCourse: true, ...extra })
+        .success,
+      false,
+    );
   assert.throws(
-    () => bookingQuote({ ...booking(), isCourse: false, courseSessions: 6 }),
+    () => bookingQuote({ ...booking(), isCourse: false, courseSessions: 5 }),
     /Select a course/,
   );
-  assert.throws(
-    () =>
-      bookingQuote({
-        ...booking(),
-        isCourse: true,
-        courseSessions: 3,
-        courseRewardSelection: {
-          serviceId: "swedish-full-body-massage",
-          optionIndex: 0,
-        },
-      }),
-    /six-session/,
-  );
-  assert.throws(
-    () =>
-      bookingQuote({
-        ...booking(),
-        isCourse: true,
-        courseSessions: 6,
-        courseRewardSelection: {
-          serviceId: "clinicare-microneedling",
-          optionIndex: 0,
-        },
-      }),
-    /priced at £60/,
-  );
   const single = bookingQuote(booking());
-  assert.equal(single.courseReward, undefined);
   assert.equal(single.items[0].quantity, 1);
+  assert.equal(single.discountPence, 0);
+  assert.equal(single.totalPence, 6500);
+});
+test("existing complimentary course records retain their recorded terms after approval", async () => {
+  for (const sessions of [3, 6] as const) {
+    const f = setup();
+    const result = await f.createBooking();
+    const record = f.store.get(result.receipt.id)!;
+    record.isCourse = true;
+    record.courseSessions = sessions;
+    record.items.forEach((item) => {
+      item.quantity = sessions;
+    });
+    record.courseReward = {
+      name:
+        sessions === 3
+          ? "Free £30 Cinderella / Black Tie Facial"
+          : "Free treatment worth £60",
+      valuePence: sessions === 3 ? 3000 : 6000,
+    };
+    record.subtotalPence = record.totalPence = 6500 * sessions;
+    record.amountDuePence = Math.round(record.totalPence / 2);
+    f.store.save(record);
+    const cookie = await f.login();
+    await f
+      .post(`/api/owner/records/${record.id}/approve`)
+      .set("Cookie", cookie)
+      .send({ customPrices: [] })
+      .expect(200);
+    const approved = f.store.get(record.id)!;
+    assert.equal(approved.totalPence, 6500 * sessions);
+    assert.equal(approved.discountPence, 0);
+    assert.deepEqual(approved.courseReward, record.courseReward);
+    assert.match(courseOfferDescription(approved), /free|Free/);
+  }
 });
 test("past and impossible dates, price tampering and invalid treatment options are rejected", async () => {
   const f = setup();

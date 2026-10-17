@@ -20,11 +20,7 @@ export function AvailableAppointments({
 }: {
   selection: Pick<
     BookingRequest,
-    | "treatments"
-    | "customTreatments"
-    | "isCourse"
-    | "courseSessions"
-    | "courseRewardSelection"
+    "treatments" | "customTreatments" | "isCourse" | "courseSessions"
   >;
   date: string;
   time: string;
@@ -129,7 +125,7 @@ export function AvailableAppointments({
       {selection.isCourse && (
         <p className="text-xs">
           This date reserves your first visit. Later course visits are arranged
-          separately with the owner, including your complimentary treatment.
+          separately with the owner.
         </p>
       )}
       <p className="text-xs text-[#7A5852]">

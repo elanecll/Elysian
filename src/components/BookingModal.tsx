@@ -5,16 +5,16 @@ import { blankConsultation } from "../../shared/consultation";
 import { Calendar, Plus, Trash2, CheckCircle2 } from "lucide-react";
 import { SPA_SERVICES } from "../data/spaData";
 import {
-  THREE_SESSION_OFFER,
-  SIX_SESSION_OFFER,
-  courseRewardOptions,
-  courseReward,
+  FIVE_SESSION_OFFER,
+  TEN_SESSION_OFFER,
+  coursePricing,
 } from "../../shared/courseOffers";
 import {
   EXTRA_ADDONS,
   isStandaloneTreatment,
   londonDate,
   money,
+  courseOfferDescription,
   type BookingRequest,
   type Receipt,
 } from "../../shared/payments";
@@ -57,26 +57,10 @@ function BookingForm(props: BookingModalProps) {
       ) ?? 0,
     ),
   );
-  const [paidSessions, setPaidSessions] = useState<1 | 3 | 6>(
-    props.initialIsCourse ? 3 : 1,
+  const [paidSessions, setPaidSessions] = useState<1 | 5 | 10>(
+    props.initialIsCourse ? 5 : 1,
   );
   const isCourse = paidSessions !== 1;
-  const [rewardChoice, setRewardChoice] = useState("");
-  const rewardOptions = courseRewardOptions();
-  const selectedReward =
-    paidSessions === 6
-      ? rewardOptions.find(
-          (reward) =>
-            `${reward.serviceId}:${reward.optionIndex}` === rewardChoice,
-        )
-      : undefined;
-  const courseRewardSelection = selectedReward
-    ? {
-        serviceId: selectedReward.serviceId,
-        optionIndex: selectedReward.optionIndex,
-      }
-    : undefined;
-  const reward = courseReward(paidSessions, courseRewardSelection);
   const [addons, setAddons] = useState<string[]>(
     initialService?.isAddon ? [initialService.id] : [],
   );
@@ -159,10 +143,11 @@ function BookingForm(props: BookingModalProps) {
       unitPricePence: null,
     })),
   ];
-  const knownTotal = priceItems.reduce(
+  const knownSubtotal = priceItems.reduce(
     (sum, item) => sum + (item.unitPricePence ?? 0) * paidSessions,
     0,
   );
+  const { totalPence: knownTotal } = coursePricing(knownSubtotal, paidSessions);
   const hasUnquotedTreatments = priceItems.some(
     (item) => item.unitPricePence === null,
   );
@@ -186,7 +171,6 @@ function BookingForm(props: BookingModalProps) {
       time,
       isCourse,
       courseSessions: paidSessions === 1 ? undefined : paidSessions,
-      courseRewardSelection,
     };
     key.current = submissionKey(key.current, body);
     try {
@@ -208,11 +192,10 @@ function BookingForm(props: BookingModalProps) {
           questionnaire and approve your quote before asking for a 50% deposit.
           Your appointment is confirmed after payment.
         </p>
-        {submitted.receipt.courseReward && (
+        {submitted.receipt.isCourse && (
           <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
-            {submitted.receipt.courseSessions} paid sessions plus{" "}
-            {submitted.receipt.courseReward.name}. Later course visits and your
-            complimentary treatment are arranged separately with the owner.
+            {courseOfferDescription(submitted.receipt)}. Later course visits are
+            arranged separately with the owner.
           </p>
         )}
         {submitted.receipt.holdUntil && (
@@ -287,8 +270,8 @@ function BookingForm(props: BookingModalProps) {
           {(
             [
               { sessions: 1, label: "Single session" },
-              { sessions: 3, label: THREE_SESSION_OFFER },
-              { sessions: 6, label: SIX_SESSION_OFFER },
+              { sessions: 5, label: FIVE_SESSION_OFFER },
+              { sessions: 10, label: TEN_SESSION_OFFER },
             ] as const
           ).map((offer) => (
             <label
@@ -302,36 +285,15 @@ function BookingForm(props: BookingModalProps) {
                 checked={paidSessions === offer.sessions}
                 onChange={() => {
                   setPaidSessions(offer.sessions);
-                  setRewardChoice("");
                 }}
               />
               <span>{offer.label}</span>
             </label>
           ))}
-          {paidSessions === 6 && (
-            <Field label="Choose your free £60 treatment">
-              <select
-                className={inputClass}
-                value={rewardChoice}
-                onChange={(event) => setRewardChoice(event.target.value)}
-              >
-                <option value="">Choose later with the owner</option>
-                {rewardOptions.map((choice) => (
-                  <option
-                    key={`${choice.serviceId}:${choice.optionIndex}`}
-                    value={`${choice.serviceId}:${choice.optionIndex}`}
-                  >
-                    {choice.title} — {choice.duration}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          )}
           {isCourse && (
             <p className="text-xs text-[#7A5852]">
-              Pay for {paidSessions} sessions of each selected treatment and
-              add-on. Your complimentary treatment is a separate visit arranged
-              with the owner.
+              Your course discount is included in the total. Later visits are
+              arranged separately with the owner.
             </p>
           )}
         </fieldset>
@@ -446,7 +408,6 @@ function BookingForm(props: BookingModalProps) {
             customTreatments: customs,
             isCourse,
             courseSessions: paidSessions === 1 ? undefined : paidSessions,
-            courseRewardSelection,
           }}
           date={date}
           time={time}
@@ -520,14 +481,11 @@ function BookingForm(props: BookingModalProps) {
           id="booking-price-breakdown"
           className="font-display text-xl text-[#3D2B27] mb-3"
         >
-          Price breakdown
+          Booking summary
         </h3>
         {isCourse && (
           <p className="rounded-lg bg-[#FAF0F2] p-3 mb-4 text-[#5C4A45] leading-relaxed">
-            {paidSessions === 3 ? THREE_SESSION_OFFER : SIX_SESSION_OFFER}. Pay
-            for {paidSessions} sessions of each selected treatment, including
-            add-ons. {reward?.name} is included at no extra charge and arranged
-            as a separate visit with the owner.
+            {paidSessions === 5 ? FIVE_SESSION_OFFER : TEN_SESSION_OFFER}.
           </p>
         )}
         <ul
@@ -546,17 +504,17 @@ function BookingForm(props: BookingModalProps) {
                 <p className="mt-1 text-xs text-[#7A5852]">
                   {item.duration} per session
                 </p>
-                <p className="mt-1 text-[#5C4A45]">
-                  {item.unitPricePence === null
-                    ? "Price awaiting owner quotation"
-                    : `${money(item.unitPricePence)} × ${paidSessions} paid ${paidSessions === 1 ? "session" : "sessions"}`}
-                </p>
+                {item.unitPricePence === null && (
+                  <p className="mt-1 text-[#5C4A45]">
+                    Price awaiting owner quotation
+                  </p>
+                )}
               </div>
-              <strong className="shrink-0 text-[#3D2B27]">
-                {item.unitPricePence === null
-                  ? "To be quoted"
-                  : money(item.unitPricePence * paidSessions)}
-              </strong>
+              {!isCourse && item.unitPricePence !== null && (
+                <strong className="shrink-0 text-[#3D2B27]">
+                  {money(item.unitPricePence)}
+                </strong>
+              )}
             </li>
           ))}
         </ul>
@@ -565,7 +523,9 @@ function BookingForm(props: BookingModalProps) {
             <dt>
               {hasUnquotedTreatments
                 ? "Priced treatments subtotal"
-                : "Catalogue total"}
+                : isCourse
+                  ? "Course total"
+                  : "Total"}
             </dt>
             <dd>{money(knownTotal)}</dd>
           </div>
@@ -576,14 +536,6 @@ function BookingForm(props: BookingModalProps) {
                 : "50% deposit after approval"}
             </dt>
             <dd className="shrink-0">{money(depositPence)}</dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt>
-              {hasUnquotedTreatments
-                ? "Remaining balance on priced treatments"
-                : "Remaining balance after deposit"}
-            </dt>
-            <dd className="shrink-0">{money(knownTotal - depositPence)}</dd>
           </div>
         </dl>
         {hasUnquotedTreatments && (

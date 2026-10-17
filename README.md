@@ -46,7 +46,7 @@ For the browser smoke test, keep `pnpm dev` running and run `pnpm test:browser`.
 
 ## Appointment calendar
 
-Course offers now provide a free £30 Cinderella / Black Tie Facial with three paid sessions, or a free catalogue treatment priced at £60 with six paid sessions. Clients can select the £60 reward when booking or choose later with the owner. Every selected treatment and add-on is charged for the chosen three or six sessions; the complimentary reward is stored separately, adds no charge, and is arranged on a later visit. Booking receipts and owner records preserve the selected offer. Existing bookings under the previous four-for-three offer retain their original recorded terms.
+Course offers provide 10% off a course of five treatments or 15% off a course of ten treatments. The server applies the discount to each selected treatment and add-on across the chosen sessions, including custom prices supplied during owner approval. Customers see the final course total and 50% deposit without a calculation breakdown. Only the first visit is reserved; later course visits are arranged with the owner. Existing bookings retain their original recorded offer, including any complimentary reward.
 
 Clients select treatments, an appointment date and an available UK time. Slots are offered every 15 minutes for the next 90 days. The server derives the full visit duration from catalogue options and custom minutes, then adds a fixed **30-minute rest / preparation break**. Variable 30–45-minute treatments reserve 45 minutes. Add-ons extend the same visit. Course pricing reserves only the first visit; arrange later visits separately. Twin treatments run consecutively for one therapist, with a break between the clients and after the appointment.
 

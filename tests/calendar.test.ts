@@ -122,7 +122,6 @@ function setup(path = ":memory:") {
       customTreatments: body.customTreatments,
       isCourse: body.isCourse,
       courseSessions: body.courseSessions,
-      courseRewardSelection: body.courseRewardSelection,
     });
   const login = async () =>
     (
@@ -268,18 +267,14 @@ test("calendar validates dates, closing time, slot boundaries, quantities and se
     .available({ ...booking(), isCourse: true })
     .expect(200);
   assert.equal(course.body.durationMinutes, 60);
-  const six = await f
+  const ten = await f
     .available({
       ...booking(),
       isCourse: true,
-      courseSessions: 6,
-      courseRewardSelection: {
-        serviceId: "swedish-full-body-massage",
-        optionIndex: 0,
-      },
+      courseSessions: 10,
     })
     .expect(200);
-  assert.equal(six.body.durationMinutes, 60);
+  assert.equal(ten.body.durationMinutes, 60);
   const twin = await f
     .available({
       ...booking(),

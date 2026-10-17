@@ -1,3 +1,4 @@
+import { FIVE_SESSION_OFFER, TEN_SESSION_OFFER } from "./courseOffers.js";
 import type { ConsultationInput, ConsultationStatus } from "./consultation.js";
 export interface Customer {
   name: string;
@@ -18,8 +19,7 @@ export interface BookingRequest {
   date: string;
   time: string;
   isCourse: boolean;
-  courseSessions?: 3 | 6;
-  courseRewardSelection?: TreatmentSelection;
+  courseSessions?: 5 | 10;
 }
 export interface ShopRequest {
   customer: Customer;
@@ -56,7 +56,7 @@ export interface PaymentRecord {
   date?: string;
   time?: string;
   isCourse?: boolean;
-  courseSessions?: 3 | 6;
+  courseSessions?: 3 | 6 | 5 | 10;
   courseReward?: {
     name: string;
     valuePence: number;
@@ -113,11 +113,15 @@ export const money = (pence: number) =>
 export const courseOfferDescription = (
   record: Pick<PaymentRecord, "isCourse" | "courseSessions" | "courseReward">,
 ) =>
-  record.courseSessions
-    ? `${record.courseSessions} paid sessions + ${record.courseReward?.name || (record.courseSessions === 3 ? "free £30 Cinderella / Black Tie Facial" : "free treatment worth £60")}`
-    : record.isCourse
-      ? "Four sessions, pay for three (previous offer)"
-      : "";
+  record.courseSessions === 5
+    ? FIVE_SESSION_OFFER
+    : record.courseSessions === 10
+      ? TEN_SESSION_OFFER
+      : record.courseSessions
+        ? `${record.courseSessions} paid sessions + ${record.courseReward?.name || (record.courseSessions === 3 ? "free £30 Cinderella / Black Tie Facial" : "free treatment worth £60")}`
+        : record.isCourse
+          ? "Four sessions, pay for three (previous offer)"
+          : "";
 export const londonDate = (date = new Date()) =>
   new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/London",
