@@ -106,7 +106,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             if (event.currentTarget.getAttribute("src") !== DEFAULT_IMAGE)
               event.currentTarget.src = DEFAULT_IMAGE;
           }}
-          className="treatment-hero-image absolute object-contain object-center"
+          className="treatment-hero-image absolute"
         />
       </AnimatePresence>
       <div className="treatment-hero-content relative flex flex-col justify-center px-5 sm:px-8 lg:px-12">
