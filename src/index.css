@@ -84,7 +84,12 @@
   padding-block: 24px;
   background: #fff7f7;
   overflow-y: auto;
+  /* Keep overflowing text accessible without a coloured bar beside the photo. */
+  scrollbar-width: none;
   justify-content: safe center;
+}
+.treatment-hero-content::-webkit-scrollbar {
+  display: none;
 }
 .treatment-hero-category {
   margin-bottom: 12px;
