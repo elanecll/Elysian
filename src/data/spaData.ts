@@ -522,6 +522,7 @@ export const SPA_SERVICES: Treatment[] = [
     id: 'sanctuary-tension-reset-package',
     category: 'packages',
     title: 'Total Sanctuary Tension Reset',
+    image: '/images/treatments/total-sanctuary-tension-reset.jpeg',
     tagline: 'SWEDISH BACK MASSAGE + HYDRO-FACIAL + INDIAN HEAD RITUAL',
     duration: '90 mins',
     priceDisplay: '£120',
