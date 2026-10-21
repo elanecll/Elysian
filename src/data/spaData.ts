@@ -460,6 +460,7 @@ export const SPA_SERVICES: Treatment[] = [
     id: 'facial-product-bundle-package',
     category: 'packages',
     title: 'Facial + Product Bundle',
+    image: '/images/treatments/facial-product-bundle.jpeg',
     tagline: 'BOOK ANY QUALIFYING FACIAL & RECEIVE 10% OFF SKINCARE PRODUCTS',
     duration: '60 - 75 mins',
     priceDisplay: '10% OFF Skincare',
