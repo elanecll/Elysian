@@ -256,28 +256,6 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
-  // 13. Hot Stone Full Body Massage
-  {
-    id: 'hot-stone-full-body-massage',
-    category: 'hot-stone',
-    title: 'Hot Stone Full Body Massage',
-    tagline: 'VOLCANIC BASALT THERMAL GROUNDING',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abacf3df6972e3b5220cc5d.png',
-    duration: '60 mins',
-    priceDisplay: '£70',
-    priceOptions: [
-      { duration: '60 mins', priceSingle: 70 }
-    ],
-    description: 'Smooth heated volcanic stones glided with warm essential oils across full body energy lines for profound muscular decompression.',
-    benefits: [
-      'Heated River Basalt Stones',
-      'Melt Deep Chronic Muscle Knots',
-      'Thermal Circulation Boost',
-      'Grounding Aromatherapy Infusions'
-    ],
-    popular: true,
-  },
-
   // Swedish Full Body Massage
   {
     id: 'swedish-full-body-massage',
@@ -300,6 +278,49 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
+  // Hot Stone Full Body Massage
+  {
+    id: 'hot-stone-full-body-massage',
+    category: 'hot-stone',
+    title: 'Hot Stone Full Body Massage',
+    tagline: 'VOLCANIC BASALT THERMAL GROUNDING',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abacf3df6972e3b5220cc5d.png',
+    duration: '60 mins',
+    priceDisplay: '£70',
+    priceOptions: [
+      { duration: '60 mins', priceSingle: 70 }
+    ],
+    description: 'Smooth heated volcanic stones glided with warm essential oils across full body energy lines for profound muscular decompression.',
+    benefits: [
+      'Heated River Basalt Stones',
+      'Melt Deep Chronic Muscle Knots',
+      'Thermal Circulation Boost',
+      'Grounding Aromatherapy Infusions'
+    ],
+    popular: true,
+  },
+
+  // Hot Stone Back Massage
+  {
+    id: 'hot-stone-back-massage',
+    category: 'hot-stone',
+    title: 'Hot Stone Back Massage',
+    tagline: 'CONCENTRATED THERMAL BACK RELEASE',
+    image: '/images/treatments/hot-stone-back-massage.png',
+    duration: '30 mins',
+    priceDisplay: '£40',
+    priceOptions: [
+      { duration: '30 mins', priceSingle: 40 }
+    ],
+    description: 'Warmed volcanic basalt stones applied along the spinal meridian to rapidly dissolve back tension and stress.',
+    benefits: [
+      'Spinal Basalt Stone Placement',
+      'Quick Chronic Knot Melting',
+      'Deep Soothing Heat Diffusion',
+      'Releases Lumbar & Thoracic Tightness'
+    ],
+  },
+
   // 11. Swedish Back Massage
   {
     id: 'swedish-back-massage',
@@ -318,27 +339,6 @@ export const SPA_SERVICES: Treatment[] = [
       'Loosens Tight Scapular Muscles',
       'Restorative Deep Tissue Reset',
       'Invigorating Botanical Balms'
-    ],
-  },
-
-  // 12. Hot Stone Back Massage
-  {
-    id: 'hot-stone-back-massage',
-    category: 'hot-stone',
-    title: 'Hot Stone Back Massage',
-    tagline: 'CONCENTRATED THERMAL BACK RELEASE',
-    image: '/images/treatments/hot-stone-back-massage.png',
-    duration: '30 mins',
-    priceDisplay: '£40',
-    priceOptions: [
-      { duration: '30 mins', priceSingle: 40 }
-    ],
-    description: 'Warmed volcanic basalt stones applied along the spinal meridian to rapidly dissolve back tension and stress.',
-    benefits: [
-      'Spinal Basalt Stone Placement',
-      'Quick Chronic Knot Melting',
-      'Deep Soothing Heat Diffusion',
-      'Releases Lumbar & Thoracic Tightness'
     ],
   },
 
