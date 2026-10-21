@@ -237,7 +237,7 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'High Frequency Facial Treatment',
     tagline: 'ANTI-BACTERIAL OXYGENATION • BLEMISH DEFENCE • COLLAGEN BOOST',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9c8f60c7466bcf6cfbff.jpeg',
+    image: '/images/treatments/high-frequency-facial.jpeg',
     duration: '30 min Express / 60 min Full Treatment',
     priceDisplay: '£35 (30m Express) / £55 (60m Full)',
     priceOptions: [
