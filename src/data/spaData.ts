@@ -192,7 +192,7 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'Microdermabrasion Facial',
     tagline: 'RESURFACE • IMPROVE SCARS & TEXTURE',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb9c8fc13d4373c2fe9101.jpeg',
+    image: '/images/treatments/microdermabrasion-facial.jpeg',
     duration: '30 min Express / 60 min Full Treatment',
     priceDisplay: 'From £30 (30m Express) / £50 (60m Full)',
     priceOptions: [
