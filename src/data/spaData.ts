@@ -505,9 +505,9 @@ export const SPA_SERVICES: Treatment[] = [
     image: '/images/treatments/elysian-signature-glow-ritual.jpeg',
     tagline: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy + 60 min Volcanic Hot Stone Massage',
     duration: '90 mins',
-    priceDisplay: '£135 (Save £15)',
+    priceDisplay: '£130',
     priceOptions: [
-      { label: '🔬 CLINICARE Cosmeceutical & Hot Stone Ritual', duration: '90 mins', priceSingle: 135 }
+      { label: '🔬 CLINICARE Cosmeceutical & Hot Stone Ritual', duration: '90 mins', priceSingle: 130 }
     ],
     description: 'Our ultimate luxury sanctuary immersion combining The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy with CLINICARE active cosmeceuticals and a full 60-minute volcanic hot stone body massage.',
     benefits: [
