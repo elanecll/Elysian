@@ -166,6 +166,27 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
+  {
+    id: 'clinicare-dermaplane',
+    category: 'facial',
+    title: 'Clinicare Dermaplane',
+    tagline: 'CLINICARE SKINCARE • STANDALONE OR ADD-ON TREATMENT',
+    image: '/images/treatments/clinicare-dermaplane.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£40',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 40, priceSingle: 40, label: '30–45 min Clinicare Dermaplane' },
+    ],
+    description: 'A dermaplaning facial with CLINICARE skincare, tailored following a consultation and suitability assessment. Book it on its own or add it to a suitable treatment.',
+    benefits: [
+      'CLINICARE Skincare',
+      'Pre-treatment Consultation',
+      'Available as a Standalone Treatment or Add-on',
+      'Personalised Aftercare Guidance'
+    ],
+    canBeAddon: true,
+  },
+
   // 5. ULTRASONIC FACIAL
   {
     id: 'ultrasonic-facial',
@@ -257,28 +278,6 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
-  // Swedish Full Body Massage
-  {
-    id: 'swedish-full-body-massage',
-    category: 'body-massage',
-    title: 'Swedish Full Body Massage',
-    tagline: 'FULL BODY RELAXATION & TENSION RELEASE',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abacf3d4100b77e52391c2e.png',
-    duration: '60 mins',
-    priceDisplay: '£60',
-    priceOptions: [
-      { duration: '60 mins', priceSingle: 60 }
-    ],
-    description: 'A classic full body therapeutic massage using rhythmic gliding strokes, kneading, and gentle friction to relieve accumulated physical stress, improve circulation, and restore full body wellbeing.',
-    benefits: [
-      'Head-to-Toe Muscular Tension Release',
-      'Boosts Blood Circulation & Lymphatic Flow',
-      'Eases Everyday Aches & Stress Fatigue',
-      'Warm Botanical Essential Oils'
-    ],
-    popular: true,
-  },
-
   // Hot Stone Full Body Massage
   {
     id: 'hot-stone-full-body-massage',
@@ -320,6 +319,28 @@ export const SPA_SERVICES: Treatment[] = [
       'Deep Soothing Heat Diffusion',
       'Releases Lumbar & Thoracic Tightness'
     ],
+  },
+
+  // Swedish Full Body Massage
+  {
+    id: 'swedish-full-body-massage',
+    category: 'body-massage',
+    title: 'Swedish Full Body Massage',
+    tagline: 'FULL BODY RELAXATION & TENSION RELEASE',
+    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abacf3d4100b77e52391c2e.png',
+    duration: '60 mins',
+    priceDisplay: '£60',
+    priceOptions: [
+      { duration: '60 mins', priceSingle: 60 }
+    ],
+    description: 'A classic full body therapeutic massage using rhythmic gliding strokes, kneading, and gentle friction to relieve accumulated physical stress, improve circulation, and restore full body wellbeing.',
+    benefits: [
+      'Head-to-Toe Muscular Tension Release',
+      'Boosts Blood Circulation & Lymphatic Flow',
+      'Eases Everyday Aches & Stress Fatigue',
+      'Warm Botanical Essential Oils'
+    ],
+    popular: true,
   },
 
   // 11. Swedish Back Massage
@@ -534,26 +555,7 @@ export const SPA_SERVICES: Treatment[] = [
       'Silky Body Butter Infusion & Glass Glow'
     ],
   },
-  {
-    id: 'clinicare-dermaplane',
-    category: 'facial',
-    title: 'Clinicare Dermaplane',
-    tagline: 'CLINICARE SKINCARE • STANDALONE OR ADD-ON TREATMENT',
-    image: '/images/treatments/clinicare-dermaplane.jpeg',
-    duration: '30-45 mins',
-    priceDisplay: '£40',
-    priceOptions: [
-      { duration: '30-45 mins', priceClinicare: 40, priceSingle: 40, label: '30–45 min Clinicare Dermaplane' },
-    ],
-    description: 'A dermaplaning facial with CLINICARE skincare, tailored following a consultation and suitability assessment. Book it on its own or add it to a suitable treatment.',
-    benefits: [
-      'CLINICARE Skincare',
-      'Pre-treatment Consultation',
-      'Available as a Standalone Treatment or Add-on',
-      'Personalised Aftercare Guidance'
-    ],
-    canBeAddon: true,
-  }
+
 ];
 
 const facialProductBundle = SPA_SERVICES.find((service) => service.id === FACIAL_BUNDLE_ID)!;

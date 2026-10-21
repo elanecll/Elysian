@@ -150,13 +150,3 @@ export const isStandaloneTreatment = (serviceId: string) =>
     "carboxytherapy-face-mask-treatment",
     "cliniccare-chemical-peeling",
   ].includes(serviceId);
-
-// Extra options supplement the main treatment catalogue. Prices are shared with the server.
-export const EXTRA_ADDONS = [
-  {
-    id: "addon-high-frequency",
-    title: "High-Frequency Blemish Buster",
-    duration: "10 mins",
-    pricePence: 1000,
-  },
-];

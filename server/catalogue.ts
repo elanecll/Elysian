@@ -5,7 +5,6 @@ import { SPA_SERVICES } from "../src/data/spaData.js";
 import { bookingTotals } from "../shared/bookingPricing.js";
 import { FACIAL_BUNDLE_ID } from "../shared/facialBundle.js";
 import {
-  EXTRA_ADDONS,
   isStandaloneTreatment,
   londonDate,
   type RecordItem,
@@ -201,17 +200,7 @@ export function bookingQuote(
     throw new Error("Select a primary treatment.");
   const items: RecordItem[] = input.treatments.map((t) => {
     const service = SPA_SERVICES.find((s) => s.id === t.serviceId);
-    if (!service) {
-      const addon = EXTRA_ADDONS.find((a) => a.id === t.serviceId);
-      if (!addon || t.optionIndex !== 0) throw new Error("Unknown treatment.");
-      return {
-        id: addon.id,
-        name: addon.title,
-        quantity: paidSessions,
-        unitPricePence: addon.pricePence,
-        duration: addon.duration,
-      };
-    }
+    if (!service) throw new Error("Unknown treatment.");
     const option = service.priceOptions?.[t.optionIndex];
     if (!option) throw new Error("Unknown treatment duration.");
     const selectedFacial = option.facialServiceId

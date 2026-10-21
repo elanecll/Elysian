@@ -13,7 +13,6 @@ import {
   TEN_SESSION_OFFER,
 } from "../../shared/courseOffers";
 import {
-  EXTRA_ADDONS,
   isStandaloneTreatment,
   londonDate,
   money,
@@ -105,17 +104,17 @@ function BookingForm(props: BookingModalProps) {
       alive.current = false;
     };
   }, []);
-  const addonOptions = [
-    ...SPA_SERVICES.filter(
-      (s) =>
-        s.isAddon ||
-        s.canBeAddon ||
-        [
-          "cliniccare-cinderella-black-tie-facial",
-          "swedish-back-massage",
-          "hot-stone-back-massage",
-        ].includes(s.id),
-    ).map((s) => ({
+  const addonOptions = SPA_SERVICES.filter(
+    (s) =>
+      s.isAddon ||
+      s.canBeAddon ||
+      [
+        "cliniccare-cinderella-black-tie-facial",
+        "swedish-back-massage",
+        "hot-stone-back-massage",
+      ].includes(s.id),
+  )
+    .map((s) => ({
       id: s.id,
       title: s.title,
       duration: s.duration,
@@ -124,9 +123,8 @@ function BookingForm(props: BookingModalProps) {
           s.priceOptions?.[0].priceClinicare ?? s.priceOptions?.[0].priceSingle,
         ) * 100,
       ),
-    })),
-    ...EXTRA_ADDONS,
-  ].filter((a) => a.id !== serviceId && a.id !== selectedFacial?.id);
+    }))
+    .filter((a) => a.id !== serviceId && a.id !== selectedFacial?.id);
   const unitPrice = option?.priceClinicare ?? option?.priceSingle;
   const priceItems: RecordItem[] = [
     {
