@@ -345,8 +345,8 @@ export const SPA_SERVICES: Treatment[] = [
   // 13. Shoulder & Neck Massage
   {
     id: 'shoulder-neck-massage',
-    category: 'body-massage',
-    title: 'Shoulder & Neck Massage',
+    category: 'addons',
+    title: 'Shoulder & Neck Massage (Add-on Only)',
     tagline: 'DESK STRAIN & CERVICAL TENSION SPECIALIST',
     image: '/images/treatments/swedish-back-massage.png',
     duration: '30 mins',
@@ -361,13 +361,14 @@ export const SPA_SERVICES: Treatment[] = [
       'Improves Cervical Mobility',
       'Calming Aromatherapeutic Pressure'
     ],
+    isAddon: true,
   },
 
   // 14. Leg Massage
   {
     id: 'leg-massage',
-    category: 'body-massage',
-    title: 'Leg Massage',
+    category: 'addons',
+    title: 'Leg Massage (Add-on Only)',
     tagline: 'LOWER BODY TIRED MUSCLE & LYMPH REVIVAL',
     image: '/images/treatments/leg-massage.jpeg',
     duration: '30 mins',
@@ -382,6 +383,7 @@ export const SPA_SERVICES: Treatment[] = [
       'Soothes Calf & Hamstring Fatigue',
       'Invigorating Peppermint & Eucalyptus Oils'
     ],
+    isAddon: true,
   },
 
   // 15. Indian Head Massage (Add on Only)
