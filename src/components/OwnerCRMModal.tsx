@@ -6,7 +6,11 @@ import {
   courseOfferDescription,
   type PaymentRecord,
   type BookingRequest,
+  type BundleProductSelection,
 } from "../../shared/payments";
+import { FACIAL_BUNDLE_ID } from "../../shared/facialBundle";
+import { itemTotal } from "../../shared/bookingPricing";
+import { FacialBundleProducts } from "./FacialBundleProducts";
 import {
   api,
   ApiError,
@@ -97,6 +101,10 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
   });
   const [serviceId, setServiceId] = useState(SPA_SERVICES[0].id);
   const [optionIndex, setOptionIndex] = useState(0);
+  const [bundleProducts, setBundleProducts] = useState<
+    BundleProductSelection[]
+  >([]);
+  const isBundle = serviceId === FACIAL_BUNDLE_ID;
   const [date, setDate] = useState(londonDate());
   const [time, setTime] = useState("");
   const [error, setError] = useState("");
@@ -115,6 +123,7 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
       date,
       time,
       isCourse: false,
+      ...(isBundle ? { bundleProducts } : {}),
     };
     key.current = submissionKey(key.current, body);
     try {
@@ -173,6 +182,7 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
             onChange={(e) => {
               setServiceId(e.target.value);
               setOptionIndex(0);
+              setBundleProducts([]);
             }}
           >
             {SPA_SERVICES.filter((s) => !s.isAddon).map((s) => (
@@ -182,8 +192,9 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
             ))}
           </select>
         </Field>
-        <Field label="Duration">
+        <Field label={isBundle ? "Choose your CLINICARE facial" : "Duration"}>
           <select
+            aria-label={isBundle ? "Choose your CLINICARE facial" : "Duration"}
             className={inputClass}
             value={optionIndex}
             onChange={(e) => setOptionIndex(Number(e.target.value))}
@@ -191,18 +202,29 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
             {SPA_SERVICES.find((s) => s.id === serviceId)?.priceOptions?.map(
               (p, index) => (
                 <option key={index} value={index}>
-                  {p.duration}
+                  {isBundle
+                    ? `${p.label} — ${money(Number(p.priceSingle) * 100)}`
+                    : p.duration}
                 </option>
               ),
             )}
           </select>
         </Field>
       </fieldset>
+      {isBundle && (
+        <fieldset disabled={busy}>
+          <FacialBundleProducts
+            value={bundleProducts}
+            onChange={setBundleProducts}
+          />
+        </fieldset>
+      )}
       <AvailableAppointments
         selection={{
           treatments: [{ serviceId, optionIndex }],
           customTreatments: [],
           isCourse: false,
+          ...(isBundle ? { bundleProducts } : {}),
         }}
         date={date}
         time={time}
@@ -301,10 +323,27 @@ function RecordDetails({
           <span>
             {item.unitPricePence === null
               ? "Quote required"
-              : money(item.quantity * item.unitPricePence)}
+              : money(itemTotal(item))}
           </span>
         </div>
       ))}
+      {record.bundlePricing && (
+        <div className="rounded-xl bg-[#FAF0F2] p-3 text-sm space-y-1">
+          <p>
+            Product saving (10%):{" "}
+            {money(record.bundlePricing.productsDiscountPence)}
+          </p>
+          <p>
+            Products after discount:{" "}
+            {money(record.bundlePricing.productsTotalPence)} · Collect at
+            appointment
+          </p>
+          <p>
+            Due after approval: {money(record.amountDuePence)} (50% facial
+            deposit + products paid in full)
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#FAF0F2] p-3 text-sm">
         <span>Total: {money(record.totalPence)}</span>
         <span>Payment: {record.paymentStatus.replaceAll("_", " ")}</span>
@@ -373,7 +412,9 @@ function RecordDetails({
                 busy || !checked || record.consultationStatus !== "approved"
               }
             >
-              Approve and create 50% deposit link
+              {record.bundlePricing
+                ? "Approve and create facial deposit + products payment link"
+                : "Approve and create 50% deposit link"}
             </button>
             {record.consultationStatus !== "approved" && (
               <p className="text-sm">

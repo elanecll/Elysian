@@ -11,6 +11,10 @@ export interface TreatmentSelection {
   serviceId: string;
   optionIndex: number;
 }
+export interface BundleProductSelection {
+  productId: string;
+  quantity: number;
+}
 export interface BookingRequest {
   consultation: ConsultationInput;
   customer: Customer;
@@ -20,6 +24,7 @@ export interface BookingRequest {
   time: string;
   isCourse: boolean;
   courseSessions?: 5 | 10;
+  bundleProducts?: BundleProductSelection[];
 }
 export interface ShopRequest {
   customer: Customer;
@@ -35,6 +40,14 @@ export interface RecordItem {
   unitPricePence: number | null;
   duration?: string;
   custom?: boolean;
+  kind?: "product";
+}
+export interface BundlePricing {
+  treatmentTotalPence: number;
+  treatmentDepositPence: number;
+  productsSubtotalPence: number;
+  productsDiscountPence: number;
+  productsTotalPence: number;
 }
 export type PaymentStatus =
   "unpaid" | "paid" | "expired" | "failed" | "partially_refunded" | "refunded";
@@ -47,6 +60,7 @@ export type RecordStatus =
   | "dispatched"
   | "expired";
 export interface PaymentRecord {
+  bundlePricing?: BundlePricing;
   consultationStatus?: ConsultationStatus;
   id: string;
   type: "booking" | "sale";
@@ -86,6 +100,7 @@ export interface PaymentRecord {
 }
 export type Receipt = Pick<
   PaymentRecord,
+  | "bundlePricing"
   | "holdUntil"
   | "durationMinutes"
   | "id"

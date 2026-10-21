@@ -43,6 +43,7 @@ export const availabilitySchema = z
     customTreatments: bookingSchema.shape.customTreatments,
     isCourse: bookingSchema.shape.isCourse,
     courseSessions: bookingSchema.shape.courseSessions,
+    bundleProducts: bookingSchema.shape.bundleProducts,
   })
   .strict();
 export const hoursSchema = z
@@ -89,6 +90,7 @@ export const manualSchema = z
 // One therapist treats twin clients consecutively, including an internal break.
 export function treatmentMinutes(items: RecordItem[]) {
   return items.reduce((sum, item) => {
+    if (item.kind === "product") return sum;
     const label = (item.duration || "").replace(/^\d+\s*x\s*/i, "");
     const values = label.match(/\d+/g)?.map(Number) || [];
     if (!values.length)

@@ -22,6 +22,10 @@ import {
   shopSchema,
 } from "../server/catalogue";
 import { SPA_SERVICES } from "../src/data/spaData";
+import { SPA_PRODUCTS } from "../src/data/shopData";
+import { FACIAL_BUNDLE_ID } from "../shared/facialBundle";
+import { bookingTotals } from "../shared/bookingPricing";
+import { treatmentMinutes } from "../server/calendar";
 import { testConsultation } from "./consultation-fixture";
 import { saveConsultation, getConsultation } from "../server/consultation";
 
@@ -53,6 +57,26 @@ const booking = (): BookingRequest => ({
   date: bookingDate(),
   time: "11:00",
   isCourse: false,
+});
+const bundleBooking = (
+  facialId = "radio-frequency-facial",
+  facialOptionIndex = 0,
+): BookingRequest => ({
+  ...booking(),
+  treatments: [
+    {
+      serviceId: FACIAL_BUNDLE_ID,
+      optionIndex: SPA_SERVICES.find(
+        (service) => service.id === FACIAL_BUNDLE_ID,
+      )!.priceOptions!.findIndex(
+        (option) =>
+          option.facialServiceId === facialId &&
+          option.facialOptionIndex === facialOptionIndex,
+      ),
+    },
+  ],
+  consultation: testConsultation([FACIAL_BUNDLE_ID]),
+  bundleProducts: [{ productId: "tropic-skincare-kit-1", quantity: 2 }],
 });
 const resources: { store: Store; directory?: string }[] = [];
 afterEach(() => {
@@ -1028,6 +1052,227 @@ test("a lost approval response freezes its quote until an identical retry succee
     .send(approval)
     .expect(200);
   assert.equal(f.creations.length, 1);
+});
+
+test("facial bundle choices keep every qualifying facial price and duration in sync", () => {
+  const bundle = SPA_SERVICES.find(
+    (service) => service.id === FACIAL_BUNDLE_ID,
+  )!;
+  const choices = bundle.priceOptions!;
+  assert.ok(choices.length > 10);
+  for (const [optionIndex, option] of choices.entries()) {
+    const facial = SPA_SERVICES.find(
+      (service) => service.id === option.facialServiceId,
+    )!;
+    assert.equal(facial.category, "facial");
+    const source = facial.priceOptions![option.facialOptionIndex!];
+    const price = Math.round(
+      Number(source.priceClinicare ?? source.priceSingle) * 100,
+    );
+    const quote = bookingQuote({
+      ...bundleBooking(),
+      treatments: [{ serviceId: FACIAL_BUNDLE_ID, optionIndex }],
+    });
+    assert.equal(quote.items[0].unitPricePence, price);
+    assert.equal(quote.items[0].duration, source.duration);
+    assert.ok(quote.items[0].name.includes(facial.title));
+    assert.equal(quote.totalPence, price + 6120);
+    assert.equal(quote.amountDuePence, Math.round(price / 2) + 6120);
+    assert.equal(
+      treatmentMinutes(quote.items),
+      Math.max(...source.duration.match(/\d+/g)!.map(Number)),
+    );
+  }
+});
+
+test("bundle products receive only 10% off while course prices apply only to facial visits", () => {
+  for (const [sessions, treatmentTotal] of [
+    [5, 27000],
+    [10, 51000],
+  ] as const) {
+    const quote = bookingQuote({
+      ...bundleBooking(),
+      isCourse: true,
+      courseSessions: sessions,
+    });
+    assert.equal(quote.items[0].quantity, sessions);
+    assert.equal(quote.items[1].quantity, 2);
+    assert.equal(quote.bundlePricing!.productsTotalPence, 6120);
+    assert.equal(quote.bundlePricing!.productsDiscountPence, 680);
+    assert.equal(quote.totalPence, treatmentTotal + 6120);
+    assert.equal(quote.amountDuePence, treatmentTotal / 2 + 6120);
+    assert.equal(treatmentMinutes(quote.items), 60);
+  }
+  const clinicare = SPA_PRODUCTS.find(
+    (product) => product.brandType === "clinicare",
+  )!;
+  const quote = bookingQuote({
+    ...bundleBooking(),
+    bundleProducts: [{ productId: clinicare.id, quantity: 3 }],
+  });
+  const subtotal = Math.round(clinicare.numericPrice * 100) * 3;
+  assert.equal(
+    quote.bundlePricing!.productsTotalPence,
+    subtotal - Math.round(subtotal * 0.1),
+  );
+  const rounded = bookingTotals([
+    {
+      id: "p",
+      name: "Product",
+      kind: "product",
+      unitPricePence: 105,
+      quantity: 3,
+    },
+  ]);
+  assert.equal(rounded.bundlePricing!.productsDiscountPence, 32);
+  assert.equal(rounded.totalPence, 283);
+});
+
+test("bundle facial deposit and full product payment survive approval, receipt and verified Stripe payment", async () => {
+  const f = setup();
+  const result = await f.createBooking(bundleBooking());
+  assert.equal(f.creations.length, 0);
+  assert.equal(result.receipt.totalPence, 12120);
+  assert.equal(result.receipt.amountDuePence, 9120);
+  assert.equal(result.receipt.bundlePricing!.productsDiscountPence, 680);
+  assert.equal(result.receipt.durationMinutes, 60);
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${result.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  const record = f.store.get(result.receipt.id)!;
+  assert.equal(record.totalPence, 12120);
+  assert.equal(record.amountDuePence, 9120);
+  assert.equal(f.creations[0].line_items![0].price_data!.unit_amount, 9120);
+  assert.match(
+    f.creations[0].line_items![0].price_data!.product_data!.name,
+    /Facial deposit \+ discounted skincare/,
+  );
+  f.pay(record.stripeSessionId!);
+  assert.equal(
+    (
+      await f.webhook("checkout.session.completed", {
+        id: record.stripeSessionId!,
+      })
+    ).status,
+    200,
+  );
+  const receipt = (
+    await request(f.app).get(`/api/receipts/${result.receiptToken}`).expect(200)
+  ).body.receipt;
+  assert.equal(receipt.paidPence, 9120);
+  assert.equal(receipt.totalPence - receipt.paidPence, 3000);
+  assert.equal(receipt.status, "confirmed");
+  assert.equal(receipt.bundlePricing.productsTotalPence, 6120);
+});
+
+test("bundle price validation rejects missing products, invalid quantities, forged prices and non-bundle discounts", async () => {
+  const f = setup();
+  const body = bundleBooking();
+  for (const invalid of [
+    { ...body, bundleProducts: [] },
+    { ...body, bundleProducts: undefined },
+    { ...body, bundleProducts: [{ productId: "not-a-product", quantity: 1 }] },
+    {
+      ...body,
+      bundleProducts: [{ productId: "tropic-skincare-kit-1", quantity: 0 }],
+    },
+    {
+      ...body,
+      bundleProducts: [{ productId: "tropic-skincare-kit-1", quantity: 1.5 }],
+    },
+    {
+      ...body,
+      bundleProducts: [{ productId: "tropic-skincare-kit-1", quantity: 21 }],
+    },
+    {
+      ...body,
+      bundleProducts: [...body.bundleProducts!, ...body.bundleProducts!],
+    },
+    {
+      ...body,
+      bundleProducts: [
+        { productId: "tropic-skincare-kit-1", quantity: 1, unitPricePence: 1 },
+      ],
+    },
+    { ...booking(), bundleProducts: body.bundleProducts },
+    { ...body, treatments: [{ serviceId: FACIAL_BUNDLE_ID, optionIndex: 20 }] },
+  ])
+    await f
+      .post("/api/bookings")
+      .set("Idempotency-Key", randomUUID())
+      .send(invalid)
+      .expect(400);
+  assert.equal(f.store.list().length, 0);
+  assert.equal(f.creations.length, 0);
+});
+
+test("bundle uses standalone facial restrictions and rejects duplicate selected facial add-ons", () => {
+  for (const id of [
+    "cliniccare-chemical-peeling",
+    "carboxytherapy-face-mask-treatment",
+  ]) {
+    const body = bundleBooking(id);
+    assert.ok(bookingQuote(body).bundlePricing);
+    assert.throws(
+      () =>
+        bookingQuote({
+          ...body,
+          treatments: [
+            ...body.treatments,
+            { serviceId: "leg-massage", optionIndex: 0 },
+          ],
+        }),
+      /standalone/,
+    );
+    assert.throws(
+      () =>
+        bookingQuote({
+          ...body,
+          customTreatments: [{ title: "Extra massage", durationMinutes: 30 }],
+        }),
+      /standalone/,
+    );
+  }
+  const body = bundleBooking("cliniccare-cinderella-black-tie-facial");
+  assert.throws(
+    () =>
+      bookingQuote({
+        ...body,
+        treatments: [
+          ...body.treatments,
+          {
+            serviceId: "cliniccare-cinderella-black-tie-facial",
+            optionIndex: 0,
+          },
+        ],
+      }),
+    /Duplicate treatments/,
+  );
+});
+
+test("bundle availability follows the selected facial and products do not reserve extra time", async () => {
+  const f = setup();
+  for (const [facial, option, minutes] of [
+    ["microdermabrasion", 0, 30],
+    ["microdermabrasion", 1, 60],
+    ["cliniccare-chemical-peeling", 0, 45],
+  ] as const) {
+    const body = bundleBooking(facial, option);
+    const available = await f
+      .post("/api/availability")
+      .send({
+        date: body.date,
+        treatments: body.treatments,
+        customTreatments: [],
+        isCourse: false,
+        bundleProducts: body.bundleProducts,
+      })
+      .expect(200);
+    assert.equal(available.body.durationMinutes, minutes);
+  }
 });
 
 test("expired shop checkout stays unpaid and requires a new submission", async () => {

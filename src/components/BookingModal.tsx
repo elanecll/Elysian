@@ -4,10 +4,13 @@ import { HealthScreening } from "./HealthScreening";
 import { blankConsultation } from "../../shared/consultation";
 import { Calendar, Plus, Trash2, CheckCircle2 } from "lucide-react";
 import { SPA_SERVICES } from "../data/spaData";
+import { SPA_PRODUCTS } from "../data/shopData";
+import { FACIAL_BUNDLE_ID } from "../../shared/facialBundle";
+import { bookingTotals, itemTotal } from "../../shared/bookingPricing";
+import { FacialBundleProducts } from "./FacialBundleProducts";
 import {
   FIVE_SESSION_OFFER,
   TEN_SESSION_OFFER,
-  coursePricing,
 } from "../../shared/courseOffers";
 import {
   EXTRA_ADDONS,
@@ -17,6 +20,8 @@ import {
   courseOfferDescription,
   type BookingRequest,
   type Receipt,
+  type RecordItem,
+  type BundleProductSelection,
 } from "../../shared/payments";
 import { submissionKey, submitBooking } from "../data/paymentApi";
 import {
@@ -48,7 +53,6 @@ function BookingForm(props: BookingModalProps) {
   );
   const service =
     SPA_SERVICES.find((s) => s.id === serviceId) || SPA_SERVICES[0];
-  const isStandalone = isStandaloneTreatment(serviceId);
   const [optionIndex, setOptionIndex] = useState(() =>
     Math.max(
       0,
@@ -64,6 +68,15 @@ function BookingForm(props: BookingModalProps) {
   const [addons, setAddons] = useState<string[]>(
     initialService?.isAddon ? [initialService.id] : [],
   );
+  const [bundleProducts, setBundleProducts] = useState<
+    BundleProductSelection[]
+  >([]);
+  const isBundle = serviceId === FACIAL_BUNDLE_ID;
+  const option = service.priceOptions?.[optionIndex];
+  const selectedFacial = option?.facialServiceId
+    ? SPA_SERVICES.find((facial) => facial.id === option.facialServiceId)
+    : undefined;
+  const isStandalone = isStandaloneTreatment(selectedFacial?.id ?? serviceId);
   const [customs, setCustoms] = useState<
     { title: string; durationMinutes: number }[]
   >([]);
@@ -112,13 +125,15 @@ function BookingForm(props: BookingModalProps) {
       ),
     })),
     ...EXTRA_ADDONS,
-  ].filter((a) => a.id !== serviceId);
-  const option = service.priceOptions?.[optionIndex];
+  ].filter((a) => a.id !== serviceId && a.id !== selectedFacial?.id);
   const unitPrice = option?.priceClinicare ?? option?.priceSingle;
-  const priceItems = [
+  const priceItems: RecordItem[] = [
     {
       id: serviceId,
-      title: service.title,
+      name: selectedFacial
+        ? `${service.title} — ${selectedFacial.title}`
+        : service.title,
+      quantity: paidSessions,
       duration: option?.duration || service.duration,
       unitPricePence:
         typeof unitPrice === "number" ? Math.round(unitPrice * 100) : null,
@@ -129,7 +144,8 @@ function BookingForm(props: BookingModalProps) {
         ? [
             {
               id: addon.id,
-              title: addon.title,
+              name: addon.title,
+              quantity: paidSessions,
               duration: addon.duration,
               unitPricePence: addon.pricePence,
             },
@@ -138,23 +154,43 @@ function BookingForm(props: BookingModalProps) {
     }),
     ...customs.map((custom, index) => ({
       id: `custom-${index}`,
-      title: custom.title,
+      name: custom.title,
+      quantity: paidSessions,
       duration: `${custom.durationMinutes} mins`,
       unitPricePence: null,
     })),
+    ...(isBundle
+      ? bundleProducts.flatMap((selection) => {
+          const product = SPA_PRODUCTS.find(
+            (product) => product.id === selection.productId,
+          );
+          return product
+            ? [
+                {
+                  id: product.id,
+                  name: product.name,
+                  kind: "product" as const,
+                  quantity: selection.quantity,
+                  unitPricePence: Math.round(product.numericPrice * 100),
+                },
+              ]
+            : [];
+        })
+      : []),
   ];
-  const knownSubtotal = priceItems.reduce(
-    (sum, item) => sum + (item.unitPricePence ?? 0) * paidSessions,
-    0,
-  );
-  const { totalPence: knownTotal } = coursePricing(knownSubtotal, paidSessions);
+  const totals = bookingTotals(priceItems, paidSessions);
+  const knownTotal = totals.totalPence;
   const hasUnquotedTreatments = priceItems.some(
     (item) => item.unitPricePence === null,
   );
-  const depositPence = Math.round(knownTotal / 2);
+  const depositPence = totals.amountDuePence;
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy || !time) return;
+    if (isBundle && !bundleProducts.length) {
+      setError("Choose at least one skincare product for your bundle.");
+      return;
+    }
     setBusy(true);
     setError("");
     const body: BookingRequest = {
@@ -171,6 +207,7 @@ function BookingForm(props: BookingModalProps) {
       time,
       isCourse,
       courseSessions: paidSessions === 1 ? undefined : paidSessions,
+      ...(isBundle ? { bundleProducts } : {}),
     };
     key.current = submissionKey(key.current, body);
     try {
@@ -189,8 +226,9 @@ function BookingForm(props: BookingModalProps) {
         <h3 className="font-display text-2xl">Appointment request received</h3>
         <p className="text-sm">
           Your slot is temporarily reserved. The owner will review your health
-          questionnaire and approve your quote before asking for a 50% deposit.
-          Your appointment is confirmed after payment.
+          questionnaire and approve your quote before asking for your facial
+          deposit{isBundle ? " and discounted product payment" : ""}. Your
+          appointment is confirmed after payment.
         </p>
         {submitted.receipt.isCourse && (
           <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
@@ -221,7 +259,11 @@ function BookingForm(props: BookingModalProps) {
       <p className="rounded-xl bg-[#FAF0F2] p-4 text-sm">
         Choose an available appointment. No payment is taken today. After
         reviewing your health questionnaire and approving your request, the
-        owner will send a Stripe checkout link for your 50% deposit.
+        owner will send a Stripe checkout link for your 50%{" "}
+        {isBundle
+          ? "facial deposit plus the full discounted product price"
+          : "deposit"}
+        .
       </p>
       <fieldset disabled={busy} className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -233,6 +275,7 @@ function BookingForm(props: BookingModalProps) {
                 setServiceId(e.target.value);
                 setOptionIndex(0);
                 setAddons([]);
+                setBundleProducts([]);
                 if (isStandaloneTreatment(e.target.value)) setCustoms([]);
               }}
             >
@@ -244,15 +287,22 @@ function BookingForm(props: BookingModalProps) {
               ))}
             </select>
           </Field>
-          <Field label="Duration">
+          <Field label={isBundle ? "Choose your CLINICARE facial" : "Duration"}>
             <select
+              aria-label={
+                isBundle ? "Choose your CLINICARE facial" : "Duration"
+              }
               className={inputClass}
               value={optionIndex}
-              onChange={(e) => setOptionIndex(Number(e.target.value))}
+              onChange={(e) => {
+                setOptionIndex(Number(e.target.value));
+                setAddons([]);
+                setCustoms([]);
+              }}
             >
               {service.priceOptions?.map((p, i) => (
                 <option key={i} value={i}>
-                  {p.duration} —{" "}
+                  {isBundle ? p.label : p.duration} —{" "}
                   {typeof (p.priceClinicare ?? p.priceSingle) === "number"
                     ? money(Number(p.priceClinicare ?? p.priceSingle) * 100)
                     : "Owner quotation"}
@@ -261,6 +311,12 @@ function BookingForm(props: BookingModalProps) {
             </select>
           </Field>
         </div>
+        {isBundle && (
+          <FacialBundleProducts
+            value={bundleProducts}
+            onChange={setBundleProducts}
+          />
+        )}
         <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
           Chemical peeling and carboxytherapy are standalone treatments. Please
           request each separately, without additional treatments or add-ons.
@@ -408,6 +464,7 @@ function BookingForm(props: BookingModalProps) {
             customTreatments: customs,
             isCourse,
             courseSessions: paidSessions === 1 ? undefined : paidSessions,
+            ...(isBundle ? { bundleProducts } : {}),
           }}
           date={date}
           time={time}
@@ -499,10 +556,12 @@ function BookingForm(props: BookingModalProps) {
             >
               <div className="min-w-0 flex-1 basis-48">
                 <p className="font-semibold text-[#3D2B27] break-words">
-                  {item.title}
+                  {item.name}
                 </p>
                 <p className="mt-1 text-xs text-[#7A5852]">
-                  {item.duration} per session
+                  {item.kind === "product"
+                    ? `${item.quantity} × product · 10% off`
+                    : `${item.duration} per session`}
                 </p>
                 {item.unitPricePence === null && (
                   <p className="mt-1 text-[#5C4A45]">
@@ -510,15 +569,32 @@ function BookingForm(props: BookingModalProps) {
                   </p>
                 )}
               </div>
-              {!isCourse && item.unitPricePence !== null && (
-                <strong className="shrink-0 text-[#3D2B27]">
-                  {money(item.unitPricePence)}
-                </strong>
-              )}
+              {(!isCourse || item.kind === "product") &&
+                item.unitPricePence !== null && (
+                  <strong className="shrink-0 text-[#3D2B27]">
+                    {money(itemTotal(item))}
+                  </strong>
+                )}
             </li>
           ))}
         </ul>
         <dl className="space-y-2 border-t border-[#E8BAC0]/50 pt-4 mt-1 text-[#3D2B27]">
+          {totals.bundlePricing && (
+            <>
+              <div className="flex justify-between gap-4">
+                <dt>Facial and treatments</dt>
+                <dd>{money(totals.bundlePricing.treatmentTotalPence)}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt>Skincare products after 10% off</dt>
+                <dd>{money(totals.bundlePricing.productsTotalPence)}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt>Product saving</dt>
+                <dd>{money(totals.bundlePricing.productsDiscountPence)}</dd>
+              </div>
+            </>
+          )}
           <div className="flex justify-between gap-4 font-semibold">
             <dt>
               {hasUnquotedTreatments
@@ -531,13 +607,22 @@ function BookingForm(props: BookingModalProps) {
           </div>
           <div className="flex justify-between gap-4">
             <dt>
-              {hasUnquotedTreatments
-                ? "Estimated 50% deposit on priced treatments"
-                : "50% deposit after approval"}
+              {isBundle
+                ? "Due after approval: 50% facial deposit + products"
+                : hasUnquotedTreatments
+                  ? "Estimated 50% deposit on priced treatments"
+                  : "50% deposit after approval"}
             </dt>
             <dd className="shrink-0">{money(depositPence)}</dd>
           </div>
         </dl>
+        {totals.bundlePricing && (
+          <p className="mt-3 text-sm">
+            Remaining treatment balance at your appointment:{" "}
+            {money(knownTotal - depositPence)}. Products are paid in full and
+            collected at the spa.
+          </p>
+        )}
         {hasUnquotedTreatments && (
           <p className="mt-3 text-xs text-[#7A5852] leading-relaxed">
             Treatments awaiting quotation are excluded from these amounts. The
@@ -546,7 +631,7 @@ function BookingForm(props: BookingModalProps) {
           </p>
         )}
         <p className="mt-2 text-xs text-[#7A5852]">
-          Once your treatment booking is confirmed, the 50% deposit is
+          Once your treatment booking is confirmed, the 50% treatment deposit is
           non-refundable, subject to your statutory cancellation and refund
           rights.
         </p>
@@ -565,7 +650,7 @@ function BookingForm(props: BookingModalProps) {
         <button
           type="submit"
           className={`${buttonClass} flex items-center gap-2`}
-          disabled={busy || !time}
+          disabled={busy || !time || (isBundle && !bundleProducts.length)}
         >
           <Calendar size={16} />
           {busy ? "Submitting request…" : "Request appointment"}

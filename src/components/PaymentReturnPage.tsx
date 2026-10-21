@@ -6,6 +6,7 @@ import {
   type Receipt,
 } from "../../shared/payments";
 import { getReceipt } from "../data/paymentApi";
+import { itemTotal } from "../../shared/bookingPricing";
 import { buttonClass, ErrorMessage } from "./PaymentUI";
 import type { PageTab } from "../types";
 
@@ -68,7 +69,9 @@ export function PaymentReturnPage({
         ? "Refund recorded"
         : paid
           ? record.type === "booking"
-            ? "Deposit received — appointment confirmed"
+            ? record.bundlePricing
+              ? "Facial deposit and products paid — appointment confirmed"
+              : "Deposit received — appointment confirmed"
             : "Payment received — order confirmed"
           : record?.status === "requested"
             ? "Awaiting owner approval"
@@ -144,16 +147,35 @@ export function PaymentReturnPage({
               <span>
                 {item.quantity}× {item.name}
               </span>
-              {record.courseSessions !== 5 && record.courseSessions !== 10 && (
+              {(item.kind === "product" ||
+                (record.courseSessions !== 5 &&
+                  record.courseSessions !== 10)) && (
                 <span>
                   {item.unitPricePence === null
                     ? "Quote pending"
-                    : money(item.unitPricePence * item.quantity)}
+                    : money(itemTotal(item))}
                 </span>
               )}
             </div>
           ))}
           <div className="border-t border-[#E8BAC0]/50 pt-3">
+            {record.bundlePricing && (
+              <>
+                <p>
+                  Product saving (10%):{" "}
+                  {money(record.bundlePricing.productsDiscountPence)}
+                </p>
+                <p>
+                  Products after discount:{" "}
+                  {money(record.bundlePricing.productsTotalPence)} · Collect at
+                  your appointment
+                </p>
+                <p>
+                  Due after approval: {money(record.amountDuePence)} — 50%
+                  facial deposit plus products paid in full
+                </p>
+              </>
+            )}
             <p>
               Total: {money(record.totalPence)}
               {record.items.some((i) => i.unitPricePence === null)

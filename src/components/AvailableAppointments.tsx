@@ -20,7 +20,11 @@ export function AvailableAppointments({
 }: {
   selection: Pick<
     BookingRequest,
-    "treatments" | "customTreatments" | "isCourse" | "courseSessions"
+    | "treatments"
+    | "customTreatments"
+    | "isCourse"
+    | "courseSessions"
+    | "bundleProducts"
   >;
   date: string;
   time: string;
@@ -31,7 +35,14 @@ export function AvailableAppointments({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(0);
-  const fingerprint = JSON.stringify({ ...selection, date });
+  // Products never change appointment length or invalidate a chosen time.
+  const fingerprint = JSON.stringify({
+    date,
+    treatments: selection.treatments,
+    customTreatments: selection.customTreatments,
+    isCourse: selection.isCourse,
+    courseSessions: selection.courseSessions,
+  });
   useEffect(() => {
     const controller = new AbortController();
     setFeed(null);

@@ -2,7 +2,8 @@ import { z } from "zod";
 import { consultationSchema } from "./consultation.js";
 import { SPA_PRODUCTS } from "../src/data/shopData.js";
 import { SPA_SERVICES } from "../src/data/spaData.js";
-import { coursePricing } from "../shared/courseOffers.js";
+import { bookingTotals } from "../shared/bookingPricing.js";
+import { FACIAL_BUNDLE_ID } from "../shared/facialBundle.js";
 import {
   EXTRA_ADDONS,
   isStandaloneTreatment,
@@ -86,8 +87,25 @@ export const bookingSchema = z
     time: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/),
     isCourse: z.boolean().default(false),
     courseSessions: z.union([z.literal(5), z.literal(10)]).optional(),
+    bundleProducts: z
+      .array(
+        z
+          .object({
+            productId: z.string().max(100),
+            quantity: z.number().int().min(1).max(20),
+          })
+          .strict(),
+      )
+      .max(50)
+      .optional(),
   })
   .strict()
+  .refine(
+    (input) =>
+      input.treatments[0]?.serviceId !== FACIAL_BUNDLE_ID ||
+      !!input.bundleProducts?.length,
+    "Choose at least one skincare product for your Facial + Product Bundle.",
+  )
   .refine((r) => {
     if (r.date !== londonDate()) return true;
     const time = new Intl.DateTimeFormat("en-GB", {
@@ -152,17 +170,29 @@ export function bookingQuote(
   const paidSessions = input.courseSessions ?? (input.isCourse ? 5 : 1);
   if (![1, 5, 10].includes(paidSessions))
     throw new Error("Choose a course of 5 or 10 treatments.");
+  const isBundle = input.treatments[0]?.serviceId === FACIAL_BUNDLE_ID;
   if (
-    input.treatments.some((t) => isStandaloneTreatment(t.serviceId)) &&
+    (!isBundle && input.bundleProducts?.length) ||
+    input.treatments.slice(1).some((t) => t.serviceId === FACIAL_BUNDLE_ID)
+  )
+    throw new Error(
+      "Select Facial + Product Bundle as your primary treatment to add discounted products.",
+    );
+  const effectiveServiceIds = input.treatments.map((t) =>
+    t.serviceId === FACIAL_BUNDLE_ID
+      ? (SPA_SERVICES.find((s) => s.id === FACIAL_BUNDLE_ID)?.priceOptions?.[
+          t.optionIndex
+        ]?.facialServiceId ?? "")
+      : t.serviceId,
+  );
+  if (
+    effectiveServiceIds.some(isStandaloneTreatment) &&
     (input.treatments.length !== 1 || input.customTreatments.length > 0)
   )
     throw new Error(
       "Chemical peeling and carboxytherapy are standalone treatments. Request each separately without additional treatments or add-ons.",
     );
-  if (
-    new Set(input.treatments.map((t) => t.serviceId)).size !==
-    input.treatments.length
-  )
+  if (new Set(effectiveServiceIds).size !== input.treatments.length)
     throw new Error("Duplicate treatments are not allowed.");
   const primary = SPA_SERVICES.find(
     (s) => s.id === input.treatments[0].serviceId,
@@ -184,6 +214,16 @@ export function bookingQuote(
     }
     const option = service.priceOptions?.[t.optionIndex];
     if (!option) throw new Error("Unknown treatment duration.");
+    const selectedFacial = option.facialServiceId
+      ? SPA_SERVICES.find(
+          (s) =>
+            s.id === option.facialServiceId &&
+            s.category === "facial" &&
+            !s.isAddon,
+        )
+      : undefined;
+    if (service.id === FACIAL_BUNDLE_ID && !selectedFacial)
+      throw new Error("Choose a qualifying CLINICARE facial.");
     const price = option.priceClinicare ?? option.priceSingle;
     if (typeof price !== "number")
       return {
@@ -198,7 +238,9 @@ export function bookingQuote(
       throw new Error("Invalid treatment price.");
     return {
       id: service.id,
-      name: service.title,
+      name: selectedFacial
+        ? `${service.title} — ${selectedFacial.title}`
+        : service.title,
       quantity: paidSessions,
       unitPricePence: Math.round(price * 100),
       duration: option.duration,
@@ -214,21 +256,29 @@ export function bookingQuote(
       custom: true,
     })),
   );
-  const subtotalPence = items.reduce(
-    (sum, i) => sum + (i.unitPricePence ?? 0) * i.quantity,
-    0,
-  );
-  const { totalPence, discountPence } = coursePricing(
-    subtotalPence,
-    paidSessions,
-  );
+  const products = input.bundleProducts ?? [];
+  if (new Set(products.map((p) => p.productId)).size !== products.length)
+    throw new Error("Duplicate products are not allowed.");
+  for (const selection of products) {
+    const product = SPA_PRODUCTS.find((p) => p.id === selection.productId);
+    if (
+      !product ||
+      !Number.isInteger(selection.quantity) ||
+      selection.quantity < 1 ||
+      selection.quantity > 20
+    )
+      throw new Error("Choose a valid skincare product and quantity.");
+    items.push({
+      id: product.id,
+      name: product.name,
+      kind: "product",
+      quantity: selection.quantity,
+      unitPricePence: Math.round(product.numericPrice * 100),
+    });
+  }
   return {
     items,
     courseSessions: paidSessions === 1 ? undefined : paidSessions,
-    subtotalPence,
-    totalPence,
-    amountDuePence: Math.round(totalPence / 2),
-    discountPence,
-    shippingPence: 0,
+    ...bookingTotals(items, paidSessions),
   };
 }

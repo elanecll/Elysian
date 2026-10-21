@@ -20,6 +20,7 @@ import {
   shopQuote,
 } from "./catalogue.js";
 import type { Storage as Store } from "./storage.js";
+import { bookingTotals } from "../shared/bookingPricing.js";
 import {
   CalendarError,
   checkoutDeadline,
@@ -42,7 +43,6 @@ import {
   updateBookingEntry,
   migrateDiary,
 } from "./calendar.js";
-import { coursePricing } from "../shared/courseOffers.js";
 import { shiftDate } from "../shared/calendar.js";
 import { reviewSchema, reviewTreatment } from "./reviews.js";
 import type { ClientReview } from "../shared/reviews.js";
@@ -76,6 +76,7 @@ const route =
       .then(() => fn(req, res))
       .catch(next);
 const receipt = (r: PaymentRecord): Receipt => ({
+  bundlePricing: r.bundlePricing,
   id: r.id,
   type: r.type,
   items: r.items,
@@ -304,7 +305,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
               product_data: {
                 name:
                   record.type === "booking"
-                    ? `50% appointment deposit — ${record.id}`
+                    ? `${record.bundlePricing ? "Facial deposit + discounted skincare products" : "50% appointment deposit"} — ${record.id}`
                     : `Elysian boutique order — ${record.id}`,
               },
             },
@@ -1197,15 +1198,10 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
               }
             : item,
         );
-        record.subtotalPence = record.items.reduce(
-          (sum, item) => sum + item.unitPricePence! * item.quantity,
-          0,
-        );
         Object.assign(
           record,
-          coursePricing(record.subtotalPence, record.courseSessions),
+          bookingTotals(record.items, record.courseSessions),
         );
-        record.amountDuePence = Math.round(record.totalPence / 2);
         if (record.paymentStatus === "expired") {
           record.revision++;
           record.stripeSessionId = undefined;

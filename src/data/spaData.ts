@@ -1,4 +1,5 @@
 import type { Treatment, Review, FaqItem } from '../types.js';
+import { FACIAL_BUNDLE_ID, facialBundleOptions } from '../../shared/facialBundle.js';
 
 export const SPA_SERVICES: Treatment[] = [
   // Clinicare Microneedling
@@ -462,15 +463,13 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Facial + Product Bundle',
     image: '/images/treatments/facial-product-bundle.jpeg',
     tagline: 'BOOK ANY QUALIFYING FACIAL & RECEIVE 10% OFF SKINCARE PRODUCTS',
-    duration: '60 mins',
-    priceDisplay: 'From £50.00',
-    priceOptions: [
-      { label: 'Facial Ritual', duration: '60 mins', priceSingle: 'From £50.00 + 10% OFF Products' }
-    ],
-    description: 'Book any qualifying CLINICARE facial and receive 10% OFF professional boutique skincare products purchased on the day! Includes product saving perks, complete facial experience, and bespoke skincare consultation.',
+    duration: 'Varies by selected facial',
+    priceDisplay: 'Selected facial + 10% OFF products',
+    priceOptions: [],
+    description: 'Choose any qualifying CLINICARE facial at its usual price and select your skincare products with 10% OFF. Pay a 50% facial deposit plus the full discounted product price after approval, and collect your products at your appointment.',
     benefits: [
       'Book Any Qualifying Facial and Receive 10% OFF Boutique Skincare',
-      'Valid on Professional Skincare Products Purchased on the Day',
+      '10% OFF Skincare Products Selected with Your Booking',
       'Your Therapist Will Recommend the Best Products for Your Skin',
       'Complimentary Skin Analysis & Tailored Home Regimen Curation'
     ],
@@ -536,6 +535,9 @@ export const SPA_SERVICES: Treatment[] = [
     ],
   }
 ];
+
+const facialProductBundle = SPA_SERVICES.find((service) => service.id === FACIAL_BUNDLE_ID)!;
+facialProductBundle.priceOptions = facialBundleOptions(SPA_SERVICES);
 
 export const REVIEWS: Review[] = [
   {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SPA_SERVICES } from '../data/spaData';
+import { FACIAL_BUNDLE_ID } from '../../shared/facialBundle';
 import { FacialIcon, LotusIcon, HotStoneIcon, PackagesIcon } from './SpaIcons';
 import { Clock, Sparkles, Check, ArrowRight, PlusCircle, Gift } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -306,7 +307,14 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                       </div>
                     )}
 
-                    {!hasDurationChoice && treatment.priceOptions && treatment.priceOptions.length > 0 && (
+                    {treatment.id === FACIAL_BUNDLE_ID && (
+                      <div className="bg-[#FFF9F9] rounded-xl p-3.5 border border-[#E8BAC0]/40 mb-4 space-y-2 text-sm">
+                        <p className="font-bold text-[#87464D]">Build your Facial + Product Bundle</p>
+                        <p>Choose your CLINICARE facial at its usual price and duration, then choose skincare products with 10% off.</p>
+                        <p>After approval, pay a 50% facial deposit plus the full discounted product price. Collect your products at your appointment.</p>
+                      </div>
+                    )}
+                    {treatment.id !== FACIAL_BUNDLE_ID && !hasDurationChoice && treatment.priceOptions && treatment.priceOptions.length > 0 && (
                       <div className="bg-[#FFF9F9] rounded-xl p-3.5 border border-[#E8BAC0]/40 mb-4 space-y-2">
                         <p className="text-xs tracking-wide uppercase font-bold text-[#87464D] font-sans-clean">
                           Pricing &amp; Duration Breakdown:
@@ -372,7 +380,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                         )}
                       </div>
                       <span className="inline-block text-[10px] text-[#BE757C] font-semibold mt-0.5">
-                        💳 50% deposit to secure booking
+                        {treatment.id === FACIAL_BUNDLE_ID ? '💳 50% facial deposit + discounted products paid in full' : '💳 50% deposit to secure booking'}
                       </span>
                     </div>
 

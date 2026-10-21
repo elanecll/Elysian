@@ -1,14 +1,33 @@
-export type PageTab = 'home' | 'treatments' | 'shop' | 'basket' | 'reviews' | 'location' | 'terms' | 'payment';
+export type PageTab =
+  | "home"
+  | "treatments"
+  | "shop"
+  | "basket"
+  | "reviews"
+  | "location"
+  | "terms"
+  | "payment";
 
 export interface Product {
   id: string;
-  category: 'all' | 'tropic' | 'clinicare' | 'daily' | 'serums' | 'body' | 'collections' | 'masks' | 'sunscreen' | 'cleansers' | string;
-  brandType: 'tropic' | 'clinicare';
+  category:
+    | "all"
+    | "tropic"
+    | "clinicare"
+    | "daily"
+    | "serums"
+    | "body"
+    | "collections"
+    | "masks"
+    | "sunscreen"
+    | "cleansers"
+    | string;
+  brandType: "tropic" | "clinicare";
   name: string;
   brand: string;
   range?: string;
   rangeKey?: string;
-  colorTheme?: 'blue' | 'green' | 'orange' | 'purple';
+  colorTheme?: "blue" | "green" | "orange" | "purple";
   colorLabel?: string;
   colorHex?: string;
   volume?: string;
@@ -31,11 +50,13 @@ export interface TreatmentPriceOption {
   priceClinicare?: number;
   priceSingle?: number | string;
   label?: string;
+  facialServiceId?: string;
+  facialOptionIndex?: number;
 }
 
 export interface Treatment {
   id: string;
-  category: 'facial' | 'body-massage' | 'hot-stone' | 'packages' | 'addons';
+  category: "facial" | "body-massage" | "hot-stone" | "packages" | "addons";
   title: string;
   tagline: string;
   duration: string;
