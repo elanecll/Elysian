@@ -128,10 +128,10 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Radio Frequency + EMS Facial',
     tagline: 'TIGHTEN SKIN, BOOST COLLAGEN & SMOOTH LINES • LIFT, TONE, FIRM & CELLULAR ACTIVATION',
     image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab94adac13d4373c2c3e9d5.png',
-    duration: '60 mins',
+    duration: '45-60 mins',
     priceDisplay: '£60',
     priceOptions: [
-      { duration: '60 min — Full Treatment', priceClinicare: 60, priceSingle: 60 },
+      { duration: '45-60 mins — Full Treatment', priceClinicare: 60, priceSingle: 60 },
     ],
     description: 'Targeted thermal radio frequency and electrical muscle stimulation (EMS) paired with CLINICARE active peptide complexes to lift, tone, and sculpt facial contours while heating deep dermis layers to boost collagen synthesis and smooth lines.',
     benefits: [
@@ -462,11 +462,11 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Facial + Product Bundle',
     image: '/images/treatments/facial-product-bundle.jpeg',
     tagline: 'BOOK ANY QUALIFYING FACIAL & RECEIVE 10% OFF SKINCARE PRODUCTS',
-    duration: '60 - 75 mins',
+    duration: '60 mins',
     priceDisplay: '10% OFF Skincare',
     priceOptions: [
       { label: 'CLINICARE Custom Facial + 10% OFF Products', duration: '60 mins', priceSingle: 60 },
-      { label: 'Elysian 4-in-1 Oxygen Glow Facial + 10% OFF Products', duration: '75 mins', priceSingle: 70 }
+      { label: 'Elysian 4-in-1 Oxygen Glow Facial + 10% OFF Products', duration: '60 mins', priceSingle: 70 }
     ],
     description: 'Book any qualifying CLINICARE facial and receive 10% OFF professional boutique skincare products purchased on the day! Includes product saving perks, complete facial experience, and bespoke skincare consultation.',
     benefits: [
@@ -484,10 +484,10 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'packages',
     title: 'Elysian Signature Glow & Massage Ritual',
     tagline: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy + 60 min Volcanic Hot Stone Massage',
-    duration: '120 mins',
+    duration: '90 mins',
     priceDisplay: '£135 (Save £15)',
     priceOptions: [
-      { label: '🔬 CLINICARE Cosmeceutical & Hot Stone Ritual', duration: '120 mins', priceSingle: 135 }
+      { label: '🔬 CLINICARE Cosmeceutical & Hot Stone Ritual', duration: '90 mins', priceSingle: 135 }
     ],
     description: 'Our ultimate luxury sanctuary immersion combining The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy with CLINICARE active cosmeceuticals and a full 60-minute volcanic hot stone body massage.',
     benefits: [
@@ -504,9 +504,9 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Total Sanctuary Tension Reset',
     tagline: 'SWEDISH BACK MASSAGE + HYDRO-FACIAL + INDIAN HEAD RITUAL',
     duration: '90 mins',
-    priceDisplay: '£95 (Save £15)',
+    priceDisplay: '£120',
     priceOptions: [
-      { label: 'Complete 90-Minute Sanctuary Reset', duration: '90 mins', priceSingle: 95 }
+      { label: 'Complete 90-Minute Sanctuary Reset', duration: '90 mins', priceSingle: 120 }
     ],
     description: 'Carefully curated to rapidly erase desk fatigue and restore dull skin. Combines targeted Swedish spinal tension release, pore-cleansing Hydro-Facial vacuum infusion, and relaxing cranial scalp therapy.',
     benefits: [
