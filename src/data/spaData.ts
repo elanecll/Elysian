@@ -171,7 +171,7 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'facial',
     title: 'Ultrasonic Facial',
     tagline: 'DEEP NUTRIENT INFUSION & CELLULAR STIMULATION',
-    image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abba630c13d4373c2ff7e24.jpeg',
+    image: '/images/treatments/ultrasonic-facial.jpeg',
     duration: '45-60 mins',
     priceDisplay: '£50',
     priceOptions: [
