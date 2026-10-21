@@ -502,7 +502,7 @@ export const SPA_SERVICES: Treatment[] = [
     id: 'elysian-signature-ritual-package',
     category: 'packages',
     title: 'Elysian Signature Glow & Massage Ritual',
-    image: '/images/treatments/elysian-signature-glow.jpeg',
+    image: '/images/treatments/elysian-signature-glow-ritual.jpeg',
     tagline: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy + 60 min Volcanic Hot Stone Massage',
     duration: '90 mins',
     priceDisplay: '£135 (Save £15)',
