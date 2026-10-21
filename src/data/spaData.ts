@@ -543,18 +543,19 @@ export const SPA_SERVICES: Treatment[] = [
     id: 'bridal-occasion-glow-package',
     category: 'packages',
     title: 'Bridal & Occasion Head-to-Toe Glow',
-    tagline: 'ORGANIC BODY POLISH + MICRODERMABRASION + PDT LED CRYO-LOCK',
-    duration: '105 mins',
-    priceDisplay: '£110',
+    image: '/images/treatments/bridal-occasion-glow.jpeg',
+    tagline: 'Organic Body Polish + Back Massage + Hydro Facial + Cinderella Facial',
+    duration: '90-120 mins',
+    priceDisplay: '£150',
     priceOptions: [
-      { label: 'Complete 105-Min Event Prep Ritual', duration: '105 mins', priceSingle: 110 }
+      { label: 'Complete 90–120 min Bridal & Occasion Ritual', duration: '90-120 mins', priceSingle: 150 }
     ],
-    description: 'The definitive pre-event luxury prep: full body botanical mineral polish leaving limbs silky soft, paired with diamond microdermabrasion and cryo-calming LED therapy for immediate camera-ready radiance.',
+    description: 'Prepare for your special occasion with Organic Body Polish, a Back Massage, a Hydro Facial and a CLINICARE Cinderella Facial, combined in a 90–120 minute ritual.',
     benefits: [
-      'Full Body Botanical Exfoliating Scrub',
-      'Diamond Precision Microdermabrasion',
-      'Cryo-Hammer Pore Tightening & PDT LED',
-      'Silky Body Butter Infusion & Glass Glow'
+      'Organic Body Polish',
+      'Back Massage',
+      'Hydro Facial',
+      'CLINICARE Cinderella Facial'
     ],
   },
 
