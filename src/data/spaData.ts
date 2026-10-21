@@ -463,10 +463,9 @@ export const SPA_SERVICES: Treatment[] = [
     image: '/images/treatments/facial-product-bundle.jpeg',
     tagline: 'BOOK ANY QUALIFYING FACIAL & RECEIVE 10% OFF SKINCARE PRODUCTS',
     duration: '60 mins',
-    priceDisplay: '10% OFF Skincare',
+    priceDisplay: 'From £50.00',
     priceOptions: [
-      { label: 'CLINICARE Custom Facial + 10% OFF Products', duration: '60 mins', priceSingle: 60 },
-      { label: 'Elysian 4-in-1 Oxygen Glow Facial + 10% OFF Products', duration: '60 mins', priceSingle: 70 }
+      { label: 'Facial Ritual', duration: '60 mins', priceSingle: 'From £50.00 + 10% OFF Products' }
     ],
     description: 'Book any qualifying CLINICARE facial and receive 10% OFF professional boutique skincare products purchased on the day! Includes product saving perks, complete facial experience, and bespoke skincare consultation.',
     benefits: [
