@@ -533,6 +533,26 @@ export const SPA_SERVICES: Treatment[] = [
       'Cryo-Hammer Pore Tightening & PDT LED',
       'Silky Body Butter Infusion & Glass Glow'
     ],
+  },
+  {
+    id: 'clinicare-dermaplane',
+    category: 'facial',
+    title: 'Clinicare Dermaplane',
+    tagline: 'CLINICARE SKINCARE • STANDALONE OR ADD-ON TREATMENT',
+    image: '/images/treatments/clinicare-dermaplane.jpeg',
+    duration: '30-45 mins',
+    priceDisplay: '£40',
+    priceOptions: [
+      { duration: '30-45 mins', priceClinicare: 40, priceSingle: 40, label: '30–45 min Clinicare Dermaplane' },
+    ],
+    description: 'A dermaplaning facial with CLINICARE skincare, tailored following a consultation and suitability assessment. Book it on its own or add it to a suitable treatment.',
+    benefits: [
+      'CLINICARE Skincare',
+      'Pre-treatment Consultation',
+      'Available as a Standalone Treatment or Add-on',
+      'Personalised Aftercare Guidance'
+    ],
+    canBeAddon: true,
   }
 ];
 

@@ -44,11 +44,11 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
   ];
 
   const filteredTreatments = SPA_SERVICES.filter((treatment) => {
-    if (activeTab !== 'all' && treatment.category !== activeTab) {
+    if (activeTab !== 'all' && treatment.category !== activeTab && !(activeTab === 'addons' && treatment.canBeAddon)) {
       return false;
     }
     // Filter by duration when in facial or packages category and durationFilter is not 'all'
-    if ((treatment.category === 'facial' || treatment.category === 'packages') && durationFilter !== 'all') {
+    if (activeTab !== 'addons' && (treatment.category === 'facial' || treatment.category === 'packages') && durationFilter !== 'all') {
       if (durationFilter === '30') {
         const has30 =
           treatment.priceOptions?.some((opt) => opt.duration.toLowerCase().includes('30') || opt.duration.toLowerCase().includes('35')) ||
@@ -202,6 +202,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
               const badge = treatment.id === 'bring-a-friend-package' ? treatment.priceDisplay
                 : treatment.id === 'facial-product-bundle-package' ? '10% OFF Skincare'
                 : treatment.category === 'packages' ? 'Curated Package'
+                : treatment.canBeAddon ? 'Also available as an add-on'
                 : treatment.popular ? 'Most Requested'
                 : treatment.isAddon ? 'Add-on Only' : null;
 

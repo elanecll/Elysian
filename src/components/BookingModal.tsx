@@ -109,6 +109,7 @@ function BookingForm(props: BookingModalProps) {
     ...SPA_SERVICES.filter(
       (s) =>
         s.isAddon ||
+        s.canBeAddon ||
         [
           "cliniccare-cinderella-black-tie-facial",
           "swedish-back-massage",

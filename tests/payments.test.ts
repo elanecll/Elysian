@@ -1054,6 +1054,29 @@ test("a lost approval response freezes its quote until an identical retry succee
   assert.equal(f.creations.length, 1);
 });
 
+test("Dermaplane can be booked alone or added with its price and appointment time", () => {
+  const selection = { serviceId: "clinicare-dermaplane", optionIndex: 0 };
+  const single = bookingQuote({ ...booking(), treatments: [selection] });
+  assert.equal(single.totalPence, 4000);
+  assert.equal(single.amountDuePence, 2000);
+  assert.equal(treatmentMinutes(single.items), 45);
+
+  const combined = bookingQuote({
+    ...booking(),
+    treatments: [
+      { serviceId: "swedish-full-body-massage", optionIndex: 0 },
+      selection,
+    ],
+  });
+  assert.equal(combined.totalPence, 10000);
+  assert.equal(combined.amountDuePence, 5000);
+  assert.equal(treatmentMinutes(combined.items), 105);
+  assert.throws(
+    () => bookingQuote({ ...booking(), treatments: [selection, selection] }),
+    /Duplicate treatments/,
+  );
+});
+
 test("facial bundle choices keep every qualifying facial price and duration in sync", () => {
   const bundle = SPA_SERVICES.find(
     (service) => service.id === FACIAL_BUNDLE_ID,

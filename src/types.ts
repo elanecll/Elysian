@@ -66,6 +66,7 @@ export interface Treatment {
   benefits: string[];
   popular?: boolean;
   isAddon?: boolean;
+  canBeAddon?: boolean;
   image?: string;
   beforeAfterImage?: string;
 }
