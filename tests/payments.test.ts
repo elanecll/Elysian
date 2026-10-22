@@ -9,6 +9,11 @@ import Stripe from "stripe";
 import { createApp } from "../server/app";
 import { Store } from "../server/store";
 import { loadConfig } from "../server/config";
+import type { Config } from "../server/config";
+import type {
+  NotificationJob,
+  NotificationTransport,
+} from "../server/notifications";
 import {
   londonDate,
   courseOfferDescription,
@@ -87,7 +92,11 @@ afterEach(() => {
   }
 });
 
-function setup(path = ":memory:") {
+function setup(
+  path = ":memory:",
+  notifications?: Config["notifications"],
+  messaging?: NotificationTransport,
+) {
   const store = new Store(path);
   resources.push({ store });
   const sdk = new Stripe("sk_test_fixture");
@@ -165,6 +174,7 @@ function setup(path = ":memory:") {
     paymentIntents: { retrieve: async (id: string) => intents.get(id)! },
   } as unknown as Stripe;
   const config = {
+    notifications,
     appUrl: origin,
     stripeSecretKey: "sk_test_fixture",
     webhookSecret: secret,
@@ -172,7 +182,7 @@ function setup(path = ":memory:") {
     ownerPassword: "a-long-test-password",
     databasePath: path,
   };
-  const app = createApp(config, store, fake);
+  const app = createApp(config, store, fake, messaging);
   const post = (path: string) => request(app).post(path).set("Origin", origin);
   async function login() {
     const response = await post("/api/owner/login")
@@ -1325,4 +1335,143 @@ test("expired shop checkout stays unpaid and requires a new submission", async (
   assert.equal(returned.body.checkoutUrl, undefined);
   const renewed = await f.createShop();
   assert.notEqual(renewed.receiptToken, created.receiptToken);
+});
+
+test("booking triggers notify the owner, email the deposit and confirm only verified payment once", async () => {
+  const sent: NotificationJob[] = [];
+  const notifications: Config["notifications"] = {
+    enabled: true,
+    ownerEmail: "owner@example.com",
+    ownerWhatsapp: "+447700900123",
+    resendApiKey: "re_fixture",
+    emailFrom: "bookings@spa.example",
+    twilioAccountSid: "ACfixture",
+    twilioAuthToken: "fixture",
+    whatsappFrom: "+447700900124",
+    whatsappTemplateSid: "HXfixture",
+    retrySecret: "fixture-retry-secret-with-at-least-32-characters",
+  };
+  const f = setup(":memory:", notifications, {
+    send: async (job) => {
+      sent.push({ ...job });
+      return `provider-${job.id}`;
+    },
+  });
+  const created = await f.createBooking();
+  assert.equal(sent.filter((j) => j.event === "request_received").length, 3);
+  assert.equal(sent.find((j) => j.channel === "whatsapp")?.audience, "owner");
+  await f
+    .post(`/api/owner/records/${created.receipt.id}/notifications`)
+    .send({})
+    .expect(401);
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${created.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  assert.equal(sent.filter((j) => j.event === "deposit_ready").length, 1);
+  const record = f.store.get(created.receipt.id)!;
+  assert.ok(
+    sent
+      .find((j) => j.event === "deposit_ready")!
+      .text.includes(record.checkoutUrl!),
+  );
+  assert.equal(
+    (
+      await f.webhook("checkout.session.completed", {
+        id: record.stripeSessionId!,
+      })
+    ).status,
+    200,
+  );
+  assert.equal(sent.filter((j) => j.event === "booking_confirmed").length, 0);
+  f.pay(record.stripeSessionId!);
+  assert.equal(
+    (
+      await f.webhook(
+        "checkout.session.completed",
+        { id: record.stripeSessionId! },
+        "evt_paid_notify",
+      )
+    ).status,
+    200,
+  );
+  assert.equal(sent.filter((j) => j.event === "booking_confirmed").length, 3);
+  assert.match(
+    sent.find(
+      (j) => j.event === "booking_confirmed" && j.audience === "customer",
+    )!.text,
+    /Payment received: £32\.50\. Remaining balance: £32\.50/,
+  );
+  assert.equal(
+    (
+      await f.webhook(
+        "checkout.session.completed",
+        { id: record.stripeSessionId! },
+        "evt_paid_notify",
+      )
+    ).status,
+    200,
+  );
+  await f
+    .post(`/api/owner/records/${record.id}/notifications`)
+    .set("Cookie", cookie)
+    .send({})
+    .expect(200);
+  assert.equal(sent.length, 7);
+  await request(f.app).get("/api/notifications/retry").expect(401);
+  await request(f.app)
+    .get("/api/notifications/retry")
+    .set("Authorization", `Bearer ${notifications.retrySecret}`)
+    .expect(200);
+  assert.equal(sent.length, 7);
+});
+
+test("a messaging outage does not undo a saved request, approval or verified deposit", async () => {
+  const notifications: Config["notifications"] = {
+    enabled: true,
+    ownerEmail: "owner@example.com",
+    ownerWhatsapp: "+447700900123",
+    resendApiKey: "re_fixture",
+    emailFrom: "bookings@spa.example",
+    twilioAccountSid: "ACfixture",
+    twilioAuthToken: "fixture",
+    whatsappFrom: "+447700900124",
+    whatsappTemplateSid: "HXfixture",
+  };
+  const f = setup(":memory:", notifications, {
+    send: async () => {
+      throw new Error("Messaging fixture outage");
+    },
+  });
+  const created = await f.createBooking();
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${created.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  const record = f.store.get(created.receipt.id)!;
+  f.pay(record.stripeSessionId!);
+  assert.equal(
+    (
+      await f.webhook("checkout.session.completed", {
+        id: record.stripeSessionId!,
+      })
+    ).status,
+    200,
+  );
+  assert.equal(f.store.get(record.id)!.paidPence, 3250);
+  assert.equal(f.store.get(record.id)!.status, "confirmed");
+  const feed = await request(f.app)
+    .get(`/api/owner/records/${record.id}/notifications`)
+    .set("Cookie", cookie)
+    .expect(200);
+  assert.ok(
+    feed.body.notifications.every(
+      (job: { status: string }) => job.status === "unknown",
+    ),
+  );
+  assert.ok(!JSON.stringify(feed.body).includes("re_fixture"));
 });

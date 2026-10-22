@@ -49,6 +49,14 @@ import type { ClientReview } from "../shared/reviews.js";
 import { exclusive } from "./storage.js";
 import type { Config } from "./config.js";
 import {
+  queueBookingNotice,
+  dispatchNotifications,
+  notificationFeed,
+  notificationReadiness,
+  notificationTransport,
+  type NotificationTransport,
+} from "./notifications.js";
+import {
   consultationReviewSchema,
   getConsultation,
   saveConsultation,
@@ -97,11 +105,27 @@ const receipt = (r: PaymentRecord): Receipt => ({
   holdUntil: r.holdUntil,
   durationMinutes: r.durationMinutes,
 });
-export function createApp(config: Config, store: Store, gateway?: Stripe) {
+export function createApp(
+  config: Config,
+  store: Store,
+  gateway?: Stripe,
+  messaging?: NotificationTransport,
+) {
   const ready = exclusive(store, async () => {
     await migrateDiary(store);
   });
   const app = express();
+  const messenger = messaging ?? notificationTransport(config);
+  async function sendNotices(recordId?: string) {
+    // Booking/payment success survives a temporary messaging or status outage.
+    try {
+      await dispatchNotifications(store, config, messenger, recordId);
+    } catch {
+      console.warn(
+        "Booking notifications need a retry; payment/booking state is preserved.",
+      );
+    }
+  }
   app.disable("x-powered-by");
   if (process.env.VERCEL === "1")
     app.use((req, _res, next) => {
@@ -211,6 +235,13 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
               await updateBookingEntry(store, record);
           }
           await store.attachIntent(session.id, intent);
+          if (record.type === "booking" && record.status === "confirmed")
+            await queueBookingNotice(
+              store,
+              config,
+              record,
+              "booking_confirmed",
+            );
         } else if (
           session.status === "expired" &&
           record.status !== "cancelled" &&
@@ -225,6 +256,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
             await updateBookingEntry(store, record);
         }
       });
+      await sendNotices(record.id);
       return (await store.get(record.id))!;
     });
   }
@@ -333,7 +365,15 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
       });
       if (current.type === "booking")
         await updateBookingEntry(store, (await store.get(current.id))!);
+      if (current.type === "booking")
+        await queueBookingNotice(
+          store,
+          config,
+          (await store.get(current.id))!,
+          "deposit_ready",
+        );
     });
+    await sendNotices(record.id);
     return {
       url:
         current.paidPence || current.status === "cancelled"
@@ -618,6 +658,7 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
         store.path !== "postgres" || !!process.env.HEALTH_DATA_KEY,
       paymentsConfigured: !!stripe && !!config.webhookSecret,
       ownerConfigured: !!passwordHash && !!config.ownerUsername,
+      notifications: notificationReadiness(config),
     }),
   );
   app.post(
@@ -961,11 +1002,13 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
           "Complete the current health questions for every guest, including details for Yes or Unsure answers.",
         );
       const sub = await submission(req, "booking", data);
-      if (sub.existing)
+      if (sub.existing) {
+        await sendNotices(sub.existing.id);
         return res.json({
           receipt: receipt(sub.existing),
           receiptToken: sub.existing.receiptToken,
         });
+      }
       let quote;
       try {
         quote = bookingQuote(data);
@@ -1016,8 +1059,10 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
           status: "awaiting_review",
           notes: "",
         });
+        await queueBookingNotice(store, config, record, "request_received");
         return { record, created: true };
       });
+      await sendNotices(result.record.id);
       res.status(result.created ? 201 : 200).json({
         receipt: receipt(result.record),
         receiptToken: result.record.receiptToken,
@@ -1102,6 +1147,55 @@ export function createApp(config: Config, store: Store, gateway?: Stripe) {
         )
           await reconcile(record.stripeSessionId);
       res.json({ records: await store.list() });
+    }),
+  );
+  app.post(
+    "/api/owner/records/:id/notifications",
+    authenticate,
+    route(async (req, res) => {
+      const record = await store.get(req.params.id);
+      if (!record || record.type !== "booking")
+        throw new HttpError(404, "Booking not found.");
+      // Explicit catch-up for existing bookings such as Amanda's. Never invent
+      // an approval or payment; send only the event matching current state.
+      await store.transaction(async () => {
+        await queueBookingNotice(
+          store,
+          config,
+          record,
+          record.status === "confirmed"
+            ? "booking_confirmed"
+            : record.status === "awaiting_payment"
+              ? "deposit_ready"
+              : "request_received",
+        );
+      });
+      await sendNotices(record.id);
+      res.json(await notificationFeed(store, config, messenger, record.id));
+    }),
+  );
+  app.get(
+    "/api/owner/records/:id/notifications",
+    authenticate,
+    route(async (req, res) => {
+      const record = await store.get(req.params.id);
+      if (!record) throw new HttpError(404, "Booking not found.");
+      await sendNotices(record.id);
+      res.json(await notificationFeed(store, config, messenger, record.id));
+    }),
+  );
+  app.get(
+    "/api/notifications/retry",
+    route(async (req, res) => {
+      const secret = config.notifications?.retrySecret;
+      if (
+        !secret ||
+        secret.length < 32 ||
+        hash(req.get("authorization") ?? "") !== hash(`Bearer ${secret}`)
+      )
+        throw new HttpError(401, "Authentication required.");
+      await sendNotices();
+      res.json({ processed: true });
     }),
   );
   app.post(

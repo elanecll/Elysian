@@ -6,6 +6,18 @@ export interface Config {
   ownerPassword?: string;
   databasePath: string;
   paymentMode?: "test" | "live";
+  notifications?: {
+    enabled: boolean;
+    ownerEmail: string;
+    ownerWhatsapp: string;
+    resendApiKey?: string;
+    emailFrom?: string;
+    twilioAccountSid?: string;
+    twilioAuthToken?: string;
+    whatsappFrom?: string;
+    whatsappTemplateSid?: string;
+    retrySecret?: string;
+  };
 }
 export function loadConfig(): Config {
   const appUrl = process.env.APP_URL || "http://localhost:3000";
@@ -50,5 +62,18 @@ export function loadConfig(): Config {
     ownerPassword: process.env.OWNER_PASSWORD,
     databasePath: process.env.DATABASE_PATH || "./data/elysian.sqlite",
     paymentMode,
+    notifications: {
+      enabled: process.env.NOTIFICATIONS_ENABLED === "true",
+      ownerEmail:
+        process.env.NOTIFICATION_OWNER_EMAIL || "elainecll@hotmail.com",
+      ownerWhatsapp: process.env.NOTIFICATION_OWNER_WHATSAPP || "+447707328060",
+      resendApiKey: process.env.RESEND_API_KEY,
+      emailFrom: process.env.NOTIFICATION_EMAIL_FROM,
+      twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
+      twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
+      whatsappFrom: process.env.TWILIO_WHATSAPP_FROM,
+      whatsappTemplateSid: process.env.TWILIO_WHATSAPP_TEMPLATE_SID,
+      retrySecret: process.env.NOTIFICATION_RETRY_SECRET,
+    },
   };
 }

@@ -32,6 +32,7 @@ import { AvailableAppointments } from "./AvailableAppointments";
 import { OwnerReviews } from "./OwnerReviews";
 import { HealthScreening } from "./HealthScreening";
 import { OwnerConsultation } from "./OwnerConsultation";
+import { BookingNotifications } from "./BookingNotifications";
 import {
   blankConsultation,
   CONSULTATION_LABELS,
@@ -439,7 +440,8 @@ function RecordDetails({
       {record.checkoutUrl && !record.paidPence && (
         <div className="space-y-2 rounded-xl bg-[#FAF0F2] p-3">
           <p className="text-xs">
-            Send this checkout link manually. It expires{" "}
+            Customer payment link. If automatic email is not connected or
+            delivery fails, send this link manually. It expires{" "}
             {new Date(record.expiresAt!).toLocaleString("en-GB")}.
           </p>
           <input
@@ -458,6 +460,9 @@ function RecordDetails({
             Copy checkout link
           </button>
         </div>
+      )}
+      {record.type === "booking" && (
+        <BookingNotifications recordId={record.id} onAuthError={onAuthError} />
       )}
       <Field label="Owner notes">
         <textarea
@@ -509,8 +514,8 @@ function RecordDetails({
         )}
       </div>
       <p className="text-xs text-[#7A5852]">
-        Customer messages are sent manually. Refunds are initiated in the Stripe
-        dashboard and synced when its refund event arrives.
+        Check Booking notifications for message status. Refunds are initiated in
+        the Stripe dashboard and synced when its refund event arrives.
       </p>
       <ErrorMessage error={error} />
       {message && (

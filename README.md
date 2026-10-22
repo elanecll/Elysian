@@ -6,7 +6,7 @@ The React storefront uses an Express API with SQLite locally and Neon Postgres i
 
 The public website is https://elysianbeautyspa.co.uk. Read-only production checks confirmed HTTP 200 for the storefront and health API, live payment mode, Postgres storage, configured consultation encryption and owner authentication. Anonymous access to the owner ledger returns HTTP 401. The live Stripe webhook destination is active and subscribes to all six events listed below; successful live event delivery and a genuine customer payment have not yet been verified.
 
-A local Stripe sandbox booking completed the request, consultation approval, deposit checkout and confirmation flow: a £30 treatment received a £15 test deposit, with £15 remaining. No real money moved. The local CRM showed the confirmed booking and matching amounts. Production practice reservations were cleared after testing. Customer payment links and other messages are sent manually.
+A local Stripe sandbox booking completed the request, consultation approval, deposit checkout and confirmation flow: a £30 treatment received a £15 test deposit, with £15 remaining. No real money moved. The local CRM showed the confirmed booking and matching amounts. Production practice reservations were cleared after testing. Booking notification triggers have since been added and tested with fake providers; automatic sending still requires the [provider activation steps](docs/BOOKING_NOTIFICATIONS.md) and real delivery verification.
 
 The shared default schedule and saved production schedule are:
 
@@ -46,7 +46,7 @@ The API listens only on loopback. `APP_URL` must match the browser origin; use l
 - **Return page:** shows checking, unpaid, expired, verified paid, or refunded states based on server records. A browser redirect does not authorize payment. Repeated Stripe events do not duplicate revenue. A customer who closes checkout after paying still gets a server record through the webhook. The receipt URL is private: anyone holding it can see the order summary, so share it only with the customer.
 - **Refunds:** issue sandbox refunds in Stripe Dashboard. `charge.refunded` updates the ledger with the cumulative refunded amount. The owner can mark paid bookings completed or paid shop orders dispatched; the ledger keeps fulfillment and payment states separate.
 
-The same local API/database serves every browser profile on this computer. Records and owner sessions survive API restarts in `data/elysian.sqlite`. Browser-local demo CRM records are not imported. Only the shopping basket and checkout/receipt-clearing markers use browser storage. A verified receipt clears purchased quantities only in the browser that started its checkout. The owner can filter/search server records, edit notes, add unpaid booking requests, and export CSV. Email/WhatsApp messages are manual; the app does not claim delivery.
+The same local API/database serves every browser profile on this computer. Records and owner sessions survive API restarts in `data/elysian.sqlite`. Browser-local demo CRM records are not imported. Only the shopping basket and checkout/receipt-clearing markers use browser storage. A verified receipt clears purchased quantities only in the browser that started its checkout. The owner can filter/search server records, edit notes, add unpaid booking requests, and export CSV. Booking notification triggers support client email and owner WhatsApp/email alerts. Sending requires configured providers; see [activation instructions](docs/BOOKING_NOTIFICATIONS.md). The CRM distinguishes setup required, provider acceptance and verified delivery.
 
 ## Checks
 
@@ -76,7 +76,7 @@ Checking and inserting reservations happen in one SQLite write transaction. Conf
 
 Open **Owner dashboard → Appointment diary** for day/week views, manual phone/WhatsApp appointments, holidays, blocked time and weekly opening hours. Manual appointments need no email or online payment and stay reserved until cancelled. They always receive a 30-minute break and cannot overlap, including when entered outside normal opening hours. Full-day holidays use `00:00` and `1440` minutes. The public Location page reads the same opening hours. Existing commitments survive schedule changes and migration; legacy overlaps are shown as an owner warning. UK daylight-saving gaps, repeated times and appointments spanning the clock change are rejected rather than guessed.
 
-Use **Open booking / approve deposit** to approve a request or copy its checkout link. Cancelling a diary entry closes an open Stripe link before releasing its time. If a payment has just completed, refresh its record before cancelling. Cancellation is recorded separately from payment: no refund is automatically issued, and verified payments remain in the ledger. To reschedule, agree a new time with the client, cancel the old entry, then add the new appointment. External calendar sync and automated customer messages are not included.
+Use **Open booking / approve deposit** to approve a request or copy its checkout link. Cancelling a diary entry closes an open Stripe link before releasing its time. If a payment has just completed, refresh its record before cancelling. Cancellation is recorded separately from payment: no refund is automatically issued, and verified payments remain in the ledger. To reschedule, agree a new time with the client, cancel the old entry, then add the new appointment. External calendar sync is not included. Booking email/WhatsApp triggers require [provider activation](docs/BOOKING_NOTIFICATIONS.md); cancellation and rescheduling messages remain manual.
 
 ### Calendar API
 
@@ -133,13 +133,15 @@ This works on the local full-stack preview. Deploying only Vite's `dist` folder 
 - `POST /api/owner/login`, `GET /api/owner/session`, `POST /api/owner/logout` — server-side owner sessions.
 - `GET /api/owner/records`, `POST /api/owner/records/:id/approve`, `PATCH /api/owner/records/:id` — authenticated ledger, approval, notes and fulfillment.
 - `POST /api/stripe/webhook` — signed raw-body Stripe notifications.
-- `GET /api/health` — non-secret configuration readiness.
+- `GET /api/owner/records/:id/notifications`, `POST /api/owner/records/:id/notifications` — authenticated message status and current-event catch-up.
+- `GET /api/notifications/retry` — secret-authenticated, bounded retry worker for an external scheduler.
+- `GET /api/health` — non-secret payment and notification configuration readiness.
 
 Browser mutations require an `Origin` matching `APP_URL`. Owner cookies are HttpOnly, SameSite=Strict and expire after four hours. The local HTTP cookie is not Secure; a production deployment must require HTTPS and Secure cookies. Secrets, database files and customer data are excluded from source control.
 
 ## Production operation
 
-Live keys require explicit `STRIPE_MODE=live`, a public HTTPS origin, and a matching `sk_live_` key. Production uses the API and durable database described below. Monitor the first genuine customer payment in Stripe and the CRM, including webhook delivery and matching deposit and balance amounts. Account verification, provider backups and retention remain owner-managed. Customer messages are manual; inventory management and external calendar synchronisation are not included. PayPal and direct bank transfers are deferred. Existing catalogue prices are treated as final consumer prices; this milestone adds no separate tax calculation.
+Live keys require explicit `STRIPE_MODE=live`, a public HTTPS origin, and a matching `sk_live_` key. Production uses the API and durable database described below. Monitor the first genuine customer payment in Stripe and the CRM, including webhook delivery and matching deposit and balance amounts. Account verification, provider backups and retention remain owner-managed. Booking messages require the [email and WhatsApp provider setup](docs/BOOKING_NOTIFICATIONS.md); they remain manual until activated. Inventory management and external calendar synchronisation are not included. PayPal and direct bank transfers are deferred. Existing catalogue prices are treated as final consumer prices; this milestone adds no separate tax calculation.
 
 
 ## Vercel + Neon deployment

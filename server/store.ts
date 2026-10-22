@@ -2,7 +2,11 @@ import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import type { PaymentRecord } from "../shared/payments.js";
-import type { ClientReview, StoredReview, ReviewFeed } from "../shared/reviews.js";
+import type {
+  ClientReview,
+  StoredReview,
+  ReviewFeed,
+} from "../shared/reviews.js";
 
 export interface Attempt {
   key: string;
@@ -21,6 +25,8 @@ export class Store {
       CREATE TABLE IF NOT EXISTS consultations (record_id TEXT PRIMARY KEY, data TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS attempts (key TEXT PRIMARY KEY, record_id TEXT NOT NULL, expected_pence INTEGER NOT NULL, session_id TEXT UNIQUE, payment_intent TEXT UNIQUE);
       CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY);
+      CREATE TABLE IF NOT EXISTS notifications (id TEXT PRIMARY KEY, record_id TEXT NOT NULL, data TEXT NOT NULL);
+      CREATE INDEX IF NOT EXISTS notifications_record ON notifications(record_id);
       CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, expires_at INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS reviews (sequence INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT UNIQUE NOT NULL, submission_key TEXT UNIQUE NOT NULL, fingerprint TEXT NOT NULL, hidden INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','published','hidden')), data TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS reviews_visibility ON reviews(hidden, sequence);
