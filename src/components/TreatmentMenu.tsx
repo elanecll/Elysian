@@ -214,7 +214,8 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
               const activePrice = activeOpt?.priceClinicare ?? activeOpt?.priceSingle;
               const activeDeposit = typeof activePrice === 'number' && Number.isFinite(activePrice)
                 ? formatTreatmentPrice(Math.round(activePrice * 100 / 2) / 100) : undefined;
-              const badge = treatment.id === 'bring-a-friend-package' ? treatment.priceDisplay
+              const badge = treatment.comingSoon ? 'COMING SOON'
+                : treatment.id === 'bring-a-friend-package' ? treatment.priceDisplay
                 : treatment.id === 'facial-product-bundle-package' ? '10% OFF Skincare'
                 : treatment.category === 'packages' ? 'Curated Package'
                 : treatment.canBeAddon ? 'Also available as an add-on'
@@ -403,16 +404,17 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                     <button
                       id={`book-item-${treatment.id}`}
                       type="button"
+                      disabled={treatment.comingSoon}
                       onClick={() => onBookTreatment(
                         treatment.id,
                         'clinicare',
                         hasDurationChoice ? activeCardDur : undefined,
                         false
                       )}
-                      className="inline-flex min-h-12 items-center gap-2 px-5 py-3 rounded-full bg-[#87464D] hover:bg-[#71383F] text-white font-semibold text-sm sm:text-base tracking-wide uppercase transition-colors shadow-xs hover:shadow-md cursor-pointer shrink-0"
+                      className="inline-flex min-h-12 items-center gap-2 px-5 py-3 rounded-full bg-[#87464D] hover:bg-[#71383F] text-white font-semibold text-sm sm:text-base tracking-wide uppercase transition-colors shadow-xs hover:shadow-md cursor-pointer shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-[#FFDDE2]" />
-                      <span>Book Treatment</span>
+                      <span>{treatment.comingSoon ? 'COMING SOON' : 'Book Treatment'}</span>
                     </button>
                   </div>
                 </>

@@ -1054,27 +1054,31 @@ test("a lost approval response freezes its quote until an identical retry succee
   assert.equal(f.creations.length, 1);
 });
 
-test("Dermaplane can be booked alone or added with its price and appointment time", () => {
-  const selection = { serviceId: "clinicare-dermaplane", optionIndex: 0 };
-  const single = bookingQuote({ ...booking(), treatments: [selection] });
-  assert.equal(single.totalPence, 4000);
-  assert.equal(single.amountDuePence, 2000);
-  assert.equal(treatmentMinutes(single.items), 45);
-
-  const combined = bookingQuote({
-    ...booking(),
-    treatments: [
-      { serviceId: "swedish-full-body-massage", optionIndex: 0 },
-      selection,
-    ],
-  });
-  assert.equal(combined.totalPence, 10000);
-  assert.equal(combined.amountDuePence, 5000);
-  assert.equal(treatmentMinutes(combined.items), 105);
-  assert.throws(
-    () => bookingQuote({ ...booking(), treatments: [selection, selection] }),
-    /Duplicate treatments/,
-  );
+test("coming-soon treatments cannot be booked directly, as add-ons or in facial bundles", () => {
+  for (const id of ["clinicare-microneedling", "clinicare-dermaplane"]) {
+    const selection = { serviceId: id, optionIndex: 0 };
+    assert.throws(
+      () => bookingQuote({ ...booking(), treatments: [selection] }),
+      /coming soon/,
+    );
+    assert.throws(
+      () =>
+        bookingQuote({
+          ...booking(),
+          treatments: [
+            { serviceId: "swedish-full-body-massage", optionIndex: 0 },
+            selection,
+          ],
+        }),
+      /coming soon/,
+    );
+    const bundle = bundleBooking(id);
+    assert.throws(() => bookingQuote(bundle), /coming soon/);
+    const option = SPA_SERVICES.find((s) => s.id === FACIAL_BUNDLE_ID)!
+      .priceOptions![bundle.treatments[0].optionIndex];
+    assert.equal(option.facialServiceId, id);
+    assert.equal(option.comingSoon, true);
+  }
 });
 
 test("facial bundle choices keep every qualifying facial price and duration in sync", () => {
@@ -1092,6 +1096,10 @@ test("facial bundle choices keep every qualifying facial price and duration in s
     const price = Math.round(
       Number(source.priceClinicare ?? source.priceSingle) * 100,
     );
+    if (facial.comingSoon) {
+      assert.equal(option.comingSoon, true);
+      continue;
+    }
     const quote = bookingQuote({
       ...bundleBooking(),
       treatments: [{ serviceId: FACIAL_BUNDLE_ID, optionIndex }],

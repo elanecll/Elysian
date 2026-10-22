@@ -128,6 +128,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               <p className="treatment-hero-category font-sans-clean text-[11px] font-semibold uppercase tracking-[0.18em] text-[#87464D] sm:text-xs">
                 {CATEGORY_LABELS[treatment.category]}
                 {treatment.isAddon ? " • Add-on only" : ""}
+                {treatment.comingSoon ? " • COMING SOON" : ""}
               </p>
               <h1 className="treatment-hero-title font-display text-[#3D2B27]">
                 {treatment.title}
@@ -153,6 +154,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
           <div className="treatment-hero-actions grid max-w-md grid-cols-2 gap-3 sm:flex sm:max-w-none">
             <button
               id="hero-book-btn"
+              disabled={treatment.comingSoon}
               onClick={() =>
                 treatment.isAddon
                   ? onExploreTreatments("addons")
@@ -165,7 +167,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 aria-hidden="true"
               />
               <span>
-                {treatment.isAddon ? "View add-ons" : "Book treatment"}
+                {treatment.comingSoon
+                  ? "COMING SOON"
+                  : treatment.isAddon
+                    ? "View add-ons"
+                    : "Book treatment"}
               </span>
               <ArrowRight
                 className="hidden h-3.5 w-3.5 transition-transform group-hover:translate-x-1 sm:block"

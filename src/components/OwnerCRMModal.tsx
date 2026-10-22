@@ -99,7 +99,9 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
     email: "",
     notes: "",
   });
-  const [serviceId, setServiceId] = useState(SPA_SERVICES[0].id);
+  const [serviceId, setServiceId] = useState(
+    SPA_SERVICES.find((s) => !s.isAddon && !s.comingSoon)!.id,
+  );
   const [optionIndex, setOptionIndex] = useState(0);
   const [bundleProducts, setBundleProducts] = useState<
     BundleProductSelection[]
@@ -181,15 +183,24 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
             value={serviceId}
             onChange={(e) => {
               setServiceId(e.target.value);
-              setOptionIndex(0);
+              setOptionIndex(
+                Math.max(
+                  0,
+                  SPA_SERVICES.find(
+                    (s) => s.id === e.target.value,
+                  )?.priceOptions?.findIndex((p) => !p.comingSoon) ?? 0,
+                ),
+              );
               setBundleProducts([]);
             }}
           >
-            {SPA_SERVICES.filter((s) => !s.isAddon).map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title}
-              </option>
-            ))}
+            {SPA_SERVICES.filter((s) => !s.isAddon && !s.comingSoon).map(
+              (s) => (
+                <option key={s.id} value={s.id}>
+                  {s.title}
+                </option>
+              ),
+            )}
           </select>
         </Field>
         <Field label={isBundle ? "Choose your CLINICARE facial" : "Duration"}>
@@ -201,10 +212,11 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
           >
             {SPA_SERVICES.find((s) => s.id === serviceId)?.priceOptions?.map(
               (p, index) => (
-                <option key={index} value={index}>
+                <option key={index} value={index} disabled={p.comingSoon}>
                   {isBundle
                     ? `${p.label} — ${money(Number(p.priceSingle) * 100)}`
                     : p.duration}
+                  {p.comingSoon ? " — COMING SOON" : ""}
                 </option>
               ),
             )}

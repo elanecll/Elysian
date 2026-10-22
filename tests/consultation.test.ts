@@ -213,21 +213,30 @@ test("flagged answers remain unpaid and require authenticated consultation appro
     .expect(200);
   await f.review(id, cookie, { status: "deferred" }).expect(200);
 });
-test("microneedling reserves 45 minutes and quotes £80 with a £40 deposit only after consultation approval", async () => {
+test("coming-soon treatments never create appointment requests or Stripe sessions", async () => {
   const f = setup();
-  const incomplete = body(["clinicare-microneedling"]);
+  for (const id of ["clinicare-microneedling", "clinicare-dermaplane"]) {
+    const response = await f.submit(body([id])).expect(400);
+    assert.match(response.body.error, /coming soon/);
+  }
+  assert.equal(f.store.list().length, 0);
+  assert.equal(f.creates.length, 0);
+});
+test("personalise facial reserves 75 minutes and quotes £80 with a £40 deposit only after consultation approval", async () => {
+  const f = setup();
+  const incomplete = body(["elysian-personalise-facial-treatment"]);
   delete incomplete.consultation.participants[0].answers.scarring;
   await f.submit(incomplete).expect(400);
   assert.equal(f.store.list().length, 0);
   const created = (
-    await f.submit(body(["clinicare-microneedling"])).expect(201)
+    await f.submit(body(["elysian-personalise-facial-treatment"])).expect(201)
   ).body;
   const id = created.receipt.id;
   const record = f.store.get(id)!;
-  assert.equal(record.items[0].name, "Clinicare Microneedling");
+  assert.equal(record.items[0].name, "Elysian Personalise Facial Treatment");
   assert.equal(record.totalPence, 8000);
   assert.equal(record.amountDuePence, 4000);
-  assert.equal(record.durationMinutes, 45);
+  assert.equal(record.durationMinutes, 75);
   assert.equal(record.status, "requested");
   assert.equal(record.paymentStatus, "unpaid");
   const cookie = await f.login();

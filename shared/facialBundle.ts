@@ -19,6 +19,7 @@ export function facialBundleOptions(
                 priceSingle: price,
                 facialServiceId: service.id,
                 facialOptionIndex: optionIndex,
+                comingSoon: service.comingSoon,
               },
             ]
           : [];

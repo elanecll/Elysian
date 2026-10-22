@@ -5,6 +5,7 @@ export const SPA_SERVICES: Treatment[] = [
   // Clinicare Microneedling
   {
     id: 'clinicare-microneedling',
+    comingSoon: true,
     category: 'facial',
     title: 'Clinicare Microneedling',
     tagline: 'MICRONEEDLING • CLINICARE EGF MESO VIALS',
@@ -168,6 +169,7 @@ export const SPA_SERVICES: Treatment[] = [
 
   {
     id: 'clinicare-dermaplane',
+    comingSoon: true,
     category: 'facial',
     title: 'Clinicare Dermaplane',
     tagline: 'CLINICARE SKINCARE • STANDALONE OR ADD-ON TREATMENT',

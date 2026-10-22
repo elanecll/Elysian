@@ -201,6 +201,10 @@ export function bookingQuote(
   const items: RecordItem[] = input.treatments.map((t) => {
     const service = SPA_SERVICES.find((s) => s.id === t.serviceId);
     if (!service) throw new Error("Unknown treatment.");
+    if (service.comingSoon)
+      throw new Error(
+        `${service.title} is coming soon and is not yet available to book.`,
+      );
     const option = service.priceOptions?.[t.optionIndex];
     if (!option) throw new Error("Unknown treatment duration.");
     const selectedFacial = option.facialServiceId
@@ -213,6 +217,10 @@ export function bookingQuote(
       : undefined;
     if (service.id === FACIAL_BUNDLE_ID && !selectedFacial)
       throw new Error("Choose a qualifying CLINICARE facial.");
+    if (selectedFacial?.comingSoon)
+      throw new Error(
+        `${selectedFacial.title} is coming soon and is not yet available to book.`,
+      );
     const price = option.priceClinicare ?? option.priceSingle;
     if (typeof price !== "number")
       return {

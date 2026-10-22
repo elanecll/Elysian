@@ -42,30 +42,35 @@ interface BookingModalProps {
   onOpenTerms?: () => void;
 }
 function BookingForm(props: BookingModalProps) {
+  const defaultService = SPA_SERVICES.find((s) => !s.isAddon && !s.comingSoon)!;
   const initialService = SPA_SERVICES.find(
     (s) => s.id === props.preselectedServiceId,
   );
   const [serviceId, setServiceId] = useState(
-    initialService && !initialService.isAddon
+    initialService && !initialService.isAddon && !initialService.comingSoon
       ? initialService.id
-      : SPA_SERVICES[0].id,
+      : defaultService.id,
   );
   const service =
-    SPA_SERVICES.find((s) => s.id === serviceId) || SPA_SERVICES[0];
-  const [optionIndex, setOptionIndex] = useState(() =>
-    Math.max(
-      0,
-      service.priceOptions?.findIndex((p) =>
-        p.duration.includes(props.initialDuration || "30"),
-      ) ?? 0,
-    ),
-  );
+    SPA_SERVICES.find((s) => s.id === serviceId) || defaultService;
+  const [optionIndex, setOptionIndex] = useState(() => {
+    const preferred =
+      service.priceOptions?.findIndex(
+        (p) =>
+          !p.comingSoon && p.duration.includes(props.initialDuration || "30"),
+      ) ?? -1;
+    return preferred >= 0
+      ? preferred
+      : Math.max(0, service.priceOptions?.findIndex((p) => !p.comingSoon) ?? 0);
+  });
   const [paidSessions, setPaidSessions] = useState<1 | 5 | 10>(
     props.initialIsCourse ? 5 : 1,
   );
   const isCourse = paidSessions !== 1;
   const [addons, setAddons] = useState<string[]>(
-    initialService?.isAddon ? [initialService.id] : [],
+    initialService?.isAddon && !initialService.comingSoon
+      ? [initialService.id]
+      : [],
   );
   const [bundleProducts, setBundleProducts] = useState<
     BundleProductSelection[]
@@ -106,13 +111,14 @@ function BookingForm(props: BookingModalProps) {
   }, []);
   const addonOptions = SPA_SERVICES.filter(
     (s) =>
-      s.isAddon ||
-      s.canBeAddon ||
-      [
-        "cliniccare-cinderella-black-tie-facial",
-        "swedish-back-massage",
-        "hot-stone-back-massage",
-      ].includes(s.id),
+      !s.comingSoon &&
+      (s.isAddon ||
+        s.canBeAddon ||
+        [
+          "cliniccare-cinderella-black-tie-facial",
+          "swedish-back-massage",
+          "hot-stone-back-massage",
+        ].includes(s.id)),
   )
     .map((s) => ({
       id: s.id,
@@ -272,18 +278,29 @@ function BookingForm(props: BookingModalProps) {
               value={serviceId}
               onChange={(e) => {
                 setServiceId(e.target.value);
-                setOptionIndex(0);
+                setOptionIndex(
+                  Math.max(
+                    0,
+                    SPA_SERVICES.find(
+                      (s) => s.id === e.target.value,
+                    )?.priceOptions?.findIndex((p) => !p.comingSoon) ?? 0,
+                  ),
+                );
                 setAddons([]);
                 setBundleProducts([]);
                 if (isStandaloneTreatment(e.target.value)) setCustoms([]);
               }}
             >
-              {SPA_SERVICES.filter((s) => !s.isAddon).map((s) => (
-                <option value={s.id} key={s.id}>
-                  {s.title}
-                  {isStandaloneTreatment(s.id) ? " — Standalone treatment" : ""}
-                </option>
-              ))}
+              {SPA_SERVICES.filter((s) => !s.isAddon && !s.comingSoon).map(
+                (s) => (
+                  <option value={s.id} key={s.id}>
+                    {s.title}
+                    {isStandaloneTreatment(s.id)
+                      ? " — Standalone treatment"
+                      : ""}
+                  </option>
+                ),
+              )}
             </select>
           </Field>
           <Field label={isBundle ? "Choose your CLINICARE facial" : "Duration"}>
@@ -300,11 +317,12 @@ function BookingForm(props: BookingModalProps) {
               }}
             >
               {service.priceOptions?.map((p, i) => (
-                <option key={i} value={i}>
+                <option key={i} value={i} disabled={p.comingSoon}>
                   {isBundle ? p.label : p.duration} —{" "}
                   {typeof (p.priceClinicare ?? p.priceSingle) === "number"
                     ? money(Number(p.priceClinicare ?? p.priceSingle) * 100)
                     : "Owner quotation"}
+                  {p.comingSoon ? " — COMING SOON" : ""}
                 </option>
               ))}
             </select>

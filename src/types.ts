@@ -45,6 +45,7 @@ export interface CartItem {
 }
 
 export interface TreatmentPriceOption {
+  comingSoon?: boolean;
   duration: string;
   priceTropic?: number;
   priceClinicare?: number;
@@ -67,6 +68,7 @@ export interface Treatment {
   popular?: boolean;
   isAddon?: boolean;
   canBeAddon?: boolean;
+  comingSoon?: boolean;
   image?: string;
   beforeAfterImage?: string;
 }
