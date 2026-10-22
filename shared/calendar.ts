@@ -20,7 +20,7 @@ export const DEFAULT_HOURS: OpeningDay[] = DAY_NAMES.map((_, day) => ({
   day,
   enabled: day !== 1,
   open: "09:00",
-  close: [3, 5, 6].includes(day) ? "14:00" : "20:00",
+  close: [5, 6].includes(day) ? "14:00" : "20:00",
 }));
 export interface DiaryEntry {
   id: string;

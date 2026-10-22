@@ -1,6 +1,22 @@
 # Elysian Spa — storefront, payments and CRM
 
-The React storefront now uses an Express API and a local SQLite database. Customer bookings start as requests; the owner approves availability and custom prices before sending a 50% deposit checkout link. Boutique orders charge the full server-calculated total. Stripe-hosted Checkout collects card details. There are no simulated payments or browser-only owner credentials.
+The React storefront uses an Express API with SQLite locally and Neon Postgres in production. Customer bookings start as requests; the owner approves availability and custom prices before sending a 50% deposit checkout link. Boutique orders charge the full server-calculated total. Stripe-hosted Checkout collects card details. There are no simulated payments or browser-only owner credentials.
+
+## Deployment status — 22 October 2026
+
+The public website is https://elysianbeautyspa.co.uk. Read-only production checks confirmed HTTP 200 for the storefront and health API, live payment mode, Postgres storage, configured consultation encryption and owner authentication. Anonymous access to the owner ledger returns HTTP 401. The live Stripe webhook destination is active and subscribes to all six events listed below; successful live event delivery and a genuine customer payment have not yet been verified.
+
+A local Stripe sandbox booking completed the request, consultation approval, deposit checkout and confirmation flow: a £30 treatment received a £15 test deposit, with £15 remaining. No real money moved. The local CRM showed the confirmed booking and matching amounts. Production practice reservations were cleared after testing. Customer payment links and other messages are sent manually.
+
+The shared default schedule and saved production schedule are:
+
+| Days | UK opening hours |
+| --- | --- |
+| Sunday, Tuesday, Wednesday, Thursday | 09:00–20:00 |
+| Friday, Saturday | 09:00–14:00 |
+| Monday | Closed |
+
+The diary's saved opening hours control availability and the public Location page. Existing installations can override the shared defaults through **Owner dashboard → Appointment diary → Opening hours**. Treatments and the 30-minute preparation break must both fit before closing. Runtime schedules, appointments, payments and health records live in the database; this repository contains source and assets, not customer-data backups.
 
 ## Start locally
 
@@ -121,9 +137,9 @@ This works on the local full-stack preview. Deploying only Vite's `dist` folder 
 
 Browser mutations require an `Origin` matching `APP_URL`. Owner cookies are HttpOnly, SameSite=Strict and expire after four hours. The local HTTP cookie is not Secure; a production deployment must require HTTPS and Secure cookies. Secrets, database files and customer data are excluded from source control.
 
-## Before going live
+## Production operation
 
-Live keys require explicit `STRIPE_MODE=live`, a public HTTPS origin, and a matching `sk_live_` key. Production account activation, backups, real receipts/notifications, inventory management and external calendar synchronisation still require owner configuration. The local booking calendar reserves appointment slots automatically; its API and durable database must be deployed before the public website can use it. PayPal and direct bank transfers are deferred. Existing catalogue prices are treated as final consumer prices; this milestone adds no separate tax calculation.
+Live keys require explicit `STRIPE_MODE=live`, a public HTTPS origin, and a matching `sk_live_` key. Production uses the API and durable database described below. Monitor the first genuine customer payment in Stripe and the CRM, including webhook delivery and matching deposit and balance amounts. Account verification, provider backups and retention remain owner-managed. Customer messages are manual; inventory management and external calendar synchronisation are not included. PayPal and direct bank transfers are deferred. Existing catalogue prices are treated as final consumer prices; this milestone adds no separate tax calculation.
 
 
 ## Vercel + Neon deployment
