@@ -65,13 +65,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             id="nav-logo-image"
             src="https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6a82f6cffe4291bd1018aed4.jpeg"
             alt="Elysian Spa & Wellness"
-            className="h-20 sm:h-24 md:h-26 w-auto max-w-[240px] sm:max-w-[320px] md:max-w-[360px] object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+            className="h-20 sm:h-24 md:h-26 w-auto max-w-[40vw] sm:max-w-[260px] lg:max-w-[240px] xl:max-w-[320px] object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
             referrerPolicy="no-referrer"
           />
         </button>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+        <nav className="hidden lg:flex items-center gap-3 xl:gap-7">
           {navItems.map((item) => {
             const isActive = currentPage === item.id || (item.id === 'location' && currentPage === 'terms');
             return (
@@ -93,13 +93,28 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Action Controls */}
-        <div className="hidden sm:flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
+          {onOpenCRM && (
+            <button
+              id="nav-crm-btn"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenCRM();
+              }}
+              aria-label="Owner CRM"
+              title="Open Owner CRM & Payment Ledger"
+              className="inline-flex items-center gap-1 px-2 sm:px-3 py-2 rounded-full border border-[#BE757C]/50 bg-white/90 text-[#5C423E] hover:bg-[#FFF0F2] hover:border-[#BE757C] text-[10px] sm:text-[11px] tracking-[0.08em] uppercase font-medium transition-colors cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#BE757C]" />
+              <span>CRM</span>
+            </button>
+          )}
           {/* Basket Button with Live Badge */}
           <button
             id="nav-basket-btn"
             onClick={() => handleNavClick('basket')}
             title="View Shopping Basket"
-            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full border text-[11px] tracking-[0.08em] whitespace-nowrap uppercase font-medium transition-all duration-300 shadow-2xs cursor-pointer relative ${
+            className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full border text-[11px] tracking-[0.08em] whitespace-nowrap uppercase font-medium transition-all duration-300 shadow-2xs cursor-pointer relative ${
               currentPage === 'basket'
                 ? 'bg-[#BE757C] text-white border-[#BE757C]'
                 : 'border-[#E8BAC0] text-[#5C423E] hover:border-[#BE757C] hover:text-[#BE757C] bg-white/90 hover:bg-[#FFF0F2]'
@@ -120,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-book-btn"
             onClick={onOpenBooking}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-[11px] tracking-[0.1em] whitespace-nowrap uppercase transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-[11px] tracking-[0.1em] whitespace-nowrap uppercase transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Book Now</span>
@@ -131,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-2 lg:hidden">
           <button
             onClick={() => handleNavClick(cartCount > 0 ? 'basket' : 'shop')}
-            className={`p-2 rounded-full border relative ${
+            className={`sm:hidden p-2 rounded-full border relative ${
               currentPage === 'basket' || currentPage === 'shop'
                 ? 'bg-[#BE757C] text-white border-[#BE757C]'
                 : 'border-[#BE757C]/40 text-[#BE757C] bg-white/60'

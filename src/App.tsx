@@ -24,15 +24,11 @@ import { SPA_PRODUCTS } from "./data/shopData";
 import type { Receipt } from "../shared/payments";
 import { PageTab, Product, CartItem } from "./types";
 import {
-  Calendar,
-  Phone,
   Sparkles,
   ArrowRight,
   Star,
   Heart,
   MapPin,
-  ShoppingBag,
-  ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -542,59 +538,7 @@ export default function App() {
       {/* Owner Private CRM & Sales Portal Modal */}
       <OwnerCRMModal isOpen={isCRMOpen} onClose={() => setIsCRMOpen(false)} />
 
-      {/* Floating Quick Reservation & Phone Action buttons */}
-      {currentPage !== "basket" &&
-        currentPage !== "payment" &&
-        !isBookingOpen &&
-        !isCRMOpen && (
-          <aside
-            aria-label="Quick Actions"
-            className="fixed bottom-5 right-5 z-30 flex items-center gap-2"
-          >
-            {/* Owner CRM Portal Quick Access */}
-            <button
-              onClick={() => setIsCRMOpen(true)}
-              className="p-3.5 rounded-full bg-[#5C423E] hover:bg-[#43302C] text-[#E8BAC0] hover:text-white border border-[#BE757C]/40 shadow-xl hover:scale-105 transition-all flex items-center justify-center cursor-pointer"
-              title="Open Owner CRM & Payment Ledger"
-              aria-label="Owner CRM"
-            >
-              <ShieldCheck className="w-5 h-5" />
-            </button>
 
-            {totalCartCount > 0 && (
-              <button
-                onClick={() => handleNavigate("basket")}
-                className="flex items-center gap-2 px-4 py-3.5 rounded-full bg-[#3D2B27] hover:bg-[#2A1D1A] text-white text-xs font-semibold tracking-wider uppercase shadow-xl hover:shadow-2xl hover:scale-105 transition-all cursor-pointer"
-                title="View Shopping Basket"
-              >
-                <ShoppingBag className="w-4 h-4 text-[#E8BAC0]" />
-                <span className="hidden sm:inline">Basket</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-[#BE757C] text-white text-[10px] font-bold">
-                  {totalCartCount}
-                </span>
-              </button>
-            )}
-
-            <a
-              href="tel:+447707328060"
-              className="p-3.5 rounded-full bg-white text-[#BE757C] border border-[#BE757C]/40 shadow-lg hover:scale-105 transition-all flex items-center justify-center cursor-pointer"
-              title="Call Spa Concierge (+44 7707328060)"
-              aria-label="Call Spa Concierge"
-            >
-              <Phone className="w-5 h-5" />
-            </a>
-
-            <button
-              id="floating-book-btn"
-              onClick={() => handleOpenBooking()}
-              className="flex items-center gap-2 px-5 py-3.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white text-xs font-semibold tracking-widest uppercase shadow-xl hover:shadow-2xl hover:scale-105 transition-all cursor-pointer"
-            >
-              <Calendar className="w-4 h-4" />
-              <span className="hidden sm:inline">Book Appointment</span>
-              <span className="sm:hidden">Book</span>
-            </button>
-          </aside>
-        )}
     </div>
   );
 }
