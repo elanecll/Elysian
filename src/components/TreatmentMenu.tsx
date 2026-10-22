@@ -16,6 +16,11 @@ interface TreatmentMenuProps {
 }
 
 const panelClass = 'rounded-2xl border border-[#E8BAC0]/40 bg-white p-5 sm:p-6 shadow-xs';
+const menuGroups = [
+  { id: 'facials', title: 'Facial Treatments', categories: ['facial'] },
+  { id: 'massages', title: 'Body Massage, Hot Stone & Add-ons', categories: ['hot-stone', 'body-massage', 'addons'] },
+  { id: 'packages', title: 'Treatment Packages', categories: ['packages'] },
+];
 const formatTreatmentPrice = (price: number | string | undefined) =>
   typeof price === 'number' ? `£${price.toFixed(2).replace('.00', '')}` : price || 'Price on approval';
 const filterButtonClass = (active: boolean) =>
@@ -67,6 +72,16 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
     }
     return true;
   });
+
+  const menuItems = menuGroups.flatMap((group) =>
+    filteredTreatments
+      .filter((treatment) => group.categories.includes(treatment.category))
+      .map((treatment, index) => ({
+        treatment,
+        heading: activeTab === 'all' && index === 0 ? group.title : null,
+        groupId: group.id,
+      }))
+  );
 
   const getActiveDurationForCard = (treatmentId: string): '30' | '60' => {
     if (cardDurations[treatmentId]) return cardDurations[treatmentId];
@@ -186,7 +201,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
         {/* Treatments Grid */}
         <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
           <AnimatePresence>
-            {filteredTreatments.map((treatment) => {
+            {menuItems.flatMap(({ treatment, heading, groupId }) => {
               const opt30 = treatment.priceOptions?.find((o) =>
                 o.duration.toLowerCase().includes('30')
               );
@@ -403,7 +418,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                 </>
               );
 
-              return (
+              const card = (
                 <motion.div
                   key={treatment.id}
                   role="article"
@@ -418,6 +433,19 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                   {contentBlock}
                 </motion.div>
               );
+              return heading ? [
+                <motion.h2
+                  key={`menu-group-${groupId}`}
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="col-span-full pt-4 first:pt-0 font-display text-2xl sm:text-3xl text-[#3D2B27]"
+                >
+                  {heading}
+                </motion.h2>,
+                card,
+              ] : [card];
             })}
           </AnimatePresence>
         </motion.div>
