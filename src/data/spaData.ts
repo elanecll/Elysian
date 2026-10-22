@@ -558,6 +558,25 @@ export const SPA_SERVICES: Treatment[] = [
       'CLINICARE Cinderella Facial'
     ],
   },
+  {
+    id: 'elysian-personalise-facial-treatment',
+    category: 'facial',
+    title: 'Elysian Personalise Facial Treatment',
+    image: '/images/treatments/elysian-personalise-facial.jpeg',
+    tagline: 'MINIMUM 3 TREATMENTS + LED LIGHT',
+    duration: '60-75 mins',
+    priceDisplay: '£80',
+    priceOptions: [
+      { label: '60–75 min Personalise Facial Treatment', duration: '60-75 mins', priceClinicare: 80, priceSingle: 80 }
+    ],
+    description: 'A personalised facial combining a minimum of three suitable treatments plus LED light. Your therapist will select the treatments with you following a consultation to tailor the experience to your skin.',
+    benefits: [
+      'Minimum of 3 Tailored Treatments',
+      'LED Light Included',
+      'Pre-treatment Consultation',
+      'Personalised to Your Skin'
+    ],
+  },
 
 ];
 

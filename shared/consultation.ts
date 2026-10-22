@@ -108,6 +108,7 @@ export function healthQuestions(
       "ultrasonic-facial",
       "microdermabrasion",
       "elysian-glow-8-in-1-pdt-led-light-therapy",
+      "elysian-personalise-facial-treatment",
       "high-frequency-facial-treatment",
       "addon-high-frequency",
     ].includes(id),
