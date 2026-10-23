@@ -259,6 +259,7 @@ try {
     .getByRole("heading", { name: "Appointment request received" })
     .waitFor();
   assert.equal(bookingBody.customTreatments[0].pricePence, undefined);
+  assert.equal(bookingBody.consultation.participants[0].ageConfirmed, true);
   await page.keyboard.press("Escape");
   await dialog.waitFor({ state: "hidden" });
   await page.goto("http://localhost:3000/#owner");

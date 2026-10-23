@@ -25,6 +25,7 @@ export const consultationSchema = z
                 })
                 .strict(),
             ),
+            ageConfirmed: z.literal(true),
             dataConsent: z.literal(true),
             accuracyConfirmed: z.literal(true),
           })

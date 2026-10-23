@@ -175,6 +175,46 @@ test("health screening requires all answers, explicit consent, details and curre
     0,
   );
 });
+test("every guest must confirm age 18 or older for facials, massage, packages, custom treatments and courses", async () => {
+  const facial = body();
+  const massage = body(["swedish-back-massage"]);
+  const friends = body(["bring-a-friend-package"]);
+  const custom = body();
+  custom.customTreatments = [
+    { title: "Custom relaxation", durationMinutes: 30 },
+  ];
+  custom.consultation = testConsultation(["hydrodemabrasion-facial"], true);
+  const course = body();
+  course.isCourse = true;
+  course.courseSessions = 5;
+  for (const input of [facial, massage, friends, custom, course]) {
+    const f = setup();
+    for (
+      let guest = 0;
+      guest < input.consultation.participants.length;
+      guest++
+    ) {
+      const missing = structuredClone(input);
+      Reflect.deleteProperty(
+        missing.consultation.participants[guest],
+        "ageConfirmed",
+      );
+      await f.submit(missing).expect(400);
+      const unchecked = structuredClone(input);
+      unchecked.consultation.participants[guest].ageConfirmed = false;
+      await f.submit(unchecked).expect(400);
+    }
+    assert.equal(f.store.list().length, 0);
+    assert.equal(
+      f.store.db.prepare("SELECT COUNT(*) AS count FROM diary").get()!.count,
+      0,
+    );
+    const accepted = (await f.submit(input).expect(201)).body;
+    const saved = await getConsultation(f.store, accepted.receipt.id);
+    assert.ok(saved!.input!.participants.every((p) => p.ageConfirmed === true));
+    assert.equal(accepted.receipt.ageConfirmed, undefined);
+  }
+});
 test("flagged answers remain unpaid and require authenticated consultation approval before Stripe", async () => {
   const f = setup();
   const value = body();
@@ -324,6 +364,7 @@ test("health and booking records are atomic, persistent and idempotent, includin
     1,
   );
   const original = (await getConsultation(f.store, first.receipt.id))!;
+  assert.ok(original.input!.participants.every((p) => p.ageConfirmed === true));
   const restored = setup(path);
   assert.deepEqual(
     await getConsultation(restored.store, first.receipt.id),

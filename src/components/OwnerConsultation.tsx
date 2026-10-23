@@ -134,6 +134,14 @@ export function OwnerConsultation({
           {consultation.input?.participants.map((p, index) => (
             <div key={index} className="space-y-2 rounded-xl bg-white p-3">
               <h4 className="font-medium">{p.name}</h4>
+              <p className="text-sm">
+                Age 18 or older:{" "}
+                <strong>
+                  {p.ageConfirmed === true
+                    ? "Confirmed by client"
+                    : "Not recorded in this questionnaire"}
+                </strong>
+              </p>
               {Object.entries(p.answers).map(([id, a]) => (
                 <div
                   className={`rounded-lg p-2 text-sm ${a.answer === "no" ? "" : "bg-amber-50"}`}

@@ -1,4 +1,4 @@
-export const CONSULTATION_VERSION = "2026-10-v1";
+export const CONSULTATION_VERSION = "2026-10-v2";
 export type HealthAnswer = "yes" | "no" | "unsure";
 export type ConsultationStatus =
   "awaiting_review" | "information_needed" | "approved" | "deferred";
@@ -130,6 +130,7 @@ export function guestCount(ids: string[]) {
 export interface HealthParticipant {
   name: string;
   answers: Record<string, { answer: HealthAnswer | ""; details: string }>;
+  ageConfirmed: boolean;
   dataConsent: boolean;
   accuracyConfirmed: boolean;
 }
@@ -158,6 +159,7 @@ export interface PrivateConsultation {
 export const blankParticipant = (): HealthParticipant => ({
   name: "",
   answers: {},
+  ageConfirmed: false,
   dataConsent: false,
   accuracyConfirmed: false,
 });

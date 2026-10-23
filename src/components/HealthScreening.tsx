@@ -31,6 +31,7 @@ export function HealthScreening({
         const p = value.participants[i] ?? blankParticipant();
         return {
           ...p,
+          ageConfirmed: false,
           accuracyConfirmed: false,
           dataConsent: false,
           answers: Object.fromEntries(
@@ -116,6 +117,18 @@ export function HealthScreening({
                 onChange={(e) => update(index, { name: e.target.value })}
               />
             </Field>
+            <label className="flex items-start gap-3 text-sm">
+              <input
+                className="mt-1 shrink-0"
+                type="checkbox"
+                required
+                checked={!!p.ageConfirmed}
+                onChange={(e) =>
+                  update(index, { ageConfirmed: e.target.checked })
+                }
+              />
+              I confirm that I am 18 years of age or older.
+            </label>
             {questions.map((q) => {
               const a = p.answers[q.id] ?? { answer: "" as const, details: "" };
               return (

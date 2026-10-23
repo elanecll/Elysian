@@ -12,6 +12,7 @@ export function testConsultation(
     version: CONSULTATION_VERSION,
     participants: Array.from({ length: guestCount(ids) }, (_, i) => ({
       name: `Fixture Guest ${i + 1}`,
+      ageConfirmed: true,
       dataConsent: true,
       accuracyConfirmed: true,
       answers: Object.fromEntries(
