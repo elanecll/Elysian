@@ -280,7 +280,6 @@ export default function App() {
         currentPage={currentPage}
         onNavigate={handleNavigate}
         onOpenBooking={() => handleOpenBooking()}
-        onOpenCRM={() => setIsCRMOpen(true)}
         cartCount={totalCartCount}
       />
 

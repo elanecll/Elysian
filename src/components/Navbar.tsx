@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, Calendar, Sparkles, ShoppingBag, ShieldCheck } from 'lucide-react';
+import { Menu, X, Phone, Calendar, Sparkles, ShoppingBag } from 'lucide-react';
 import { PageTab } from '../types';
 
 interface NavbarProps {
@@ -7,7 +7,6 @@ interface NavbarProps {
   onNavigate: (page: PageTab, categoryFilter?: string) => void;
   onOpenBooking: () => void;
   cartCount?: number;
-  onOpenCRM?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -15,7 +14,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   onOpenBooking,
   cartCount = 0,
-  onOpenCRM,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -94,21 +92,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Controls */}
         <div className="flex shrink-0 items-center gap-2">
-          {onOpenCRM && (
-            <button
-              id="nav-crm-btn"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenCRM();
-              }}
-              aria-label="Owner CRM"
-              title="Open Owner CRM & Payment Ledger"
-              className="inline-flex items-center gap-1 px-2 sm:px-3 py-2 rounded-full border border-[#BE757C]/50 bg-white/90 text-[#5C423E] hover:bg-[#FFF0F2] hover:border-[#BE757C] text-[10px] sm:text-[11px] tracking-[0.08em] uppercase font-medium transition-colors cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#BE757C]" />
-              <span>CRM</span>
-            </button>
-          )}
           {/* Basket Button with Live Badge */}
           <button
             id="nav-basket-btn"
