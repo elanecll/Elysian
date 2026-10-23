@@ -10,6 +10,7 @@ import {
   notificationFeed,
   notificationTransport,
   queueBookingNotice,
+  recordEmailDelivery,
   type NotificationJob,
 } from "../server/notifications";
 import type { PaymentRecord } from "../shared/payments";
@@ -169,7 +170,7 @@ test("an unconfigured service never sends and a lost response never causes an au
     store.close();
   }
 });
-test("Resend and Twilio payloads use correct APIs, template variables and no customer WhatsApp", async () => {
+test("Resend and Twilio payloads use correct APIs, template variables and no customer WhatsApp", async (t) => {
   const { store, booking } = setup();
   try {
     booking.status = "awaiting_payment";
@@ -185,6 +186,7 @@ test("Resend and Twilio payloads use correct APIs, template variables and no cus
         { status: 200 },
       );
     }) as typeof fetch;
+    t.mock.method(globalThis, "fetch", fetcher);
     await dispatchNotifications(
       store,
       config,
@@ -219,7 +221,83 @@ test("Resend and Twilio payloads use correct APIs, template variables and no cus
     store.close();
   }
 });
-test("provider-reported delivery is distinguished from acceptance; definite rejection can retry", async () => {
+test("published email templates receive only their registered variables through the sending-only SDK", async (t) => {
+  const { store, booking } = setup();
+  const configured: Config = {
+    ...config,
+    notifications: {
+      ...config.notifications!,
+      resendTemplates: {
+        request_received: "template-request",
+        deposit_ready: "template-deposit",
+        booking_confirmed: "template-confirmed",
+        owner: "template-owner",
+      },
+    },
+  };
+  const payloads: Record<string, any>[] = [];
+  t.mock.method(
+    globalThis,
+    "fetch",
+    async (_url: unknown, init: RequestInit) => {
+      payloads.push(JSON.parse(init.body as string));
+      return new Response(JSON.stringify({ id: `email-${payloads.length}` }), {
+        status: 200,
+      });
+    },
+  );
+  try {
+    const transport = notificationTransport(configured);
+    await queueBookingNotice(store, configured, booking, "request_received");
+    await dispatchNotifications(store, configured, transport);
+    const request = payloads.find(
+      (p) => p.template?.id === "template-request",
+    )!;
+    assert.deepEqual(Object.keys(request.template.variables).sort(), [
+      "APPOINTMENT",
+      "CUSTOMER_NAME",
+      "REFERENCE",
+      "STATUS_URL",
+    ]);
+    assert.equal(request.template.variables.CUSTOMER_NAME, "Amanda");
+    assert.equal(request.text, undefined);
+    assert.equal(request.html, undefined);
+    const owner = payloads.find((p) => p.template?.id === "template-owner")!;
+    assert.equal(
+      owner.template.variables.OWNER_CRM_URL,
+      "https://spa.example/#crm",
+    );
+    booking.status = "awaiting_payment";
+    booking.checkoutUrl = "https://checkout.stripe.com/c/pay/cs_fixture";
+    booking.expiresAt = Date.now() + 3600000;
+    store.save(booking);
+    await queueBookingNotice(store, configured, booking, "deposit_ready");
+    await dispatchNotifications(store, configured, transport);
+    const deposit = payloads.find(
+      (p) => p.template?.id === "template-deposit",
+    )!;
+    assert.equal(deposit.template.variables.DEPOSIT_AMOUNT, "£52.50");
+    assert.equal(deposit.template.variables.CHECKOUT_URL, booking.checkoutUrl);
+    assert.match(deposit.template.variables.PAYMENT_DETAIL, /50%/);
+    assert.equal(Object.keys(deposit.template.variables).length, 9);
+    booking.status = "confirmed";
+    booking.paymentStatus = "paid";
+    booking.paidPence = 5250;
+    store.save(booking);
+    await queueBookingNotice(store, configured, booking, "booking_confirmed");
+    await dispatchNotifications(store, configured, transport);
+    const confirmation = payloads.find(
+      (p) => p.template?.id === "template-confirmed",
+    )!;
+    assert.equal(confirmation.template.variables.PAID_AMOUNT, "£52.50");
+    assert.equal(confirmation.template.variables.BALANCE, "£52.50");
+    assert.equal(Object.keys(confirmation.template.variables).length, 6);
+    assert.ok(!JSON.stringify(payloads).includes("PRIVATE"));
+  } finally {
+    store.close();
+  }
+});
+test("provider-reported delivery is distinguished from acceptance; definite rejection can retry", async (t) => {
   const { store, booking } = setup();
   try {
     await queueBookingNotice(store, config, booking, "request_received");
@@ -230,7 +308,14 @@ test("provider-reported delivery is distinguished from acceptance; definite reje
     ) => {
       if (init.method === "POST")
         return rejected
-          ? new Response("{}", { status: 429 })
+          ? new Response(
+              JSON.stringify({
+                statusCode: 429,
+                name: "rate_limit_exceeded",
+                message: "Fixture rate limit",
+              }),
+              { status: 429 },
+            )
           : new Response(
               JSON.stringify({ id: "email-fixture", sid: "SMfixture" }),
               { status: 200 },
@@ -240,6 +325,7 @@ test("provider-reported delivery is distinguished from acceptance; definite reje
         { status: 200 },
       );
     }) as typeof fetch;
+    t.mock.method(globalThis, "fetch", fetcher);
     const transport = notificationTransport(config, fetcher);
     await dispatchNotifications(store, config, transport);
     assert.ok(
@@ -255,6 +341,11 @@ test("provider-reported delivery is distinguished from acceptance; definite reje
       undefined,
       Date.now() + 300000,
     );
+    await recordEmailDelivery(store, "delivery-fixture", {
+      type: "email.delivered",
+      created_at: new Date().toISOString(),
+      data: { email_id: "email-fixture" },
+    });
     assert.ok(
       (
         await notificationFeed(store, config, transport, booking.id)

@@ -11,6 +11,13 @@ export interface Config {
     ownerEmail: string;
     ownerWhatsapp: string;
     resendApiKey?: string;
+    resendWebhookSecret?: string;
+    resendTemplates?: Partial<
+      Record<
+        "request_received" | "deposit_ready" | "booking_confirmed" | "owner",
+        string
+      >
+    >;
     emailFrom?: string;
     twilioAccountSid?: string;
     twilioAuthToken?: string;
@@ -68,6 +75,13 @@ export function loadConfig(): Config {
         process.env.NOTIFICATION_OWNER_EMAIL || "elainecll@hotmail.com",
       ownerWhatsapp: process.env.NOTIFICATION_OWNER_WHATSAPP || "+447707328060",
       resendApiKey: process.env.RESEND_API_KEY,
+      resendWebhookSecret: process.env.RESEND_WEBHOOK_SECRET,
+      resendTemplates: {
+        request_received: process.env.RESEND_REQUEST_TEMPLATE_ID,
+        deposit_ready: process.env.RESEND_DEPOSIT_TEMPLATE_ID,
+        booking_confirmed: process.env.RESEND_CONFIRMATION_TEMPLATE_ID,
+        owner: process.env.RESEND_OWNER_TEMPLATE_ID,
+      },
       emailFrom: process.env.NOTIFICATION_EMAIL_FROM,
       twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
       twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,

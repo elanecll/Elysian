@@ -6,7 +6,7 @@ The React storefront uses an Express API with SQLite locally and Neon Postgres i
 
 The public website is https://elysianbeautyspa.co.uk. Read-only production checks confirmed HTTP 200 for the storefront and health API, live payment mode, Postgres storage, configured consultation encryption and owner authentication. Anonymous access to the owner ledger returns HTTP 401. The live Stripe webhook destination is active and subscribes to all six events listed below; successful live event delivery and a genuine customer payment have not yet been verified.
 
-A local Stripe sandbox booking completed the request, consultation approval, deposit checkout and confirmation flow: a £30 treatment received a £15 test deposit, with £15 remaining. No real money moved. The local CRM showed the confirmed booking and matching amounts. Production practice reservations were cleared after testing. Booking notification triggers have since been added and tested with fake providers; automatic sending still requires the [provider activation steps](docs/BOOKING_NOTIFICATIONS.md) and real delivery verification.
+A local Stripe sandbox booking completed the request, consultation approval, deposit checkout and confirmation flow: a £30 treatment received a £15 test deposit, with £15 remaining. No real money moved. The local CRM showed the confirmed booking and matching amounts. Production practice reservations were cleared after testing. Booking notification triggers use the official Resend SDK with four published templates and a domain-restricted sending-only key. On 23 October 2026, five clearly marked setup emails to the owner passed the isolated request, approval and simulated-payment flow and Resend reported all five delivered. These checks used no real customer booking or payment. WhatsApp remains inactive until a business messaging sender is configured; see [provider setup](docs/BOOKING_NOTIFICATIONS.md).
 
 The shared default schedule and saved production schedule are:
 
@@ -133,6 +133,7 @@ This works on the local full-stack preview. Deploying only Vite's `dist` folder 
 - `POST /api/owner/login`, `GET /api/owner/session`, `POST /api/owner/logout` — server-side owner sessions.
 - `GET /api/owner/records`, `POST /api/owner/records/:id/approve`, `PATCH /api/owner/records/:id` — authenticated ledger, approval, notes and fulfillment.
 - `POST /api/stripe/webhook` — signed raw-body Stripe notifications.
+- `POST /api/resend/webhook` — signature-verified email delivery/bounce updates; the app uses a domain-restricted sending-only key.
 - `GET /api/owner/records/:id/notifications`, `POST /api/owner/records/:id/notifications` — authenticated message status and current-event catch-up.
 - `GET /api/notifications/retry` — secret-authenticated, bounded retry worker for an external scheduler.
 - `GET /api/health` — non-secret payment and notification configuration readiness.

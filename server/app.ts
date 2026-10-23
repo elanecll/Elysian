@@ -54,6 +54,8 @@ import {
   notificationFeed,
   notificationReadiness,
   notificationTransport,
+  verifyResendWebhook,
+  recordEmailDelivery,
   type NotificationTransport,
 } from "./notifications.js";
 import {
@@ -511,6 +513,51 @@ export function createApp(
       }
       res.json({ received: true });
     }),
+  );
+  app.post(
+    "/api/resend/webhook",
+    express.raw({ type: "application/json", limit: "256kb" }),
+    route(async (req, res) => {
+      if (!config.notifications?.resendWebhookSecret)
+        throw new HttpError(503, "Email delivery webhook is not configured.");
+      let event;
+      try {
+        event = verifyResendWebhook(config, req.body.toString("utf8"), {
+          id: req.get("svix-id") || "",
+          timestamp: req.get("svix-timestamp") || "",
+          signature: req.get("svix-signature") || "",
+        });
+      } catch {
+        throw new HttpError(400, "Invalid email webhook signature.");
+      }
+      if (
+        [
+          "email.delivered",
+          "email.bounced",
+          "email.complained",
+          "email.failed",
+          "email.suppressed",
+          "email.opened",
+          "email.clicked",
+        ].includes(event.type)
+      ) {
+        const data = z
+          .object({
+            type: z.string(),
+            created_at: z.string(),
+            data: z.object({ email_id: z.string().min(1).max(200) }),
+          })
+          .parse(event);
+        await recordEmailDelivery(store, req.get("svix-id")!, data);
+      }
+      res.json({ received: true });
+    }),
+  );
+  app.all("/api/resend/webhook", (_req, res) =>
+    res
+      .set("Allow", "POST")
+      .status(405)
+      .json({ error: "Use POST with a signed email event." }),
   );
   app.use(express.json({ limit: "32kb" }));
   // All browser mutations require the configured origin; webhooks are handled above.

@@ -1,6 +1,6 @@
 import { afterEach, test } from "node:test";
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -1474,4 +1474,73 @@ test("a messaging outage does not undo a saved request, approval or verified dep
     ),
   );
   assert.ok(!JSON.stringify(feed.body).includes("re_fixture"));
+});
+
+test("Resend delivery webhooks verify raw signatures, reject forgeries and preserve event ordering", async () => {
+  const webhookKey = Buffer.from(
+    "notification-webhook-automated-fixture",
+  ).toString("base64");
+  const sent: NotificationJob[] = [];
+  const f = setup(
+    ":memory:",
+    {
+      enabled: true,
+      ownerEmail: "owner@example.com",
+      ownerWhatsapp: "+447700900123",
+      resendApiKey: "re_fixture",
+      emailFrom: "bookings@spa.example",
+      resendWebhookSecret: `whsec_${webhookKey}`,
+    },
+    {
+      send: async (job) => {
+        sent.push(job);
+        return `provider-${job.id}`;
+      },
+    },
+  );
+  const created = await f.createBooking();
+  const email = sent.find((job) => job.audience === "customer")!;
+  const cookie = await f.login();
+  const feed = async () =>
+    (
+      await request(f.app)
+        .get(`/api/owner/records/${created.receipt.id}/notifications`)
+        .set("Cookie", cookie)
+        .expect(200)
+    ).body.notifications.find((job: { id: string }) => job.id === email.id);
+  const sendEvent = (
+    eventId: string,
+    type: string,
+    time: number,
+    invalid = false,
+  ) => {
+    const payload = JSON.stringify({
+      type,
+      created_at: new Date(time).toISOString(),
+      data: { email_id: `provider-${email.id}` },
+    });
+    const timestamp = String(Math.floor(Date.now() / 1000));
+    const signature = createHmac("sha256", Buffer.from(webhookKey, "base64"))
+      .update(`${eventId}.${timestamp}.${payload}`)
+      .digest("base64");
+    return request(f.app)
+      .post("/api/resend/webhook")
+      .set("Content-Type", "application/json")
+      .set("svix-id", eventId)
+      .set("svix-timestamp", timestamp)
+      .set("svix-signature", invalid ? "v1,forged" : `v1,${signature}`)
+      .send(payload);
+  };
+  const now = Date.now();
+  await sendEvent("msg_forged", "email.delivered", now, true).expect(400);
+  assert.equal((await feed()).status, "accepted");
+  await sendEvent("msg_delivered", "email.delivered", now).expect(200);
+  assert.equal((await feed()).status, "delivered");
+  await sendEvent("msg_old_bounce", "email.bounced", now - 1000).expect(200);
+  assert.equal((await feed()).status, "delivered");
+  await sendEvent("msg_new_bounce", "email.bounced", now + 1000).expect(200);
+  assert.equal((await feed()).status, "failed");
+  await sendEvent("msg_delivered", "email.delivered", now + 2000).expect(200);
+  assert.equal((await feed()).status, "failed");
+  await request(f.app).get("/api/resend/webhook").expect(405);
 });

@@ -1,7 +1,8 @@
 # Booking notification activation
 
-The integration is implemented but sending stays **off** until the services below
-are configured. A Hotmail address and a normal WhatsApp profile are recipients,
+The integration sends only when the corresponding service is configured and
+`NOTIFICATIONS_ENABLED=true`. Resend setup uses the verified notifications subdomain
+and four published templates; WhatsApp still needs a business messaging sender. A Hotmail address and a normal WhatsApp profile are recipients,
 not automatic sending services. No provider account, subscription or paid sender
 has been purchased by this change.
 
@@ -31,8 +32,25 @@ No health answers, consultation notes or owner notes are included in messages.
    `elainecll@hotmail.com`.
 4. Create a server API key. Enter it directly into Vercel's Production environment
    variables. Never paste it into chat, source files, GitHub or a `VITE_` variable.
-   The key must permit sending and, for verified delivery reporting in CRM,
-   retrieving sent emails.
+   Use **sending-only access restricted to the notifications subdomain**. The
+   app uses the official Resend SDK and handles both returned data and errors.
+5. Configure `https://elysianbeautyspa.co.uk/api/resend/webhook` in Resend for
+   `email.delivered`, `email.bounced`, `email.complained`, `email.failed`, and
+   `email.suppressed`. Save its separate signing secret in Vercel. Raw-body Svix
+   signatures are verified before the CRM delivery status can change; duplicate
+   and older events cannot overwrite newer delivery information.
+6. Use published templates rather than HTML in the application repository:
+
+   | Environment variable              | Published template ID                  |
+   | --------------------------------- | -------------------------------------- |
+   | `RESEND_REQUEST_TEMPLATE_ID`      | `419de3fa-885c-4e88-b9ed-2626dd7a7df8` |
+   | `RESEND_DEPOSIT_TEMPLATE_ID`      | `f25fad01-57ef-49da-b565-df9fd18fbeef` |
+   | `RESEND_CONFIRMATION_TEMPLATE_ID` | `844a6ade-4e4a-459b-aa35-1a3a07d7c2b8` |
+   | `RESEND_OWNER_TEMPLATE_ID`        | `53635b79-2d4c-4534-b44c-46b4aa8d0cc7` |
+
+   Only each template's registered variables are sent. Older queued jobs without
+   template variables retain their original plain-text message. Never widen the
+   app key to full account access to read delivery history.
 
 Provider reference: [Send email](https://resend.com/docs/api-reference/emails/send-email),
 [idempotency keys](https://resend.com/docs/dashboard/emails/idempotency-keys).
@@ -79,7 +97,12 @@ NOTIFICATIONS_ENABLED=true
 NOTIFICATION_OWNER_EMAIL=elainecll@hotmail.com
 NOTIFICATION_OWNER_WHATSAPP=+447707328060
 NOTIFICATION_EMAIL_FROM=<verified sender address>
-RESEND_API_KEY=<secret>
+RESEND_API_KEY=<domain-restricted sending-only secret>
+RESEND_WEBHOOK_SECRET=<separate signing secret>
+RESEND_REQUEST_TEMPLATE_ID=<published request template>
+RESEND_DEPOSIT_TEMPLATE_ID=<published deposit template>
+RESEND_CONFIRMATION_TEMPLATE_ID=<published confirmation template>
+RESEND_OWNER_TEMPLATE_ID=<published owner template>
 TWILIO_ACCOUNT_SID=<account SID>
 TWILIO_AUTH_TOKEN=<secret>
 TWILIO_WHATSAPP_FROM=<dedicated approved sender in +countrycode format>
@@ -119,6 +142,19 @@ click **Send pending messages**. It queues only the event matching the current
 booking state. It does not approve a request or manufacture a payment. Do not
 send a new deposit link if that booking has already been paid.
 
+## Setup verification — 23 October 2026
+
+LCN DNS and Resend domain verification completed. The four templates above are
+published. Vercel Production stores the nine email settings as secrets; no API
+key or signing secret is stored in source control. Five clearly labelled setup
+messages were sent only to the owner's Hotmail inbox through the application
+request/approval/payment triggers using an isolated SQLite fixture and simulated
+Stripe payment. Resend reported all five **delivered**. The rendered deposit
+message showed £65 total, £32.50 due now and the explicit 50% explanation;
+confirmation showed £32.50 paid and £32.50 remaining. Duplicate webhook/catch-up
+checks did not send duplicates. This is not evidence of a genuine live payment.
+WhatsApp sending is still unconfigured.
+
 ## Reliability and limitations
 
 Jobs are stored atomically with the booking/payment transaction in SQLite and
@@ -140,4 +176,5 @@ Authenticated CRM endpoints:
   pending jobs. Requires owner authentication and the canonical browser Origin.
 
 Automated tests use fake transports only; passing them does not prove delivery
-through a real provider. Run `pnpm lint`, `pnpm test`, and `pnpm build` before deploy.
+through a real provider. Real Resend delivery must be verified separately with controlled test recipients.
+Run `pnpm lint`, `pnpm test`, and `pnpm build` before deploy.

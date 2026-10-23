@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { Resend } from "resend";
 import type { Config } from "./config.js";
 import type { Storage } from "./storage.js";
 import { londonDate, money, type PaymentRecord } from "../shared/payments.js";
@@ -16,6 +17,8 @@ export interface NotificationJob extends NotificationSummary {
   subject: string;
   text: string;
   variables: Record<string, string>;
+  emailVariables?: Record<string, string>;
+  deliveryEventAt?: number;
   providerId?: string;
   attempts: number;
   nextAttemptAt: number;
@@ -24,6 +27,36 @@ export interface NotificationTransport {
   send(job: NotificationJob): Promise<string>;
   check?(job: NotificationJob): Promise<NotificationStatus | undefined>;
 }
+const templateFields = {
+  request_received: ["CUSTOMER_NAME", "APPOINTMENT", "REFERENCE", "STATUS_URL"],
+  deposit_ready: [
+    "CUSTOMER_NAME",
+    "APPOINTMENT",
+    "REFERENCE",
+    "TOTAL",
+    "DEPOSIT_AMOUNT",
+    "PAYMENT_DETAIL",
+    "CHECKOUT_URL",
+    "EXPIRES",
+    "STATUS_URL",
+  ],
+  booking_confirmed: [
+    "CUSTOMER_NAME",
+    "APPOINTMENT",
+    "REFERENCE",
+    "PAID_AMOUNT",
+    "BALANCE",
+    "STATUS_URL",
+  ],
+  owner: [
+    "UPDATE_TITLE",
+    "CUSTOMER_NAME",
+    "APPOINTMENT",
+    "REFERENCE",
+    "PAYMENT_DETAIL",
+    "OWNER_CRM_URL",
+  ],
+};
 class SendError extends Error {
   constructor(
     public uncertain: boolean,
@@ -66,47 +99,77 @@ export function notificationTransport(
   fetcher: typeof fetch = fetch,
 ): NotificationTransport {
   const settings = config.notifications;
+  const resend = settings?.resendApiKey
+    ? new Resend(settings.resendApiKey)
+    : undefined;
   const twilioUrl = () =>
     `https://api.twilio.com/2010-04-01/Accounts/${settings!.twilioAccountSid}/Messages`;
   const twilioAuth = () =>
     `Basic ${Buffer.from(`${settings!.twilioAccountSid}:${settings!.twilioAuthToken}`).toString("base64")}`;
   return {
     async send(job) {
+      if (job.channel === "email") {
+        if (!resend)
+          throw new SendError(false, "Email sending is not configured.");
+        const templateId =
+          settings?.resendTemplates?.[
+            job.audience === "owner" ? "owner" : job.event
+          ];
+        const fields =
+          templateFields[job.audience === "owner" ? "owner" : job.event];
+        const content =
+          templateId && job.emailVariables
+            ? {
+                template: {
+                  id: templateId,
+                  variables: Object.fromEntries(
+                    fields.map((key) => [key, job.emailVariables![key]]),
+                  ),
+                },
+              }
+            : { text: job.text };
+        const { data, error } = await resend.emails.send(
+          {
+            from: settings!.emailFrom!,
+            to: [job.to],
+            replyTo: settings!.ownerEmail,
+            subject: job.subject,
+            ...content,
+          },
+          { idempotencyKey: job.id, signal: AbortSignal.timeout(6000) },
+        );
+        if (error)
+          throw new SendError(
+            !error.statusCode ||
+              error.statusCode >= 500 ||
+              error.statusCode === 408,
+            error.statusCode
+              ? `The email provider returned HTTP ${error.statusCode}. Check provider settings or limits.`
+              : "The email provider response was lost. Check its message log before sending again.",
+          );
+        if (!data?.id)
+          throw new SendError(
+            true,
+            "The email provider returned no message reference. Check its message log.",
+          );
+        return data.id;
+      }
       let url: string;
       let init: RequestInit;
-      if (job.channel === "email") {
-        url = "https://api.resend.com/emails";
-        init = {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${settings!.resendApiKey}`,
-            "Content-Type": "application/json",
-            "Idempotency-Key": job.id,
-          },
-          body: JSON.stringify({
-            from: settings!.emailFrom,
-            to: [job.to],
-            reply_to: settings!.ownerEmail,
-            subject: job.subject,
-            text: job.text,
-          }),
-        };
-      } else {
-        url = `${twilioUrl()}.json`;
-        init = {
-          method: "POST",
-          headers: {
-            Authorization: twilioAuth(),
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            From: recipientPhone(settings!.whatsappFrom!),
-            To: recipientPhone(job.to),
-            ContentSid: settings!.whatsappTemplateSid!,
-            ContentVariables: JSON.stringify(job.variables),
-          }).toString(),
-        };
-      }
+      url = `${twilioUrl()}.json`;
+      init = {
+        method: "POST",
+        headers: {
+          Authorization: twilioAuth(),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          From: recipientPhone(settings!.whatsappFrom!),
+          To: recipientPhone(job.to),
+          ContentSid: settings!.whatsappTemplateSid!,
+          ContentVariables: JSON.stringify(job.variables),
+        }).toString(),
+      };
       let response: Response;
       try {
         response = await fetcher(url, {
@@ -130,7 +193,7 @@ export function notificationTransport(
         id?: string;
         sid?: string;
       };
-      const id = job.channel === "email" ? data.id : data.sid;
+      const id = data.sid;
       if (!id)
         throw new SendError(
           true,
@@ -140,15 +203,13 @@ export function notificationTransport(
     },
     async check(job) {
       if (!job.providerId) return;
-      const email = job.channel === "email";
-      const url = email
-        ? `https://api.resend.com/emails/${encodeURIComponent(job.providerId)}`
-        : `${twilioUrl()}/${encodeURIComponent(job.providerId)}.json`;
+      // A sending-only Resend key cannot read email history. Its delivery state
+      // comes from a signature-verified webhook instead of broader API access.
+      if (job.channel === "email") return;
+      const url = `${twilioUrl()}/${encodeURIComponent(job.providerId)}.json`;
       const response = await fetcher(url, {
         headers: {
-          Authorization: email
-            ? `Bearer ${settings!.resendApiKey}`
-            : twilioAuth(),
+          Authorization: twilioAuth(),
         },
         signal: AbortSignal.timeout(4000),
         redirect: "error",
@@ -158,9 +219,7 @@ export function notificationTransport(
         last_event?: string;
         status?: string;
       };
-      const state = email
-        ? data.last_event?.replace(/^email\./, "")
-        : data.status;
+      const state = data.status;
       if (["delivered", "read", "opened", "clicked"].includes(state ?? ""))
         return "delivered";
       if (
@@ -274,6 +333,31 @@ export async function queueBookingNotice(
         "5": detail,
         "6": ownerLink,
       },
+      emailVariables: {
+        CUSTOMER_NAME: record.customer.name,
+        APPOINTMENT: appointment,
+        REFERENCE: record.id,
+        TOTAL: money(record.totalPence),
+        DEPOSIT_AMOUNT: money(record.amountDuePence),
+        PAID_AMOUNT: money(record.paidPence),
+        BALANCE: balance,
+        CHECKOUT_URL: record.checkoutUrl || statusLink,
+        EXPIRES: record.expiresAt
+          ? new Date(record.expiresAt).toLocaleString("en-GB", {
+              timeZone: "Europe/London",
+            }) + " (UK time)"
+          : "",
+        STATUS_URL: statusLink,
+        OWNER_CRM_URL: ownerLink,
+        UPDATE_TITLE: noticeNames[event],
+        PAYMENT_DETAIL:
+          detail +
+          (event === "deposit_ready"
+            ? record.bundlePricing
+              ? " This includes your 50% facial deposit and discounted skincare products paid in full."
+              : " This is your 50% appointment deposit."
+            : ""),
+      },
       attempts: 0,
       nextAttemptAt: 0,
       updatedAt: Date.now(),
@@ -299,6 +383,63 @@ async function saveJob(store: Storage, job: NotificationJob) {
   await store.db
     .prepare("UPDATE notifications SET data=? WHERE id=?")
     .run(JSON.stringify(job), job.id);
+}
+export function verifyResendWebhook(
+  config: Config,
+  payload: string,
+  headers: { id: string; timestamp: string; signature: string },
+) {
+  const secret = config.notifications?.resendWebhookSecret;
+  if (!secret) throw new Error("Resend delivery webhook is not configured.");
+  // Verification uses the signing secret locally; it needs no account API access.
+  return new Resend("webhook-verification-only").webhooks.verify({
+    payload,
+    headers,
+    webhookSecret: secret,
+  });
+}
+export async function recordEmailDelivery(
+  store: Storage,
+  eventId: string,
+  event: { type: string; created_at: string; data: { email_id: string } },
+) {
+  const eventAt = Date.parse(event.created_at);
+  if (!Number.isFinite(eventAt))
+    throw new Error("Invalid delivery event timestamp.");
+  const state = ["email.delivered", "email.opened", "email.clicked"].includes(
+    event.type,
+  )
+    ? "delivered"
+    : [
+          "email.bounced",
+          "email.complained",
+          "email.failed",
+          "email.suppressed",
+        ].includes(event.type)
+      ? "failed"
+      : undefined;
+  if (!state) return;
+  await store.transaction(async () => {
+    const key = `resend:${eventId}`;
+    if (await store.hasEvent(key)) return;
+    for (const job of await jobs(store)) {
+      if (
+        job.channel !== "email" ||
+        job.providerId !== event.data.email_id ||
+        eventAt < (job.deliveryEventAt ?? 0)
+      )
+        continue;
+      job.status = state;
+      job.deliveryEventAt = eventAt;
+      job.updatedAt = Date.now();
+      job.detail =
+        state === "delivered"
+          ? "Delivery confirmed by Resend's signed webhook."
+          : "Resend reports a bounce, complaint or delivery failure. Check its delivery log.";
+      await saveJob(store, job);
+    }
+    await store.addEvent(key);
+  });
 }
 export async function dispatchNotifications(
   store: Storage,
