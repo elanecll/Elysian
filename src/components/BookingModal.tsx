@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AvailableAppointments } from "./AvailableAppointments";
 import { HealthScreening } from "./HealthScreening";
 import { blankConsultation } from "../../shared/consultation";
-import { Calendar, Plus, Trash2, CheckCircle2 } from "lucide-react";
+import { Calendar, CheckCircle2 } from "lucide-react";
 import { SPA_SERVICES } from "../data/spaData";
 import { SPA_PRODUCTS } from "../data/shopData";
 import { FACIAL_BUNDLE_ID } from "../../shared/facialBundle";
@@ -13,7 +13,6 @@ import {
   TEN_SESSION_OFFER,
 } from "../../shared/courseOffers";
 import {
-  PERSONALISE_TREATMENT,
   isStandaloneTreatment,
   londonDate,
   money,
@@ -82,9 +81,6 @@ function BookingForm(props: BookingModalProps) {
     ? SPA_SERVICES.find((facial) => facial.id === option.facialServiceId)
     : undefined;
   const isStandalone = isStandaloneTreatment(selectedFacial?.id ?? serviceId);
-  const [customs, setCustoms] = useState<
-    { title: string; durationMinutes: number }[]
-  >([]);
   const [date, setDate] = useState(londonDate());
   const [time, setTime] = useState("");
   const [customer, setCustomer] = useState({
@@ -156,13 +152,6 @@ function BookingForm(props: BookingModalProps) {
           ]
         : [];
     }),
-    ...customs.map((custom, index) => ({
-      id: `custom-${index}`,
-      name: custom.title,
-      quantity: paidSessions,
-      duration: PERSONALISE_TREATMENT.duration,
-      unitPricePence: null,
-    })),
     ...(isBundle
       ? bundleProducts.flatMap((selection) => {
           const product = SPA_PRODUCTS.find(
@@ -206,7 +195,7 @@ function BookingForm(props: BookingModalProps) {
           .filter((id) => id !== serviceId)
           .map((id) => ({ serviceId: id, optionIndex: 0 })),
       ],
-      customTreatments: customs,
+      customTreatments: [],
       date,
       time,
       isCourse,
@@ -287,7 +276,6 @@ function BookingForm(props: BookingModalProps) {
                 );
                 setAddons([]);
                 setBundleProducts([]);
-                if (isStandaloneTreatment(e.target.value)) setCustoms([]);
               }}
             >
               {SPA_SERVICES.filter((s) => !s.isAddon && !s.comingSoon).map(
@@ -312,7 +300,6 @@ function BookingForm(props: BookingModalProps) {
               onChange={(e) => {
                 setOptionIndex(Number(e.target.value));
                 setAddons([]);
-                setCustoms([]);
               }}
             >
               {service.priceOptions?.map((p, i) => (
@@ -400,51 +387,6 @@ function BookingForm(props: BookingModalProps) {
                 ))}
               </div>
             </div>
-            <div className="space-y-3 rounded-xl border border-[#E8BAC0]/60 p-4">
-              <h3 className="font-display text-lg">
-                {PERSONALISE_TREATMENT.title}
-              </h3>
-              <p className="text-sm">{PERSONALISE_TREATMENT.duration}</p>
-              <p className="text-xs">
-                A treatment tailored to your needs following a consultation. The
-                owner will confirm your quote before you pay.
-              </p>
-              <button
-                type="button"
-                className={buttonClass}
-                disabled={customs.length > 0}
-                onClick={() =>
-                  setCustoms([
-                    {
-                      title: PERSONALISE_TREATMENT.title,
-                      durationMinutes: PERSONALISE_TREATMENT.durationMinutes,
-                    },
-                  ])
-                }
-              >
-                <Plus size={16} aria-hidden="true" />
-                {customs.length
-                  ? "Added"
-                  : `Add ${PERSONALISE_TREATMENT.title}`}
-              </button>
-              {customs.map((c, i) => (
-                <div className="flex justify-between text-sm" key={i}>
-                  <span>
-                    {c.title} · {PERSONALISE_TREATMENT.duration} · Price to be
-                    approved
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={`Remove ${c.title}`}
-                    onClick={() =>
-                      setCustoms(customs.filter((_, index) => index !== i))
-                    }
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
           </>
         )}
         <AvailableAppointments
@@ -455,7 +397,7 @@ function BookingForm(props: BookingModalProps) {
                 .filter((id) => id !== serviceId)
                 .map((id) => ({ serviceId: id, optionIndex: 0 })),
             ],
-            customTreatments: customs,
+            customTreatments: [],
             isCourse,
             courseSessions: paidSessions === 1 ? undefined : paidSessions,
             ...(isBundle ? { bundleProducts } : {}),
@@ -519,7 +461,6 @@ function BookingForm(props: BookingModalProps) {
         </div>
         <HealthScreening
           serviceIds={[serviceId, ...addons]}
-          custom={customs.length > 0}
           value={consultation}
           onChange={setConsultation}
         />

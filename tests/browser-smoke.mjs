@@ -103,14 +103,6 @@ await context.route("**/api/**", async (route) => {
           quantity: 1,
           unitPricePence: 3500,
         },
-        {
-          id: "custom-0",
-          name: "Elysian Personalise Treatment",
-          quantity: 1,
-          unitPricePence: null,
-          custom: true,
-          duration: "45-60 mins",
-        },
       ],
       date: bookingBody.date,
       time: bookingBody.time,
@@ -227,12 +219,6 @@ try {
     .getByLabel("Appointment date", { exact: true })
     .fill(new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10));
   await dialog
-    .getByRole("button", {
-      name: "Add Elysian Personalise Treatment",
-      exact: true,
-    })
-    .click();
-  await dialog
     .getByLabel("Available time (UK)", { exact: true })
     .selectOption("11:00");
   await dialog
@@ -262,11 +248,7 @@ try {
   await dialog
     .getByRole("heading", { name: "Appointment request received" })
     .waitFor();
-  assert.equal(bookingBody.customTreatments[0].pricePence, undefined);
-  assert.deepEqual(bookingBody.customTreatments[0], {
-    title: "Elysian Personalise Treatment",
-    durationMinutes: 60,
-  });
+  assert.deepEqual(bookingBody.customTreatments, []);
   assert.equal(bookingBody.consultation.participants[0].ageConfirmed, true);
   await page.keyboard.press("Escape");
   await dialog.waitFor({ state: "hidden" });
@@ -299,9 +281,6 @@ try {
   await owner
     .getByRole("button", { name: "Save private consultation", exact: true })
     .click();
-  await owner
-    .getByLabel("Approve unit price (£) — Elysian Personalise Treatment")
-    .fill("25");
   await owner
     .getByRole("checkbox", {
       name: "I have checked appointment availability and approved this quote.",
