@@ -566,10 +566,10 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Elysian Personalise Facial Treatment',
     image: '/images/treatments/elysian-personalise-facial.jpeg',
     tagline: 'MINIMUM 3 TREATMENTS + LED LIGHT',
-    duration: '60-75 mins',
+    duration: '45-60 mins',
     priceDisplay: '£80',
     priceOptions: [
-      { label: '60–75 min Personalise Facial Treatment', duration: '60-75 mins', priceClinicare: 80, priceSingle: 80 }
+      { label: '45–60 min Personalise Facial Treatment', duration: '45-60 mins', priceClinicare: 80, priceSingle: 80 }
     ],
     description: 'A personalised facial combining a minimum of three suitable treatments plus LED light. Your therapist will select the treatments with you following a consultation to tailor the experience to your skin.',
     benefits: [

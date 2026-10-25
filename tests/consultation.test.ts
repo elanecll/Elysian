@@ -262,7 +262,7 @@ test("coming-soon treatments never create appointment requests or Stripe session
   assert.equal(f.store.list().length, 0);
   assert.equal(f.creates.length, 0);
 });
-test("personalise facial reserves 75 minutes and quotes £80 with a £40 deposit only after consultation approval", async () => {
+test("personalise facial reserves 60 minutes and quotes £80 with a £40 deposit only after consultation approval", async () => {
   const f = setup();
   const incomplete = body(["elysian-personalise-facial-treatment"]);
   delete incomplete.consultation.participants[0].answers.scarring;
@@ -276,7 +276,8 @@ test("personalise facial reserves 75 minutes and quotes £80 with a £40 deposit
   assert.equal(record.items[0].name, "Elysian Personalise Facial Treatment");
   assert.equal(record.totalPence, 8000);
   assert.equal(record.amountDuePence, 4000);
-  assert.equal(record.durationMinutes, 75);
+  assert.equal(record.durationMinutes, 60);
+  assert.equal(record.items[0].duration, "45-60 mins");
   assert.equal(record.status, "requested");
   assert.equal(record.paymentStatus, "unpaid");
   const cookie = await f.login();
