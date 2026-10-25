@@ -353,13 +353,6 @@ function BookingForm(props: BookingModalProps) {
             onChange={setBundleProducts}
           />
         )}
-        {isStandalone && (
-          <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
-            Chemical peeling and carboxytherapy are standalone treatments.
-            Please request each separately, without additional treatments or
-            add-ons.
-          </p>
-        )}
         <fieldset className="space-y-2">
           <legend className="mb-2 font-semibold">Course offers</legend>
           {(
@@ -392,39 +385,54 @@ function BookingForm(props: BookingModalProps) {
             </p>
           )}
         </fieldset>
-        {!isStandalone && (
-          <>
-            <div>
-              <h3 className="mb-3 font-display text-xl">Add to your ritual</h3>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {addonOptions.map((addon) => (
-                  <label
-                    key={addon.id}
-                    className="flex items-start gap-2 rounded-xl border border-[#E8BAC0]/50 p-3 text-xs"
-                  >
-                    <input
-                      className="mt-0.5"
-                      type="checkbox"
-                      checked={addons.includes(addon.id)}
-                      onChange={(e) =>
-                        setAddons((previous) =>
-                          e.target.checked
-                            ? [...previous, addon.id]
-                            : previous.filter((id) => id !== addon.id),
-                        )
-                      }
-                    />
-                    <span>
-                      {addon.title.replace(/\s*\(Add-on Only\)/gi, "")}
-                      <br />
-                      {addon.duration} · {money(addon.pricePence)}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
+        <section aria-labelledby="ritual-addons-heading">
+          <h3 id="ritual-addons-heading" className="mb-3 font-display text-xl">
+            Add to your ritual
+          </h3>
+          {isStandalone && (
+            <p
+              id="ritual-addons-explanation"
+              className="mb-3 rounded-xl bg-[#FAF0F2] p-3 text-sm"
+            >
+              Chemical peeling and carboxytherapy are booked on their own.
+              Choose another primary treatment to select extras below, or book
+              these extras in a separate appointment.
+            </p>
+          )}
+          <fieldset
+            aria-label="Additional treatments"
+            aria-describedby={
+              isStandalone ? "ritual-addons-explanation" : undefined
+            }
+            disabled={isStandalone}
+            className={`grid gap-2 sm:grid-cols-2${isStandalone ? " opacity-60" : ""}`}
+          >
+            {addonOptions.map((addon) => (
+              <label
+                key={addon.id}
+                className="flex items-start gap-2 rounded-xl border border-[#E8BAC0]/50 p-3 text-xs"
+              >
+                <input
+                  className="mt-0.5"
+                  type="checkbox"
+                  checked={addons.includes(addon.id)}
+                  onChange={(e) =>
+                    setAddons((previous) =>
+                      e.target.checked
+                        ? [...previous, addon.id]
+                        : previous.filter((id) => id !== addon.id),
+                    )
+                  }
+                />
+                <span>
+                  {addon.title.replace(/\s*\(Add-on Only\)/gi, "")}
+                  <br />
+                  {addon.duration} · {money(addon.pricePence)}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        </section>
         {option ? (
           <AvailableAppointments
             selection={{
