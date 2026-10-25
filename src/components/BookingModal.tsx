@@ -7,6 +7,10 @@ import { SPA_SERVICES } from "../data/spaData";
 import { SPA_PRODUCTS } from "../data/shopData";
 import { FACIAL_BUNDLE_ID } from "../../shared/facialBundle";
 import { FRIEND_PACKAGE_ID } from "../../shared/friendPackage";
+import {
+  PrimaryTreatmentOptions,
+  TreatmentDurationOptions,
+} from "./TreatmentSelectOptions";
 import { bookingTotals, itemTotal } from "../../shared/bookingPricing";
 import { FacialBundleProducts } from "./FacialBundleProducts";
 import {
@@ -288,16 +292,7 @@ function BookingForm(props: BookingModalProps) {
                 setBundleProducts([]);
               }}
             >
-              {SPA_SERVICES.filter((s) => !s.isAddon && !s.comingSoon).map(
-                (s) => (
-                  <option value={s.id} key={s.id}>
-                    {s.title}
-                    {isStandaloneTreatment(s.id)
-                      ? " — Standalone treatment"
-                      : ""}
-                  </option>
-                ),
-              )}
+              <PrimaryTreatmentOptions />
             </select>
           </Field>
           <Field
@@ -326,32 +321,7 @@ function BookingForm(props: BookingModalProps) {
                 setAddons([]);
               }}
             >
-              {(isBundle || isFriend) && (
-                <option value="" disabled>
-                  Choose a treatment
-                </option>
-              )}
-              {service.priceOptions?.map((p, i) => {
-                if (
-                  p.comingSoon ||
-                  (isFriend && typeof p.priceSingle !== "number")
-                )
-                  return null;
-                return (
-                  <option key={i} value={i}>
-                    {isBundle
-                      ? p.label
-                      : isFriend
-                        ? `${p.label} — ${p.duration}`
-                        : p.duration}{" "}
-                    —{" "}
-                    {typeof (p.priceClinicare ?? p.priceSingle) === "number"
-                      ? money(Number(p.priceClinicare ?? p.priceSingle) * 100)
-                      : "Owner quotation"}
-                    {isFriend ? " total for 2" : ""}
-                  </option>
-                );
-              })}
+              <TreatmentDurationOptions service={service} />
             </select>
           </Field>
         </div>

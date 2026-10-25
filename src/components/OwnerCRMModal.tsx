@@ -10,6 +10,10 @@ import {
 } from "../../shared/payments";
 import { FACIAL_BUNDLE_ID } from "../../shared/facialBundle";
 import { FRIEND_PACKAGE_ID } from "../../shared/friendPackage";
+import {
+  PrimaryTreatmentOptions,
+  TreatmentDurationOptions,
+} from "./TreatmentSelectOptions";
 import { itemTotal } from "../../shared/bookingPricing";
 import { FacialBundleProducts } from "./FacialBundleProducts";
 import {
@@ -204,13 +208,7 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
               setTime("");
             }}
           >
-            {SPA_SERVICES.filter((s) => !s.isAddon && !s.comingSoon).map(
-              (s) => (
-                <option key={s.id} value={s.id}>
-                  {s.title}
-                </option>
-              ),
-            )}
+            <PrimaryTreatmentOptions />
           </select>
         </Field>
         <Field
@@ -231,32 +229,9 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
               setTime("");
             }}
           >
-            {(isBundle || isFriend) && (
-              <option value="" disabled>
-                Choose a treatment
-              </option>
-            )}
-            {SPA_SERVICES.find((s) => s.id === serviceId)?.priceOptions?.map(
-              (p, index) => {
-                if (
-                  p.comingSoon ||
-                  (isFriend && typeof p.priceSingle !== "number")
-                )
-                  return null;
-                return (
-                  <option key={index} value={index}>
-                    {isBundle
-                      ? p.label
-                      : isFriend
-                        ? `${p.label} — ${p.duration}`
-                        : p.duration}
-                    {isBundle || isFriend
-                      ? ` — ${money(Number(p.priceSingle) * 100)}${isFriend ? " total for 2" : ""}`
-                      : ""}
-                  </option>
-                );
-              },
-            )}
+            <TreatmentDurationOptions
+              service={SPA_SERVICES.find((s) => s.id === serviceId)!}
+            />
           </select>
         </Field>
       </fieldset>
