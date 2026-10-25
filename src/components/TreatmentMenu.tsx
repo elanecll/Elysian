@@ -359,12 +359,6 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                       </div>
                     )}
 
-                    {treatment.addonPrice !== undefined && (
-                      <p className="mb-4 rounded-xl bg-[#FFF0F2] p-3 text-sm font-semibold text-[#87464D]">
-                        On its own: {treatment.priceDisplay}. Add to another treatment for only {formatTreatmentPrice(treatment.addonPrice)}.
-                      </p>
-                    )}
-
                     {/* Benefit highlights */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 pt-4 border-t border-[#F5E6E8]">
                       {treatment.benefits.map((benefit, bIdx) => (

@@ -415,7 +415,7 @@ function BookingForm(props: BookingModalProps) {
                       }
                     />
                     <span>
-                      {addon.title}
+                      {addon.title.replace(/\s*\(Add-on Only\)/gi, "")}
                       <br />
                       {addon.duration} · {money(addon.pricePence)}
                     </span>

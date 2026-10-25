@@ -107,19 +107,19 @@ export const SPA_SERVICES: Treatment[] = [
     id: 'elysian-glow-8-in-1-pdt-led-light-therapy',
     category: 'facial',
     title: 'Elysian Radiance Revival Facial',
-    tagline: '8-IN-1 HOT & COLD THERAPY • NANO-MIST HYDRATION • MULTI-SPECTRUM PDT LED',
+    tagline: 'REFRESH • HYDRATE • REVIVE YOUR RADIANCE',
     image: '/images/treatments/elysian-radiance-revival-facial.png',
     duration: '45-60 mins',
     priceDisplay: '£40',
     priceOptions: [
       { duration: '45-60 mins', priceClinicare: 40, priceSingle: 40 },
     ],
-    description: 'Advanced 8-in-1 facial technology featuring medical-grade PDT LED light therapy, thermal hot and cold pore-calming therapy, and deep nano-sized mist hydration infusion with CLINICARE cosmeceuticals. Complete session includes double cleanse, skin prep, 15–25 minute targeted PDT LED phase, bespoke CLINICARE serum cocktail & finish.',
+    description: 'A personalised facial for skin that feels dull, dry or tired. Following a consultation, your therapist tailors the session to your skin’s needs, with a focus on hydration, comfort and a fresh, radiant-looking finish. Unwind with 45–60 minutes of dedicated facial care.',
     benefits: [
-      '💡 PDT Light Therapy — Targets acne, ageing, pigmentation & cellular repair',
-      '🌫️ Deep Hydration Infusion — Nano-sized mist penetrates deep dermal layers',
-      '🎯 Customised Skin Treatment — Tailored wavelength light targets specific concerns',
-      '⏱️ 45–60 Min Session (15–25 min dedicated PDT LED phase)'
+      'Personalised care tailored to your skin’s needs',
+      'A focus on hydration and skin comfort',
+      'A fresh, radiant-looking finish',
+      '45–60 minutes of relaxing facial care'
     ],
     canBeAddon: true,
     addonPrice: 20,
