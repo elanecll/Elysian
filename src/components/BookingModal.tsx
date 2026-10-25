@@ -43,6 +43,7 @@ interface BookingModalProps {
   initialProduct?: "tropic" | "clinicare";
   initialDuration?: "30" | "60";
   initialIsCourse?: boolean;
+  initialAsAddon?: boolean;
   onOpenCRM?: () => void;
   onOpenTerms?: () => void;
 }
@@ -52,7 +53,10 @@ function BookingForm(props: BookingModalProps) {
     (s) => s.id === props.preselectedServiceId,
   );
   const [serviceId, setServiceId] = useState(
-    initialService && !initialService.isAddon && !initialService.comingSoon
+    initialService &&
+      !initialService.isAddon &&
+      !initialService.comingSoon &&
+      !props.initialAsAddon
       ? initialService.id
       : defaultService.id,
   );
@@ -74,7 +78,9 @@ function BookingForm(props: BookingModalProps) {
   );
   const isCourse = paidSessions !== 1;
   const [addons, setAddons] = useState<string[]>(
-    initialService?.isAddon && !initialService.comingSoon
+    (initialService?.isAddon ||
+      (props.initialAsAddon && initialService?.canBeAddon)) &&
+      !initialService.comingSoon
       ? [initialService.id]
       : [],
   );
@@ -128,11 +134,13 @@ function BookingForm(props: BookingModalProps) {
   )
     .map((s) => ({
       id: s.id,
-      title: s.title,
+      title: s.addonPrice !== undefined ? `${s.title} (Add-on)` : s.title,
       duration: s.duration,
       pricePence: Math.round(
         Number(
-          s.priceOptions?.[0].priceClinicare ?? s.priceOptions?.[0].priceSingle,
+          s.addonPrice ??
+            s.priceOptions?.[0].priceClinicare ??
+            s.priceOptions?.[0].priceSingle,
         ) * 100,
       ),
     }))

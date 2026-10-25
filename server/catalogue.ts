@@ -198,7 +198,7 @@ export function bookingQuote(
   );
   if (!primary || primary.isAddon)
     throw new Error("Select a primary treatment.");
-  const items: RecordItem[] = input.treatments.map((t) => {
+  const items: RecordItem[] = input.treatments.map((t, index) => {
     const service = SPA_SERVICES.find((s) => s.id === t.serviceId);
     if (!service) throw new Error("Unknown treatment.");
     if (service.comingSoon)
@@ -226,7 +226,11 @@ export function bookingQuote(
       throw new Error(
         `${selectedTreatment?.title ?? service.title} is coming soon and is not yet available to book.`,
       );
-    const price = option.priceClinicare ?? option.priceSingle;
+    const isDiscountedAddon =
+      index > 0 && service.canBeAddon && service.addonPrice !== undefined;
+    const price = isDiscountedAddon
+      ? service.addonPrice
+      : (option.priceClinicare ?? option.priceSingle);
     if (typeof price !== "number")
       return {
         id: service.id,
@@ -242,7 +246,9 @@ export function bookingQuote(
       id: service.id,
       name: selectedTreatment
         ? `${service.title} — ${selectedTreatment.title}`
-        : service.title,
+        : isDiscountedAddon
+          ? `${service.title} (Add-on)`
+          : service.title,
       quantity: paidSessions,
       unitPricePence: Math.round(price * 100),
       duration: option.duration,

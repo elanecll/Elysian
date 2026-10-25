@@ -10,7 +10,8 @@ interface TreatmentMenuProps {
     treatmentId: string,
     preferredProduct?: 'tropic' | 'clinicare',
     preferredDuration?: '30' | '60',
-    isCourse?: boolean
+    isCourse?: boolean,
+    asAddon?: boolean
   ) => void;
   selectedCategory?: string;
 }
@@ -358,6 +359,12 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                       </div>
                     )}
 
+                    {treatment.addonPrice !== undefined && (
+                      <p className="mb-4 rounded-xl bg-[#FFF0F2] p-3 text-sm font-semibold text-[#87464D]">
+                        On its own: {treatment.priceDisplay}. Add to another treatment for only {formatTreatmentPrice(treatment.addonPrice)}.
+                      </p>
+                    )}
+
                     {/* Benefit highlights */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 pt-4 border-t border-[#F5E6E8]">
                       {treatment.benefits.map((benefit, bIdx) => (
@@ -393,7 +400,9 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                             </span>
                           </span>
                         ) : (
-                          treatment.priceDisplay
+                          activeTab === 'addons' && treatment.addonPrice !== undefined
+                            ? `${formatTreatmentPrice(treatment.addonPrice)} as an add-on`
+                            : treatment.priceDisplay
                         )}
                       </div>
                       <span className="inline-block text-[10px] text-[#BE757C] font-semibold mt-0.5">
@@ -409,12 +418,13 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                         treatment.id,
                         'clinicare',
                         hasDurationChoice ? activeCardDur : undefined,
-                        false
+                        false,
+                        activeTab === 'addons' && treatment.addonPrice !== undefined
                       )}
                       className="inline-flex min-h-12 items-center gap-2 px-5 py-3 rounded-full bg-[#87464D] hover:bg-[#71383F] text-white font-semibold text-sm sm:text-base tracking-wide uppercase transition-colors shadow-xs hover:shadow-md cursor-pointer shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-[#FFDDE2]" />
-                      <span>{treatment.comingSoon ? 'COMING SOON' : 'Book Treatment'}</span>
+                      <span>{treatment.comingSoon ? 'COMING SOON' : activeTab === 'addons' && treatment.addonPrice !== undefined ? 'Add to booking' : 'Book Treatment'}</span>
                     </button>
                   </div>
                 </>

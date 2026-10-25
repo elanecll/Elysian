@@ -102,17 +102,17 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
-  // The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy
+  // Elysian Radiance Revival Facial
   {
     id: 'elysian-glow-8-in-1-pdt-led-light-therapy',
     category: 'facial',
-    title: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy',
+    title: 'Elysian Radiance Revival Facial',
     tagline: '8-IN-1 HOT & COLD THERAPY • NANO-MIST HYDRATION • MULTI-SPECTRUM PDT LED',
     image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6ab95120b4d207ff9dfe763d.jpeg',
     duration: '30-45 mins',
-    priceDisplay: '£50',
+    priceDisplay: '£40',
     priceOptions: [
-      { duration: '30-45 mins', priceClinicare: 50, priceSingle: 50 },
+      { duration: '30-45 mins', priceClinicare: 40, priceSingle: 40 },
     ],
     description: 'Advanced 8-in-1 facial technology featuring medical-grade PDT LED light therapy, thermal hot and cold pore-calming therapy, and deep nano-sized mist hydration infusion with CLINICARE cosmeceuticals. Complete session includes double cleanse, skin prep, 15–25 minute targeted PDT LED phase, bespoke CLINICARE serum cocktail & finish.',
     benefits: [
@@ -121,6 +121,8 @@ export const SPA_SERVICES: Treatment[] = [
       '🎯 Customised Skin Treatment — Tailored wavelength light targets specific concerns',
       '⏱️ 30–45 Min Session (15–25 min dedicated PDT LED phase)'
     ],
+    canBeAddon: true,
+    addonPrice: 20,
     popular: true,
   },
 
@@ -468,7 +470,7 @@ export const SPA_SERVICES: Treatment[] = [
       { label: 'Twin Facial Ritual (Both save 10%)', duration: '30 - 60 mins each', priceSingle: 'From £54.00' },
       { label: 'Twin Back Massage Ritual (Both save 10%)', duration: '30 mins each', priceSingle: 54 },
       { label: 'Twin Full Body Massage Ritual (Both save 10%)', duration: '60 mins each', priceSingle: 108 },
-      { label: 'Twin Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy (both save 10%)', duration: '30-45 mins each', priceSingle: 90 }
+      { label: 'Twin Elysian Radiance Revival Facial (both save 10%)', duration: '30-45 mins each', priceSingle: 72 }
     ],
     description: 'Book together & both receive 10% OFF! Because beautiful skin is even better when shared. Introduce a friend to ELYSIAN BEAUTY SPA and you both save 10% on qualifying treatments. Package prices below are the total for both guests, with the discount already included.',
     benefits: [
@@ -506,16 +508,16 @@ export const SPA_SERVICES: Treatment[] = [
     category: 'packages',
     title: 'Elysian Signature Glow & Massage Ritual',
     image: '/images/treatments/elysian-signature-glow-ritual.jpeg',
-    tagline: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy + 60 min Volcanic Hot Stone Massage',
+    tagline: 'Elysian Radiance Revival Facial + 60 min Volcanic Hot Stone Massage',
     duration: '90 mins',
     priceDisplay: '£130',
     priceOptions: [
       { label: '🔬 CLINICARE Cosmeceutical & Hot Stone Ritual', duration: '90 mins', priceSingle: 130 }
     ],
-    description: 'Our ultimate luxury sanctuary immersion combining The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy with CLINICARE active cosmeceuticals and a full 60-minute volcanic hot stone body massage.',
+    description: 'Our ultimate luxury sanctuary immersion combining Elysian Radiance Revival Facial with CLINICARE active cosmeceuticals and a full 60-minute volcanic hot stone body massage.',
     benefits: [
       'Full Body Heated Basalt Massage',
-      'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy'
+      'Elysian Radiance Revival Facial'
     ],
     popular: true,
   },
@@ -664,7 +666,7 @@ export const REVIEWS: Review[] = [
   {
     id: '9',
     author: 'Charlotte Davies',
-    service: 'The Elysian Glow 8-in-1 Hot & Cold PDT LED Light Therapy',
+    service: 'Elysian Radiance Revival Facial',
     rating: 5,
     date: 'May 2026',
     comment: 'Added the multi-wave LED mask to my facial. It visibly reduced redness and calmed my hormonal breakouts. The calming lavender aromatherapy made it so peaceful.',

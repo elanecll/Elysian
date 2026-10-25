@@ -51,6 +51,7 @@ export default function App() {
   >();
   const [preselectedIsCourse, setPreselectedIsCourse] =
     useState<boolean>(false);
+  const [preselectedAsAddon, setPreselectedAsAddon] = useState(false);
 
   // Persistent shopping cart state
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -259,11 +260,13 @@ export default function App() {
     preferredProduct?: "tropic" | "clinicare",
     preferredDuration?: "30" | "60",
     isCourse?: boolean,
+    asAddon?: boolean,
   ) => {
     setPreselectedServiceId(serviceId);
     setPreselectedProduct(preferredProduct);
     setPreselectedDuration(preferredDuration);
     setPreselectedIsCourse(!!isCourse);
+    setPreselectedAsAddon(!!asAddon);
     setIsBookingOpen(true);
   };
 
@@ -522,11 +525,13 @@ export default function App() {
           setPreselectedProduct(undefined);
           setPreselectedDuration(undefined);
           setPreselectedIsCourse(false);
+          setPreselectedAsAddon(false);
         }}
         preselectedServiceId={preselectedServiceId}
         initialProduct={preselectedProduct}
         initialDuration={preselectedDuration}
         initialIsCourse={preselectedIsCourse}
+        initialAsAddon={preselectedAsAddon}
         onOpenCRM={() => setIsCRMOpen(true)}
         onOpenTerms={() => {
           setIsBookingOpen(false);

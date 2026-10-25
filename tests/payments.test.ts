@@ -977,6 +977,69 @@ test("configuration refuses live keys", () => {
   }
 });
 
+test("Radiance Revival uses its standalone price in primary and package bookings", () => {
+  const serviceId = "elysian-glow-8-in-1-pdt-led-light-therapy";
+  const single = bookingQuote({
+    ...booking(),
+    treatments: [{ serviceId, optionIndex: 0 }],
+  });
+  assert.equal(single.items[0].name, "Elysian Radiance Revival Facial");
+  assert.equal(single.items[0].duration, "30-45 mins");
+  assert.equal(single.totalPence, 4000);
+  assert.equal(single.amountDuePence, 2000);
+  const pair = bookingQuote({
+    ...booking(),
+    treatments: [{ serviceId: "bring-a-friend-package", optionIndex: 3 }],
+  });
+  assert.equal(pair.totalPence, 7200);
+  assert.equal(pair.amountDuePence, 3600);
+  const bundle = bookingQuote({
+    ...bundleBooking(serviceId),
+    bundleProducts: [{ productId: "tropic-skincare-kit-1", quantity: 1 }],
+  });
+  assert.equal(bundle.totalPence, 7060);
+  assert.equal(bundle.amountDuePence, 5060);
+});
+
+test("Radiance Revival add-on charges £20 only alongside another primary treatment", async () => {
+  const f = setup();
+  const selection = {
+    ...booking(),
+    treatments: [
+      ...booking().treatments,
+      {
+        serviceId: "elysian-glow-8-in-1-pdt-led-light-therapy",
+        optionIndex: 0,
+      },
+    ],
+  };
+  const created = await f.createBooking(selection);
+  const record = f.store.get(created.receipt.id)!;
+  assert.equal(
+    record.items[1].name,
+    "Elysian Radiance Revival Facial (Add-on)",
+  );
+  assert.equal(record.items[1].unitPricePence, 2000);
+  assert.equal(record.totalPence, 8500);
+  assert.equal(record.amountDuePence, 4250);
+  assert.equal(record.durationMinutes, 105);
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${record.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  assert.equal(f.creations[0].line_items![0].price_data!.unit_amount, 4250);
+  assert.throws(
+    () =>
+      bookingQuote({
+        ...selection,
+        treatments: [selection.treatments[1], selection.treatments[1]],
+      }),
+    /Duplicate treatments/,
+  );
+});
+
 test("Bring a Friend quotes apply 10% off both guests and calculate the deposit", () => {
   const pair = SPA_SERVICES.find(
     (service) => service.id === "bring-a-friend-package",

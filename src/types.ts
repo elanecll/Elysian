@@ -70,6 +70,7 @@ export interface Treatment {
   popular?: boolean;
   isAddon?: boolean;
   canBeAddon?: boolean;
+  addonPrice?: number;
   comingSoon?: boolean;
   image?: string;
   beforeAfterImage?: string;
