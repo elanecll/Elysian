@@ -249,7 +249,9 @@ export function bookingQuote(
         : service.title,
       quantity: paidSessions,
       unitPricePence: Math.round(price * 100),
-      duration: option.duration,
+      duration: isDiscountedAddon
+        ? (service.addonDuration ?? option.duration)
+        : option.duration,
     };
   });
   items.push(

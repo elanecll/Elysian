@@ -109,20 +109,21 @@ export const SPA_SERVICES: Treatment[] = [
     title: 'Elysian Radiance Revival Facial',
     tagline: 'REFRESH • HYDRATE • REVIVE YOUR RADIANCE',
     image: '/images/treatments/elysian-radiance-revival-facial.png',
-    duration: '30 mins',
+    duration: '30-45 mins',
     priceDisplay: '£45',
     priceOptions: [
-      { duration: '30 mins', priceClinicare: 45, priceSingle: 45 },
+      { duration: '30-45 mins', priceClinicare: 45, priceSingle: 45 },
     ],
-    description: 'A personalised facial for skin that feels dull, dry or tired. Following a consultation, your therapist tailors the session to your skin’s needs, with a focus on hydration, comfort and a fresh, radiant-looking finish. Unwind with 30 minutes of dedicated facial care.',
+    description: 'A personalised facial for skin that feels dull, dry or tired. Following a consultation, your therapist tailors the session to your skin’s needs, with a focus on hydration, comfort and a fresh, radiant-looking finish. Unwind with 30–45 minutes of dedicated facial care.',
     benefits: [
       'Personalised care tailored to your skin’s needs',
       'A focus on hydration and skin comfort',
       'A fresh, radiant-looking finish',
-      '30 minutes of relaxing facial care'
+      '30–45 minutes of relaxing facial care'
     ],
     canBeAddon: true,
     addonPrice: 20,
+    addonDuration: '20 mins',
     popular: true,
   },
 
@@ -470,7 +471,7 @@ export const SPA_SERVICES: Treatment[] = [
       { label: 'Twin Facial Ritual (Both save 10%)', duration: '30 - 60 mins each', priceSingle: 'From £54.00' },
       { label: 'Twin Back Massage Ritual (Both save 10%)', duration: '30 mins each', priceSingle: 54 },
       { label: 'Twin Full Body Massage Ritual (Both save 10%)', duration: '60 mins each', priceSingle: 108 },
-      { label: 'Twin Elysian Radiance Revival Facial (both save 10%)', duration: '30 mins each', priceSingle: 81 }
+      { label: 'Twin Elysian Radiance Revival Facial (both save 10%)', duration: '30-45 mins each', priceSingle: 81 }
     ],
     description: 'Book together & both receive 10% OFF! Because beautiful skin is even better when shared. Introduce a friend to ELYSIAN BEAUTY SPA and you both save 10% on qualifying treatments. Package prices below are the total for both guests, with the discount already included.',
     benefits: [

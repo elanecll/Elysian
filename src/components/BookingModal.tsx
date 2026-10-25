@@ -131,20 +131,18 @@ function BookingForm(props: BookingModalProps) {
           "swedish-back-massage",
           "hot-stone-back-massage",
         ].includes(s.id)),
-  )
-    .map((s) => ({
-      id: s.id,
-      title: s.title,
-      duration: s.duration,
-      pricePence: Math.round(
-        Number(
-          s.addonPrice ??
-            s.priceOptions?.[0].priceClinicare ??
-            s.priceOptions?.[0].priceSingle,
-        ) * 100,
-      ),
-    }))
-    .filter((a) => a.id !== serviceId && a.id !== selectedTreatment?.id);
+  ).map((s) => ({
+    id: s.id,
+    title: s.title,
+    duration: s.addonDuration ?? s.duration,
+    pricePence: Math.round(
+      Number(
+        s.addonPrice ??
+          s.priceOptions?.[0].priceClinicare ??
+          s.priceOptions?.[0].priceSingle,
+      ) * 100,
+    ),
+  }));
   const unitPrice = option?.priceClinicare ?? option?.priceSingle;
   const priceItems: RecordItem[] = [
     {
@@ -415,6 +413,9 @@ function BookingForm(props: BookingModalProps) {
                 <input
                   className="mt-0.5"
                   type="checkbox"
+                  disabled={
+                    addon.id === serviceId || addon.id === selectedTreatment?.id
+                  }
                   checked={addons.includes(addon.id)}
                   onChange={(e) =>
                     setAddons((previous) =>
@@ -428,6 +429,12 @@ function BookingForm(props: BookingModalProps) {
                   {addon.title.replace(/\s*\(Add-on Only\)/gi, "")}
                   <br />
                   {addon.duration} · {money(addon.pricePence)}
+                  {(addon.id === serviceId ||
+                    addon.id === selectedTreatment?.id) && (
+                    <span className="mt-1 block text-[#7A5852]">
+                      Already selected as your primary treatment
+                    </span>
+                  )}
                 </span>
               </label>
             ))}

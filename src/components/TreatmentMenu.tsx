@@ -344,12 +344,12 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                               className="flex flex-wrap items-center justify-between gap-1 py-1 border-b border-[#F5E6E8] last:border-0"
                             >
                               <span className="font-medium text-[#3D2B27]">
-                                {opt.label ? opt.label : opt.duration}
+                                {activeTab === 'addons' && treatment.addonDuration ? treatment.addonDuration : opt.label ? opt.label : opt.duration}
                               </span>
                               <div className="flex items-center gap-3">
                                 {(opt.priceClinicare !== undefined || opt.priceSingle !== undefined) && (
                                   <span className="font-bold text-[#BE757C]">
-                                    {formatTreatmentPrice(opt.priceClinicare ?? opt.priceSingle)}
+                                    {formatTreatmentPrice(activeTab === 'addons' && treatment.addonPrice !== undefined ? treatment.addonPrice : opt.priceClinicare ?? opt.priceSingle)}
                                   </span>
                                 )}
                               </div>
@@ -380,7 +380,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                             ? activeCardDur === '30'
                               ? '30 mins (Express)'
                               : '60 mins (Full Ritual)'
-                            : treatment.duration}
+                            : activeTab === 'addons' && treatment.addonDuration ? treatment.addonDuration : treatment.duration}
                         </span>
                       </div>
                       <div className="text-base sm:text-lg font-display font-medium text-[#3D2B27] mt-0.5">

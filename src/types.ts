@@ -71,6 +71,7 @@ export interface Treatment {
   isAddon?: boolean;
   canBeAddon?: boolean;
   addonPrice?: number;
+  addonDuration?: string;
   comingSoon?: boolean;
   image?: string;
   beforeAfterImage?: string;
