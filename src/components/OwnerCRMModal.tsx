@@ -9,6 +9,7 @@ import {
   type BundleProductSelection,
 } from "../../shared/payments";
 import { FACIAL_BUNDLE_ID } from "../../shared/facialBundle";
+import { FRIEND_PACKAGE_ID } from "../../shared/friendPackage";
 import { itemTotal } from "../../shared/bookingPricing";
 import { FacialBundleProducts } from "./FacialBundleProducts";
 import {
@@ -108,6 +109,11 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
     BundleProductSelection[]
   >([]);
   const isBundle = serviceId === FACIAL_BUNDLE_ID;
+  const isFriend = serviceId === FRIEND_PACKAGE_ID;
+  const selectedOption = SPA_SERVICES.find((s) => s.id === serviceId)
+    ?.priceOptions?.[optionIndex];
+  const selectedTreatmentId =
+    selectedOption?.facialServiceId ?? selectedOption?.pairedServiceId;
   const [date, setDate] = useState(londonDate());
   const [time, setTime] = useState("");
   const [error, setError] = useState("");
@@ -115,7 +121,7 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
   const key = useRef<{ fingerprint: string; key: string } | null>(null);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (busy || !time) return;
+    if (busy || !time || !selectedOption) return;
     setBusy(true);
     setError("");
     const body: BookingRequest = {
@@ -185,14 +191,17 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
             onChange={(e) => {
               setServiceId(e.target.value);
               setOptionIndex(
-                Math.max(
-                  0,
-                  SPA_SERVICES.find(
-                    (s) => s.id === e.target.value,
-                  )?.priceOptions?.findIndex((p) => !p.comingSoon) ?? 0,
-                ),
+                [FACIAL_BUNDLE_ID, FRIEND_PACKAGE_ID].includes(e.target.value)
+                  ? -1
+                  : Math.max(
+                      0,
+                      SPA_SERVICES.find(
+                        (s) => s.id === e.target.value,
+                      )?.priceOptions?.findIndex((p) => !p.comingSoon) ?? 0,
+                    ),
               );
               setBundleProducts([]);
+              setTime("");
             }}
           >
             {SPA_SERVICES.filter((s) => !s.isAddon && !s.comingSoon).map(
@@ -204,27 +213,54 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
             )}
           </select>
         </Field>
-        <Field label={isBundle ? "Choose your CLINICARE facial" : "Duration"}>
+        <Field
+          label={
+            isBundle
+              ? "Choose your facial treatment"
+              : isFriend
+                ? "Choose a treatment for both guests"
+                : "Duration"
+          }
+        >
           <select
-            aria-label={isBundle ? "Choose your CLINICARE facial" : "Duration"}
             className={inputClass}
-            value={optionIndex}
-            onChange={(e) => setOptionIndex(Number(e.target.value))}
+            required
+            value={optionIndex < 0 ? "" : optionIndex}
+            onChange={(e) => {
+              setOptionIndex(Number(e.target.value));
+              setTime("");
+            }}
           >
+            {(isBundle || isFriend) && (
+              <option value="" disabled>
+                Choose a treatment
+              </option>
+            )}
             {SPA_SERVICES.find((s) => s.id === serviceId)?.priceOptions?.map(
-              (p, index) => (
-                <option key={index} value={index} disabled={p.comingSoon}>
-                  {isBundle
-                    ? `${p.label} — ${money(Number(p.priceSingle) * 100)}`
-                    : p.duration}
-                  {p.comingSoon ? " — COMING SOON" : ""}
-                </option>
-              ),
+              (p, index) => {
+                if (
+                  p.comingSoon ||
+                  (isFriend && typeof p.priceSingle !== "number")
+                )
+                  return null;
+                return (
+                  <option key={index} value={index}>
+                    {isBundle
+                      ? p.label
+                      : isFriend
+                        ? `${p.label} — ${p.duration}`
+                        : p.duration}
+                    {isBundle || isFriend
+                      ? ` — ${money(Number(p.priceSingle) * 100)}${isFriend ? " total for 2" : ""}`
+                      : ""}
+                  </option>
+                );
+              },
             )}
           </select>
         </Field>
       </fieldset>
-      {isBundle && (
+      {isBundle && selectedOption && (
         <fieldset disabled={busy}>
           <FacialBundleProducts
             value={bundleProducts}
@@ -232,27 +268,40 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
           />
         </fieldset>
       )}
-      <AvailableAppointments
-        selection={{
-          treatments: [{ serviceId, optionIndex }],
-          customTreatments: [],
-          isCourse: false,
-          ...(isBundle ? { bundleProducts } : {}),
-        }}
-        date={date}
-        time={time}
-        onDate={setDate}
-        onTime={setTime}
-      />
+      {selectedOption && (
+        <AvailableAppointments
+          selection={{
+            treatments: [{ serviceId, optionIndex }],
+            customTreatments: [],
+            isCourse: false,
+            ...(isBundle ? { bundleProducts } : {}),
+          }}
+          date={date}
+          time={time}
+          onDate={setDate}
+          onTime={setTime}
+        />
+      )}
       <fieldset disabled={busy}>
         <HealthScreening
-          serviceIds={[serviceId]}
+          serviceIds={[
+            serviceId,
+            ...(selectedTreatmentId ? [selectedTreatmentId] : []),
+          ]}
           value={consultation}
           onChange={setConsultation}
         />
       </fieldset>
       <ErrorMessage error={error} />
-      <button className={buttonClass} disabled={busy || !time}>
+      <button
+        className={buttonClass}
+        disabled={
+          busy ||
+          !selectedOption ||
+          !time ||
+          (isBundle && !bundleProducts.length)
+        }
+      >
         Save unpaid request
       </button>
     </form>

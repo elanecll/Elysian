@@ -136,14 +136,14 @@ await context.route("**/api/**", async (route) => {
     body = { consultation };
   } else if (path.endsWith("/approve")) {
     const payload = route.request().postDataJSON();
-    assert.equal(payload.customPrices[0].pricePence, 2500);
+    assert.deepEqual(payload.customPrices, []);
     record = {
       ...record,
       items: record.items.map((i) =>
         i.custom ? { ...i, unitPricePence: 2500 } : i,
       ),
-      totalPence: 6000,
-      amountDuePence: 3000,
+      totalPence: 3500,
+      amountDuePence: 1750,
       status: "awaiting_payment",
       checkoutUrl: "https://checkout.stripe.com/test/browser",
       expiresAt: Date.now() + 86400000,

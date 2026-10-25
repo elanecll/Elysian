@@ -1006,10 +1006,17 @@ test("Bring a Friend quotes apply 10% off both guests and calculate the deposit"
     });
     assert.equal(quote.totalPence, expectedPence);
     assert.equal(quote.amountDuePence, Math.round(expectedPence / 2));
-    assert.equal(quote.items[0].name, pair.title);
+    assert.equal(quote.items[0].name, `${pair.title} — ${service.title}`);
   }
   const facialPrices = SPA_SERVICES.filter(
-    (service) => service.category === "facial",
+    (service) =>
+      service.category === "facial" &&
+      !service.comingSoon &&
+      !service.isAddon &&
+      ![
+        "cliniccare-chemical-peeling",
+        "carboxytherapy-face-mask-treatment",
+      ].includes(service.id),
   )
     .flatMap(
       (service) =>
@@ -1024,6 +1031,67 @@ test("Bring a Friend quotes apply 10% off both guests and calculate the deposit"
     pair.priceOptions![0].priceSingle,
     `From £${startingPrice.toFixed(2)}`,
   );
+});
+
+test("Bring a Friend exposes named eligible catalogue choices with correct prices and reserved time", async () => {
+  const pair = SPA_SERVICES.find((s) => s.id === "bring-a-friend-package")!;
+  const choices = pair.priceOptions!;
+  assert.ok(choices.length > 4);
+  for (let optionIndex = 1; optionIndex < choices.length; optionIndex++) {
+    const choice = choices[optionIndex];
+    const source = SPA_SERVICES.find((s) => s.id === choice.pairedServiceId)!;
+    assert.ok(!source.isAddon && !source.comingSoon);
+    assert.ok(
+      ![
+        "cliniccare-chemical-peeling",
+        "carboxytherapy-face-mask-treatment",
+      ].includes(source.id),
+    );
+    const original = source.priceOptions![choice.pairedOptionIndex!];
+    const expected = Math.round(
+      Math.round(
+        Number(original.priceClinicare ?? original.priceSingle) * 100,
+      ) *
+        2 *
+        0.9,
+    );
+    const selection = {
+      ...booking(),
+      treatments: [{ serviceId: pair.id, optionIndex }],
+    };
+    assert.ok(
+      bookingSchema.safeParse(selection).success,
+      `Package choice ${optionIndex} must be accepted`,
+    );
+    const quote = bookingQuote(selection);
+    assert.equal(choice.label, source.title);
+    assert.equal(quote.totalPence, expected);
+    assert.equal(quote.amountDuePence, Math.round(expected / 2));
+    assert.equal(quote.items[0].name, `${pair.title} — ${source.title}`);
+    assert.equal(
+      treatmentMinutes(quote.items),
+      Math.max(...original.duration.match(/\d+/g)!.map(Number)) * 2 + 30,
+    );
+  }
+  const f = setup();
+  const optionIndex = choices.findIndex(
+    (c) => c.pairedServiceId === "hydrodemabrasion-facial",
+  );
+  const created = await f.createBooking({
+    ...booking(),
+    treatments: [{ serviceId: pair.id, optionIndex }],
+  });
+  const record = f.store.get(created.receipt.id)!;
+  assert.equal(record.totalPence, 11700);
+  assert.equal(record.amountDuePence, 5850);
+  assert.equal(record.durationMinutes, 150);
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${record.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  assert.equal(f.creations[0].line_items![0].price_data!.unit_amount, 5850);
 });
 
 test("catalogue treatments with variable prices require an owner quote", async () => {

@@ -4,6 +4,7 @@ import { SPA_PRODUCTS } from "../src/data/shopData.js";
 import { SPA_SERVICES } from "../src/data/spaData.js";
 import { bookingTotals } from "../shared/bookingPricing.js";
 import { FACIAL_BUNDLE_ID } from "../shared/facialBundle.js";
+import { FRIEND_PACKAGE_ID } from "../shared/friendPackage.js";
 import {
   PERSONALISE_TREATMENT,
   isStandaloneTreatment,
@@ -56,7 +57,7 @@ export const bookingSchema = z
         z
           .object({
             serviceId: z.string().max(100),
-            optionIndex: z.number().int().min(0).max(20),
+            optionIndex: z.number().int().min(0).max(100),
           })
           .strict(),
       )
@@ -178,13 +179,11 @@ export function bookingQuote(
     throw new Error(
       "Select Facial + Product Bundle as your primary treatment to add discounted products.",
     );
-  const effectiveServiceIds = input.treatments.map((t) =>
-    t.serviceId === FACIAL_BUNDLE_ID
-      ? (SPA_SERVICES.find((s) => s.id === FACIAL_BUNDLE_ID)?.priceOptions?.[
-          t.optionIndex
-        ]?.facialServiceId ?? "")
-      : t.serviceId,
-  );
+  const effectiveServiceIds = input.treatments.map((t) => {
+    const choice = SPA_SERVICES.find((s) => s.id === t.serviceId)
+      ?.priceOptions?.[t.optionIndex];
+    return choice?.facialServiceId ?? choice?.pairedServiceId ?? t.serviceId;
+  });
   if (
     effectiveServiceIds.some(isStandaloneTreatment) &&
     (input.treatments.length !== 1 || input.customTreatments.length > 0)
@@ -208,19 +207,24 @@ export function bookingQuote(
       );
     const option = service.priceOptions?.[t.optionIndex];
     if (!option) throw new Error("Unknown treatment duration.");
-    const selectedFacial = option.facialServiceId
-      ? SPA_SERVICES.find(
-          (s) =>
-            s.id === option.facialServiceId &&
-            s.category === "facial" &&
-            !s.isAddon,
-        )
+    const selectedId = option.facialServiceId ?? option.pairedServiceId;
+    const selectedTreatment = selectedId
+      ? SPA_SERVICES.find((s) => s.id === selectedId && !s.isAddon)
       : undefined;
-    if (service.id === FACIAL_BUNDLE_ID && !selectedFacial)
+    if (
+      service.id === FACIAL_BUNDLE_ID &&
+      selectedTreatment?.category !== "facial"
+    )
       throw new Error("Choose a qualifying CLINICARE facial.");
-    if (selectedFacial?.comingSoon)
+    if (
+      service.id === FRIEND_PACKAGE_ID &&
+      t.optionIndex > 0 &&
+      (!selectedTreatment || isStandaloneTreatment(selectedTreatment.id))
+    )
+      throw new Error("Choose a qualifying treatment for both guests.");
+    if (option.comingSoon || selectedTreatment?.comingSoon)
       throw new Error(
-        `${selectedFacial.title} is coming soon and is not yet available to book.`,
+        `${selectedTreatment?.title ?? service.title} is coming soon and is not yet available to book.`,
       );
     const price = option.priceClinicare ?? option.priceSingle;
     if (typeof price !== "number")
@@ -236,8 +240,8 @@ export function bookingQuote(
       throw new Error("Invalid treatment price.");
     return {
       id: service.id,
-      name: selectedFacial
-        ? `${service.title} — ${selectedFacial.title}`
+      name: selectedTreatment
+        ? `${service.title} — ${selectedTreatment.title}`
         : service.title,
       quantity: paidSessions,
       unitPricePence: Math.round(price * 100),

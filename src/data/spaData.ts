@@ -1,5 +1,6 @@
 import type { Treatment, Review, FaqItem } from '../types.js';
 import { FACIAL_BUNDLE_ID, facialBundleOptions } from '../../shared/facialBundle.js';
+import { FRIEND_PACKAGE_ID, friendPackageOptions } from '../../shared/friendPackage.js';
 
 export const SPA_SERVICES: Treatment[] = [
   // Clinicare Microneedling
@@ -584,6 +585,8 @@ export const SPA_SERVICES: Treatment[] = [
 
 const facialProductBundle = SPA_SERVICES.find((service) => service.id === FACIAL_BUNDLE_ID)!;
 facialProductBundle.priceOptions = facialBundleOptions(SPA_SERVICES);
+const friendPackage = SPA_SERVICES.find(service => service.id === FRIEND_PACKAGE_ID)!;
+friendPackage.priceOptions = friendPackageOptions(SPA_SERVICES);
 
 export const REVIEWS: Review[] = [
   {

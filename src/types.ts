@@ -53,6 +53,8 @@ export interface TreatmentPriceOption {
   label?: string;
   facialServiceId?: string;
   facialOptionIndex?: number;
+  pairedServiceId?: string;
+  pairedOptionIndex?: number;
 }
 
 export interface Treatment {
