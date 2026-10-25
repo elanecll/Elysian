@@ -134,7 +134,7 @@ function BookingForm(props: BookingModalProps) {
   )
     .map((s) => ({
       id: s.id,
-      title: s.addonPrice !== undefined ? `${s.title} (Add-on)` : s.title,
+      title: s.title,
       duration: s.duration,
       pricePence: Math.round(
         Number(

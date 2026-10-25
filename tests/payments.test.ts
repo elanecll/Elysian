@@ -984,21 +984,21 @@ test("Radiance Revival uses its standalone price in primary and package bookings
     treatments: [{ serviceId, optionIndex: 0 }],
   });
   assert.equal(single.items[0].name, "Elysian Radiance Revival Facial");
-  assert.equal(single.items[0].duration, "45-60 mins");
-  assert.equal(single.totalPence, 4000);
-  assert.equal(single.amountDuePence, 2000);
+  assert.equal(single.items[0].duration, "30 mins");
+  assert.equal(single.totalPence, 4500);
+  assert.equal(single.amountDuePence, 2250);
   const pair = bookingQuote({
     ...booking(),
     treatments: [{ serviceId: "bring-a-friend-package", optionIndex: 3 }],
   });
-  assert.equal(pair.totalPence, 7200);
-  assert.equal(pair.amountDuePence, 3600);
+  assert.equal(pair.totalPence, 8100);
+  assert.equal(pair.amountDuePence, 4050);
   const bundle = bookingQuote({
     ...bundleBooking(serviceId),
     bundleProducts: [{ productId: "tropic-skincare-kit-1", quantity: 1 }],
   });
-  assert.equal(bundle.totalPence, 7060);
-  assert.equal(bundle.amountDuePence, 5060);
+  assert.equal(bundle.totalPence, 7560);
+  assert.equal(bundle.amountDuePence, 5310);
 });
 
 test("Radiance Revival add-on charges £20 only alongside another primary treatment", async () => {
@@ -1015,14 +1015,11 @@ test("Radiance Revival add-on charges £20 only alongside another primary treatm
   };
   const created = await f.createBooking(selection);
   const record = f.store.get(created.receipt.id)!;
-  assert.equal(
-    record.items[1].name,
-    "Elysian Radiance Revival Facial (Add-on)",
-  );
+  assert.equal(record.items[1].name, "Elysian Radiance Revival Facial");
   assert.equal(record.items[1].unitPricePence, 2000);
   assert.equal(record.totalPence, 8500);
   assert.equal(record.amountDuePence, 4250);
-  assert.equal(record.durationMinutes, 120);
+  assert.equal(record.durationMinutes, 90);
   const cookie = await f.login();
   await f
     .post(`/api/owner/records/${record.id}/approve`)

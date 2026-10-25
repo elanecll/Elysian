@@ -246,9 +246,7 @@ export function bookingQuote(
       id: service.id,
       name: selectedTreatment
         ? `${service.title} — ${selectedTreatment.title}`
-        : isDiscountedAddon
-          ? `${service.title} (Add-on)`
-          : service.title,
+        : service.title,
       quantity: paidSessions,
       unitPricePence: Math.round(price * 100),
       duration: option.duration,
