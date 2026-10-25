@@ -984,7 +984,7 @@ test("Radiance Revival uses its standalone price in primary and package bookings
     treatments: [{ serviceId, optionIndex: 0 }],
   });
   assert.equal(single.items[0].name, "Elysian Radiance Revival Facial");
-  assert.equal(single.items[0].duration, "30-45 mins");
+  assert.equal(single.items[0].duration, "45-60 mins");
   assert.equal(single.totalPence, 4000);
   assert.equal(single.amountDuePence, 2000);
   const pair = bookingQuote({
@@ -1022,7 +1022,7 @@ test("Radiance Revival add-on charges £20 only alongside another primary treatm
   assert.equal(record.items[1].unitPricePence, 2000);
   assert.equal(record.totalPence, 8500);
   assert.equal(record.amountDuePence, 4250);
-  assert.equal(record.durationMinutes, 105);
+  assert.equal(record.durationMinutes, 120);
   const cookie = await f.login();
   await f
     .post(`/api/owner/records/${record.id}/approve`)
