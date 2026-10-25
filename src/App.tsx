@@ -404,12 +404,14 @@ export default function App() {
                   preferredProduct,
                   preferredDuration,
                   isCourse,
+                  asAddon,
                 ) =>
                   handleOpenBooking(
                     serviceId,
                     preferredProduct,
                     preferredDuration,
                     isCourse,
+                    asAddon,
                   )
                 }
                 selectedCategory={treatmentCategory}
