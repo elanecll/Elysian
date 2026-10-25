@@ -13,6 +13,7 @@ import {
   TEN_SESSION_OFFER,
 } from "../../shared/courseOffers";
 import {
+  PERSONALISE_TREATMENT,
   isStandaloneTreatment,
   londonDate,
   money,
@@ -84,8 +85,6 @@ function BookingForm(props: BookingModalProps) {
   const [customs, setCustoms] = useState<
     { title: string; durationMinutes: number }[]
   >([]);
-  const [customTitle, setCustomTitle] = useState("");
-  const [customDuration, setCustomDuration] = useState(30);
   const [date, setDate] = useState(londonDate());
   const [time, setTime] = useState("");
   const [customer, setCustomer] = useState({
@@ -161,7 +160,7 @@ function BookingForm(props: BookingModalProps) {
       id: `custom-${index}`,
       name: custom.title,
       quantity: paidSessions,
-      duration: `${custom.durationMinutes} mins`,
+      duration: PERSONALISE_TREATMENT.duration,
       unitPricePence: null,
     })),
     ...(isBundle
@@ -403,58 +402,36 @@ function BookingForm(props: BookingModalProps) {
             </div>
             <div className="space-y-3 rounded-xl border border-[#E8BAC0]/60 p-4">
               <h3 className="font-display text-lg">
-                Request a custom treatment
+                {PERSONALISE_TREATMENT.title}
               </h3>
+              <p className="text-sm">{PERSONALISE_TREATMENT.duration}</p>
               <p className="text-xs">
-                The owner will quote each custom treatment before you pay.
+                A treatment tailored to your needs following a consultation. The
+                owner will confirm your quote before you pay.
               </p>
-              <div className="grid items-end gap-3 sm:grid-cols-[1fr_130px_auto]">
-                <Field label="Treatment name">
-                  <input
-                    className={inputClass}
-                    maxLength={150}
-                    value={customTitle}
-                    onChange={(e) => setCustomTitle(e.target.value)}
-                  />
-                </Field>
-                <Field label="Minutes">
-                  <input
-                    className={inputClass}
-                    type="number"
-                    min={5}
-                    max={240}
-                    value={customDuration}
-                    onChange={(e) => setCustomDuration(Number(e.target.value))}
-                  />
-                </Field>
-                <button
-                  type="button"
-                  className={buttonClass}
-                  disabled={
-                    customTitle.trim().length < 2 ||
-                    !Number.isInteger(customDuration) ||
-                    customDuration < 5 ||
-                    customDuration > 240 ||
-                    customs.length >= 5
-                  }
-                  onClick={() => {
-                    setCustoms([
-                      ...customs,
-                      {
-                        title: customTitle.trim(),
-                        durationMinutes: customDuration,
-                      },
-                    ]);
-                    setCustomTitle("");
-                  }}
-                >
-                  <Plus size={16} aria-label="Add custom treatment" />
-                </button>
-              </div>
+              <button
+                type="button"
+                className={buttonClass}
+                disabled={customs.length > 0}
+                onClick={() =>
+                  setCustoms([
+                    {
+                      title: PERSONALISE_TREATMENT.title,
+                      durationMinutes: PERSONALISE_TREATMENT.durationMinutes,
+                    },
+                  ])
+                }
+              >
+                <Plus size={16} aria-hidden="true" />
+                {customs.length
+                  ? "Added"
+                  : `Add ${PERSONALISE_TREATMENT.title}`}
+              </button>
               {customs.map((c, i) => (
                 <div className="flex justify-between text-sm" key={i}>
                   <span>
-                    {c.title} · {c.durationMinutes} mins · Price to be approved
+                    {c.title} · {PERSONALISE_TREATMENT.duration} · Price to be
+                    approved
                   </span>
                   <button
                     type="button"

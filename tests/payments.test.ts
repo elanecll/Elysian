@@ -462,6 +462,40 @@ test("standalone treatments can be requested individually but reject combined bo
   }
   assert.equal(f.store.list().length, 2);
 });
+test("personalised treatment keeps its quoted price, displays 45-60 minutes and reserves the full hour", async () => {
+  const f = setup();
+  const customTreatments = [
+    { title: "Elysian Personalise Treatment", durationMinutes: 60 },
+  ];
+  const created = await f.createBooking({ ...booking(), customTreatments });
+  const record = f.store.get(created.receipt.id)!;
+  const item = record.items.find((item) => item.id === "custom-0")!;
+  assert.equal(item.name, "Elysian Personalise Treatment");
+  assert.equal(item.duration, "45-60 mins");
+  assert.equal(item.unitPricePence, null);
+  assert.equal(record.durationMinutes, 120); // 60-minute facial plus personalised treatment.
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${record.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [{ id: "custom-0", pricePence: 2500 }] })
+    .expect(200);
+  assert.equal(f.store.get(record.id)!.totalPence, 9000);
+  assert.equal(f.store.get(record.id)!.amountDuePence, 4500);
+  assert.equal(
+    f.store.get(record.id)!.items.find((item) => item.id === "custom-0")!
+      .duration,
+    "45-60 mins",
+  );
+  assert.throws(
+    () =>
+      bookingQuote({
+        ...booking(),
+        customTreatments: [{ ...customTreatments[0], durationMinutes: 30 }],
+      }),
+    /60-minute/,
+  );
+});
 test("removed add-ons cannot be requested through the booking API", async () => {
   const f = setup();
   for (const serviceId of ["addon-eye-lip-rescue", "addon-cold-hammer"]) {

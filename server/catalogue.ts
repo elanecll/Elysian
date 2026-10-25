@@ -5,6 +5,7 @@ import { SPA_SERVICES } from "../src/data/spaData.js";
 import { bookingTotals } from "../shared/bookingPricing.js";
 import { FACIAL_BUNDLE_ID } from "../shared/facialBundle.js";
 import {
+  PERSONALISE_TREATMENT,
   isStandaloneTreatment,
   londonDate,
   type RecordItem,
@@ -244,14 +245,26 @@ export function bookingQuote(
     };
   });
   items.push(
-    ...input.customTreatments.map((t, index) => ({
-      id: `custom-${index}`,
-      name: t.title,
-      duration: `${t.durationMinutes} mins`,
-      quantity: paidSessions,
-      unitPricePence: null,
-      custom: true,
-    })),
+    ...input.customTreatments.map((t, index) => {
+      const personalised = t.title === PERSONALISE_TREATMENT.title;
+      if (
+        personalised &&
+        t.durationMinutes !== PERSONALISE_TREATMENT.durationMinutes
+      )
+        throw new Error(
+          "Elysian Personalise Treatment requires a 60-minute appointment slot.",
+        );
+      return {
+        id: `custom-${index}`,
+        name: t.title,
+        duration: personalised
+          ? PERSONALISE_TREATMENT.duration
+          : `${t.durationMinutes} mins`,
+        quantity: paidSessions,
+        unitPricePence: null,
+        custom: true,
+      };
+    }),
   );
   const products = input.bundleProducts ?? [];
   if (new Set(products.map((p) => p.productId)).size !== products.length)

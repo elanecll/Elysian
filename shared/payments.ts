@@ -1,5 +1,11 @@
 import { FIVE_SESSION_OFFER, TEN_SESSION_OFFER } from "./courseOffers.js";
 import type { ConsultationInput, ConsultationStatus } from "./consultation.js";
+export const PERSONALISE_TREATMENT = {
+  title: "Elysian Personalise Treatment",
+  duration: "45-60 mins",
+  durationMinutes: 60,
+} as const;
+
 export interface Customer {
   name: string;
   email: string;
