@@ -30,11 +30,11 @@ export const SPA_SERVICES: Treatment[] = [
     popular: true,
   },
 
-  // 11. CLINICARE Cinderella / Black Tie Facial
+  // 11. Clinicare Cinderella / Black Tie Facial
   {
     id: 'cliniccare-cinderella-black-tie-facial',
     category: 'facial',
-    title: 'CLINICARE Cinderella / Black Tie Facial',
+    title: 'Clinicare Cinderella / Black Tie Facial',
     tagline: 'INSTANT RED CARPET GLOW • CELLULAR HYDRATION • PEEL & EGF MASK',
     image: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb94b6be703c7b305f3ffb.jpeg',
     beforeAfterImage: 'https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6abb939660c7466bcf6be8e1.jpeg',
