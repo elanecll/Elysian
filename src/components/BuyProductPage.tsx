@@ -1,3 +1,4 @@
+import { PaymentOptions } from "./PaymentOptions";
 import React, { useRef, useState } from "react";
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 import type { CartItem, PageTab } from "../types";
@@ -268,9 +269,9 @@ export function BuyProductPage({
             <span>{money(subtotal - discount + shipping)}</span>
           </div>
         </div>
+        <PaymentOptions />
         <p className="text-xs">
-          You’ll enter payment details on Stripe’s checkout page. Your order is
-          confirmed once payment has been verified.
+          Your order is confirmed once payment has been verified.
         </p>
         <ErrorMessage error={error} />
         <button

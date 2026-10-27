@@ -218,7 +218,7 @@ export const TermsAndConditionsPage: React.FC<TermsAndConditionsPageProps> = ({
                 1.2. After payment verification, your payment status page shows the approved appointment, service details, deposit received, and outstanding balance. Customer messages are sent manually.
               </p>
               <p>
-                1.3. Online deposits use card payments through Stripe-hosted Checkout. Arrange payment of the remaining balance with the owner. PayPal and direct bank transfer are not available in this checkout.
+                1.3. Online deposits can be paid by debit or credit card through secure Stripe Checkout. Apple Pay is offered where available on compatible devices and browsers with Apple Pay set up. Arrange payment of the remaining balance with the owner. PayPal and direct bank transfer are not available in this checkout.
               </p>
             </div>
           </div>

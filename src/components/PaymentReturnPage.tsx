@@ -1,3 +1,4 @@
+import { PaymentOptions } from "./PaymentOptions";
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import {
@@ -193,6 +194,11 @@ export function PaymentReturnPage({
               </p>
             )}
           </div>
+        </div>
+      )}
+      {checkoutUrl && !paid && (
+        <div className="mx-auto mb-5 max-w-2xl text-left">
+          <PaymentOptions />
         </div>
       )}
       <div className="flex flex-wrap justify-center gap-3">

@@ -1,3 +1,4 @@
+import { PaymentOptions } from "./PaymentOptions";
 import React, { useEffect, useRef, useState } from "react";
 import { AvailableAppointments } from "./AvailableAppointments";
 import { HealthScreening } from "./HealthScreening";
@@ -275,6 +276,7 @@ function BookingForm(props: BookingModalProps) {
           : "deposit"}
         .
       </p>
+      <PaymentOptions />
       <fieldset disabled={busy} className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Primary treatment">
