@@ -135,6 +135,9 @@ function setup(
             id,
             url: `https://checkout.stripe.com/test/${id}`,
             mode: "payment",
+            ui_mode: params.ui_mode || "hosted_page",
+            client_secret:
+              params.ui_mode === "elements" ? `${id}_secret_fixture` : null,
             currency: "gbp",
             amount_total: amount,
             payment_status: "unpaid",
@@ -173,7 +176,7 @@ function setup(
     charges: { retrieve: async (id: string) => charges.get(id)! },
     paymentIntents: { retrieve: async (id: string) => intents.get(id)! },
   } as unknown as Stripe;
-  const config = {
+  const config: Config = {
     notifications,
     appUrl: origin,
     stripeSecretKey: "sk_test_fixture",
@@ -1708,4 +1711,186 @@ test("Resend delivery webhooks verify raw signatures, reject forgeries and prese
   await sendEvent("msg_delivered", "email.delivered", now + 2000).expect(200);
   assert.equal((await feed()).status, "failed");
   await request(f.app).get("/api/resend/webhook").expect(405);
+});
+
+test("custom checkout exposes a token-scoped session, keeps secrets out of receipts and confirms only verified payments", async () => {
+  const f = setup();
+  f.config.customCheckoutEnabled = true;
+  f.config.stripePublishableKey = "pk_test_fixture";
+  const created = await f.createShop();
+  assert.equal(
+    created.url,
+    `${origin}/?receipt=${created.receiptToken}#payment`,
+  );
+  const record = f.store.list()[0];
+  const params = f.creations[0];
+  assert.equal(params.ui_mode, "elements");
+  assert.equal(params.return_url, created.url);
+  assert.equal(params.success_url, undefined);
+  assert.equal(params.cancel_url, undefined);
+  assert.equal(
+    params.line_items![0].price_data!.unit_amount,
+    record.amountDuePence,
+  );
+  assert.deepEqual(params.payment_method_types, ["card"]);
+  const receipt = await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}`)
+    .expect(200);
+  assert.equal(receipt.body.customCheckout, true);
+  assert.equal(receipt.body.receipt.paidPence, 0);
+  assert.doesNotMatch(
+    JSON.stringify(receipt.body),
+    /clientSecret|_secret_|sk_test/,
+  );
+  const checkout = await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}/checkout`)
+    .expect(200);
+  assert.equal(checkout.headers["cache-control"], "no-store");
+  assert.equal(checkout.body.publishableKey, "pk_test_fixture");
+  assert.equal(
+    checkout.body.clientSecret,
+    `${record.stripeSessionId}_secret_fixture`,
+  );
+  await request(f.app)
+    .get(`/api/receipts/${"0".repeat(64)}/checkout`)
+    .expect(404);
+  await request(f.app).get(`/api/receipts/not-a-token/checkout`).expect(404);
+  f.pay(record.stripeSessionId!);
+  const paid = await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}`)
+    .expect(200);
+  assert.equal(paid.body.receipt.paidPence, record.amountDuePence);
+  assert.equal(paid.body.checkoutUrl, undefined);
+  await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}/checkout`)
+    .expect(409);
+});
+
+test("Elements retry preserves parameters and selected mode even if rollout configuration changes", async () => {
+  const f = setup();
+  f.config.customCheckoutEnabled = true;
+  f.config.stripePublishableKey = "pk_test_fixture";
+  const key = randomUUID();
+  f.disconnectNextCreate();
+  await f
+    .post("/api/shop/checkout")
+    .set("Idempotency-Key", key)
+    .send(shop)
+    .expect(500);
+  f.config.customCheckoutEnabled = false;
+  const retried = await f.createShop(key);
+  assert.equal(f.creations.length, 1);
+  assert.equal(f.creations[0].ui_mode, "elements");
+  assert.equal(
+    retried.url,
+    `${origin}/?receipt=${retried.receiptToken}#payment`,
+  );
+});
+
+test("pre-rollout lost hosted sessions recover without changing idempotent parameters", async () => {
+  const f = setup();
+  const key = randomUUID();
+  f.disconnectNextCreate();
+  await f
+    .post("/api/shop/checkout")
+    .set("Idempotency-Key", key)
+    .send(shop)
+    .expect(500);
+  const old = f.store.list()[0];
+  delete old.checkoutMode;
+  f.store.save(old);
+  f.config.customCheckoutEnabled = true;
+  f.config.stripePublishableKey = "pk_test_fixture";
+  const result = await f.createShop(key);
+  assert.equal(f.creations.length, 1);
+  assert.match(result.url, /^https:\/\/checkout.stripe.com/);
+  await request(f.app)
+    .get(`/api/receipts/${result.receiptToken}/checkout`)
+    .expect(404);
+});
+
+test("custom session secret is withheld for altered amount or cancelled records", async () => {
+  const f = setup();
+  f.config.customCheckoutEnabled = true;
+  f.config.stripePublishableKey = "pk_test_fixture";
+  const created = await f.createShop();
+  const record = f.store.list()[0];
+  const session = f.sessions.get(record.stripeSessionId!)!;
+  session.amount_total!++;
+  await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}/checkout`)
+    .expect(400);
+  session.amount_total!--;
+  f.store.save({ ...record, status: "cancelled", checkoutUrl: undefined });
+  await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}/checkout`)
+    .expect(409);
+});
+
+test("custom booking charges the existing 50% deposit and discounted products in full", async () => {
+  const f = setup();
+  f.config.customCheckoutEnabled = true;
+  f.config.stripePublishableKey = "pk_test_fixture";
+  const created = await f.createBooking(bundleBooking());
+  const cookie = await f.login();
+  await f
+    .post(`/api/owner/records/${created.receipt.id}/approve`)
+    .set("Cookie", cookie)
+    .send({ customPrices: [] })
+    .expect(200);
+  const record = f.store.get(created.receipt.id)!;
+  assert.equal(record.checkoutMode, "elements");
+  assert.equal(
+    f.creations[0].line_items![0].price_data!.unit_amount,
+    record.amountDuePence,
+  );
+  assert.equal(
+    record.amountDuePence,
+    record.bundlePricing!.productsTotalPence +
+      Math.ceil(
+        (record.totalPence - record.bundlePricing!.productsTotalPence) / 2,
+      ),
+  );
+});
+
+test("declined custom card payments retain one payable session for retry", async () => {
+  const f = setup();
+  f.config.customCheckoutEnabled = true;
+  f.config.stripePublishableKey = "pk_test_fixture";
+  const created = await f.createShop();
+  const record = f.store.list()[0];
+  f.store.save({ ...record, paymentStatus: "failed" });
+  await request(f.app)
+    .get(`/api/receipts/${created.receiptToken}/checkout`)
+    .expect(200);
+  assert.equal(f.creations.length, 1);
+  assert.equal(f.store.get(record.id)!.paidPence, 0);
+});
+
+test("custom checkout configuration requires keys in the selected payment mode", () => {
+  const names = [
+    "APP_URL",
+    "STRIPE_MODE",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_PUBLISHABLE_KEY",
+    "STRIPE_CUSTOM_CHECKOUT_ENABLED",
+  ];
+  const previous = names.map((name) => process.env[name]);
+  try {
+    process.env.APP_URL = "http://localhost:3000";
+    process.env.STRIPE_MODE = "test";
+    process.env.STRIPE_SECRET_KEY = "sk_test_fixture";
+    process.env.STRIPE_CUSTOM_CHECKOUT_ENABLED = "true";
+    delete process.env.STRIPE_PUBLISHABLE_KEY;
+    assert.throws(loadConfig, /requires matching Stripe/);
+    process.env.STRIPE_PUBLISHABLE_KEY = "pk_live_wrong_mode";
+    assert.throws(loadConfig, /must match STRIPE_MODE/);
+    process.env.STRIPE_PUBLISHABLE_KEY = "pk_test_fixture";
+    assert.equal(loadConfig().customCheckoutEnabled, true);
+  } finally {
+    names.forEach((name, index) => {
+      if (previous[index] === undefined) delete process.env[name];
+      else process.env[name] = previous[index];
+    });
+  }
 });

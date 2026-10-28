@@ -2,6 +2,8 @@ export interface Config {
   appUrl: string;
   stripeSecretKey?: string;
   webhookSecret?: string;
+  stripePublishableKey?: string;
+  customCheckoutEnabled?: boolean;
   ownerUsername?: string;
   ownerPassword?: string;
   databasePath: string;
@@ -59,11 +61,27 @@ export function loadConfig(): Config {
         ? "Use a live Stripe key with STRIPE_MODE=live."
         : "Use a Stripe sandbox sk_test_ key. Live payments are disabled unless STRIPE_MODE=live.",
     );
+  const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  const customCheckoutEnabled =
+    process.env.STRIPE_CUSTOM_CHECKOUT_ENABLED === "true";
+  if (
+    stripePublishableKey &&
+    !stripePublishableKey.startsWith(
+      paymentMode === "live" ? "pk_live_" : "pk_test_",
+    )
+  )
+    throw new Error("STRIPE_PUBLISHABLE_KEY must match STRIPE_MODE.");
+  if (customCheckoutEnabled && (!stripeSecretKey || !stripePublishableKey))
+    throw new Error(
+      "Custom checkout requires matching Stripe secret and publishable keys.",
+    );
   if (process.env.OWNER_PASSWORD && process.env.OWNER_PASSWORD.length < 12)
     throw new Error("OWNER_PASSWORD must contain at least 12 characters.");
   return {
     appUrl: url.origin,
     stripeSecretKey,
+    stripePublishableKey,
+    customCheckoutEnabled,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
     ownerUsername: process.env.OWNER_USERNAME,
     ownerPassword: process.env.OWNER_PASSWORD,

@@ -304,6 +304,18 @@ export function createApp(
         409,
         "Retry the existing quote before changing its price.",
       );
+    if (!record.checkoutMode) {
+      // An older attempt may already exist at Stripe even if its response was lost.
+      record.checkoutMode =
+        !existingAttempt &&
+        config.customCheckoutEnabled &&
+        config.stripePublishableKey
+          ? "elements"
+          : "hosted";
+      await store.save(record);
+    }
+    const elementsCheckout = record.checkoutMode === "elements";
+    const returnUrl = `${config.appUrl}/?receipt=${record.receiptToken}#payment`;
     // Persist expiry before calling Stripe: all parameters must stay identical on a retry.
     if (!record.expiresAt) {
       record.expiresAt =
@@ -346,13 +358,24 @@ export function createApp(
           },
         ],
         expires_at: Math.floor(record.expiresAt / 1000),
-        success_url: `${config.appUrl}/?receipt=${record.receiptToken}#payment`,
-        cancel_url: `${config.appUrl}/?receipt=${record.receiptToken}&cancelled=1#payment`,
+        ...(elementsCheckout
+          ? {
+              ui_mode: "elements" as const,
+              return_url: returnUrl,
+            }
+          : {
+              success_url: returnUrl,
+              cancel_url: `${config.appUrl}/?receipt=${record.receiptToken}&cancelled=1#payment`,
+            }),
       },
       { idempotencyKey: key },
     );
-    if (!session.url)
-      throw new HttpError(502, "Stripe did not return a checkout link.");
+    if (elementsCheckout ? !session.client_secret : !session.url)
+      throw new HttpError(
+        502,
+        "Stripe did not return a checkout. Please retry.",
+      );
+    const checkoutUrl = elementsCheckout ? returnUrl : session.url!;
     const current = (await store.get(record.id))!;
     await store.transaction(async () => {
       await store.attachSession(key, session.id);
@@ -362,7 +385,7 @@ export function createApp(
         checkoutUrl:
           current.paidPence || current.status === "cancelled"
             ? undefined
-            : session.url!,
+            : checkoutUrl,
         expiresAt: session.expires_at * 1000,
       });
       if (current.type === "booking")
@@ -380,7 +403,7 @@ export function createApp(
       url:
         current.paidPence || current.status === "cancelled"
           ? undefined
-          : session.url,
+          : checkoutUrl,
       receiptToken: current.receiptToken,
       recordId: current.id,
     };
@@ -1178,6 +1201,69 @@ export function createApp(
       res.json({
         receipt: receipt(record),
         checkoutUrl: record.paidPence ? undefined : record.checkoutUrl,
+        customCheckout: record.checkoutMode === "elements",
+      });
+    }),
+  );
+  // Receipt tokens are bearer access to one checkout. Never expose a session
+  // secret in owner lists, emails, query strings, logs, or general receipt data.
+  app.get(
+    "/api/receipts/:token/checkout",
+    route(async (req, res) => {
+      res.set("Cache-Control", "no-store");
+      if (!/^[a-f0-9]{64}$/.test(req.params.token))
+        throw new HttpError(404, "Checkout not found.");
+      let record = await store.byReceipt(req.params.token);
+      if (
+        !record ||
+        record.checkoutMode !== "elements" ||
+        !record.stripeSessionId
+      )
+        throw new HttpError(404, "Checkout not found.");
+      record = await reconcile(record.stripeSessionId);
+      if (
+        record.paidPence ||
+        record.status !== "awaiting_payment" ||
+        !["unpaid", "failed"].includes(record.paymentStatus) ||
+        (record.expiresAt ?? 0) <= Date.now()
+      )
+        throw new HttpError(
+          409,
+          "This checkout is no longer awaiting payment. Refresh its status.",
+        );
+      if (!config.stripePublishableKey)
+        throw new HttpError(
+          503,
+          "Checkout is temporarily unavailable. Please contact Elysian.",
+        );
+      const session = await paymentGateway().checkout.sessions.retrieve(
+        record.stripeSessionId!,
+      );
+      const attempt = await store.attemptByKey(
+        `${record.id}:${record.revision}`,
+      );
+      if (
+        !attempt ||
+        attempt.sessionId !== session.id ||
+        session.ui_mode !== "elements" ||
+        session.status !== "open" ||
+        !session.client_secret ||
+        session.metadata?.recordId !== record.id ||
+        session.metadata?.attemptKey !== attempt.key ||
+        session.client_reference_id !== record.id ||
+        session.currency !== "gbp" ||
+        session.amount_total !== attempt.expectedPence ||
+        session.amount_total !== record.amountDuePence ||
+        session.livemode !== (config.paymentMode === "live")
+      )
+        throw new HttpError(
+          409,
+          "Checkout does not match the approved payment. Please contact Elysian.",
+        );
+      res.json({
+        clientSecret: session.client_secret,
+        publishableKey: config.stripePublishableKey,
+        sessionId: session.id,
       });
     }),
   );
@@ -1346,6 +1432,7 @@ export function createApp(
         if (record.paymentStatus === "expired") {
           record.revision++;
           record.stripeSessionId = undefined;
+          record.checkoutMode = undefined;
           record.checkoutUrl = undefined;
           record.expiresAt = undefined;
         }

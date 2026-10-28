@@ -106,6 +106,8 @@ export interface PaymentRecord {
   receiptToken: string;
   checkoutUrl?: string;
   stripeSessionId?: string;
+  // Persisted before the first Stripe request so retries retain identical parameters.
+  checkoutMode?: "hosted" | "elements";
   expiresAt?: number;
   holdUntil?: number;
   durationMinutes?: number;

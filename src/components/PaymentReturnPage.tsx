@@ -1,6 +1,6 @@
 import { PaymentOptions } from "./PaymentOptions";
-import React, { useEffect, useState } from "react";
-import { CheckCircle2, Clock, RefreshCw } from "lucide-react";
+import React, { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { ArrowLeft, CheckCircle2, Clock, RefreshCw } from "lucide-react";
 import {
   money,
   courseOfferDescription,
@@ -10,6 +10,12 @@ import { getReceipt } from "../data/paymentApi";
 import { itemTotal } from "../../shared/bookingPricing";
 import { buttonClass, ErrorMessage } from "./PaymentUI";
 import type { PageTab } from "../types";
+
+const StripeCheckout = lazy(() =>
+  import("./StripeCheckout").then((module) => ({
+    default: module.StripeCheckout,
+  })),
+);
 
 export function PaymentReturnPage({
   onPaid,
@@ -24,9 +30,11 @@ export function PaymentReturnPage({
     new URLSearchParams(window.location.search).get("cancelled") === "1";
   const [record, setRecord] = useState<Receipt | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | undefined>();
+  const [customCheckout, setCustomCheckout] = useState(false);
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(true);
   const [refresh, setRefresh] = useState(0);
+  const refreshStatus = useCallback(() => setRefresh((r) => r + 1), []);
   useEffect(() => {
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -37,11 +45,15 @@ export function PaymentReturnPage({
         if (controller.signal.aborted) return;
         setRecord(result.receipt);
         setCheckoutUrl(result.checkoutUrl);
+        setCustomCheckout(!!result.customCheckout);
         setError("");
         if (result.receipt.paidPence > 0) onPaid(result.receipt);
         const pending = result.receipt.paymentStatus === "unpaid";
         setChecking(
-          pending && result.receipt.status !== "requested" && !cancelled,
+          pending &&
+            result.receipt.status !== "requested" &&
+            !cancelled &&
+            !result.customCheckout,
         );
         if (pending && ++attempts < 24) timer = setTimeout(poll, 5000);
         else setChecking(false);
@@ -84,11 +96,22 @@ export function PaymentReturnPage({
                 ? "Payment failed"
                 : cancelled
                   ? "Checkout cancelled"
-                  : checking
-                    ? "Checking payment…"
-                    : "Awaiting payment";
+                  : customCheckout && checkoutUrl
+                    ? "Secure checkout"
+                    : checking
+                      ? "Checking payment…"
+                      : "Awaiting payment";
   return (
     <section className="mx-auto max-w-2xl space-y-6 px-5 py-16 text-center">
+      <button
+        className="flex items-center gap-2 font-semibold underline"
+        onClick={() =>
+          onNavigate(record?.type === "booking" ? "home" : "basket")
+        }
+      >
+        <ArrowLeft size={20} />
+        Back
+      </button>
       {paid && record?.status !== "cancelled" ? (
         <CheckCircle2 className="mx-auto text-[#BE757C]" size={48} />
       ) : (
@@ -196,13 +219,26 @@ export function PaymentReturnPage({
           </div>
         </div>
       )}
-      {checkoutUrl && !paid && (
+      {customCheckout &&
+        checkoutUrl &&
+        !paid &&
+        record?.status === "awaiting_payment" &&
+        ["unpaid", "failed"].includes(record.paymentStatus) && (
+          <Suspense fallback={<p role="status">Loading payment options…</p>}>
+            <StripeCheckout
+              token={token}
+              amount={record.amountDuePence}
+              onConfirmed={refreshStatus}
+            />
+          </Suspense>
+        )}
+      {checkoutUrl && !customCheckout && !paid && (
         <div className="mx-auto mb-5 max-w-2xl text-left">
           <PaymentOptions />
         </div>
       )}
       <div className="flex flex-wrap justify-center gap-3">
-        {checkoutUrl && !paid && (
+        {checkoutUrl && !customCheckout && !paid && (
           <a className={buttonClass} href={checkoutUrl}>
             Continue to Stripe checkout
           </a>
