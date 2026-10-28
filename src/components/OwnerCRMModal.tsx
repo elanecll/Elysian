@@ -208,7 +208,7 @@ function ManualBooking({ onSaved }: { onSaved: () => void }) {
               setTime("");
             }}
           >
-            <PrimaryTreatmentOptions />
+            <PrimaryTreatmentOptions includePromotion={false} />
           </select>
         </Field>
         <Field
@@ -344,6 +344,9 @@ function RecordDetails({
           Requested appointment: {record.date} at {record.time}
           {record.isCourse ? ` · ${courseOfferDescription(record)}` : ""}
         </p>
+      )}
+      {record.promotion?.firstVisitConfirmed && (
+        <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">Weekly special: client confirmed their first treatment visit. Check eligibility during consultation. Offer dates: 1–8 November 2026.</p>
       )}
       {record.deliveryOption && (
         <p className="text-sm">

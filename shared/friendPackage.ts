@@ -1,4 +1,5 @@
 import type { Treatment, TreatmentPriceOption } from "../src/types.js";
+import { isWeeklySpecial } from "./weeklyPromotion.js";
 import { isStandaloneTreatment } from "./payments.js";
 
 export const FRIEND_PACKAGE_ID = "bring-a-friend-package";
@@ -13,6 +14,7 @@ export function friendPackageOptions(
       (service) =>
         ["facial", "body-massage", "hot-stone"].includes(service.category) &&
         !service.isAddon &&
+        !isWeeklySpecial(service.id) &&
         !service.comingSoon &&
         !isStandaloneTreatment(service.id),
     )

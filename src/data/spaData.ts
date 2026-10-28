@@ -1,4 +1,5 @@
 import type { Treatment, Review, FaqItem } from '../types.js';
+import { WEEKLY_SPECIAL } from '../../shared/weeklyPromotion.js';
 import { FACIAL_BUNDLE_ID, facialBundleOptions } from '../../shared/facialBundle.js';
 import { FRIEND_PACKAGE_ID, friendPackageOptions } from '../../shared/friendPackage.js';
 
@@ -590,6 +591,20 @@ const facialProductBundle = SPA_SERVICES.find((service) => service.id === FACIAL
 facialProductBundle.priceOptions = facialBundleOptions(SPA_SERVICES);
 const friendPackage = SPA_SERVICES.find(service => service.id === FRIEND_PACKAGE_ID)!;
 friendPackage.priceOptions = friendPackageOptions(SPA_SERVICES);
+
+// Added after package choices: weekly promotions are booked on their own terms.
+SPA_SERVICES.push({
+  id: WEEKLY_SPECIAL.id,
+  category: 'facial',
+  title: WEEKLY_SPECIAL.title,
+  tagline: 'FIRST-TIME CLIENT SPECIAL • CLINICARE PROFESSIONAL SKINCARE',
+  image: WEEKLY_SPECIAL.image,
+  duration: WEEKLY_SPECIAL.duration,
+  priceDisplay: '£50',
+  priceOptions: [{ duration: WEEKLY_SPECIAL.duration, priceClinicare: 50, priceSingle: 50 }],
+  description: 'A complete first-visit facial experience using Clinicare professional skincare, tailored following a consultation. For appointments from 1–8 November 2026, subject to availability.',
+  benefits: ['Clinicare professional skincare', 'Care tailored following a consultation', '40–50 minutes of facial care', 'First-time clients only'],
+});
 
 export const REVIEWS: Review[] = [
   {

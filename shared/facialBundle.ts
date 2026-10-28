@@ -1,4 +1,5 @@
 import type { Treatment, TreatmentPriceOption } from "../src/types.js";
+import { isWeeklySpecial } from "./weeklyPromotion.js";
 
 export const FACIAL_BUNDLE_ID = "facial-product-bundle-package";
 
@@ -7,7 +8,12 @@ export function facialBundleOptions(
   services: Treatment[],
 ): TreatmentPriceOption[] {
   return services
-    .filter((service) => service.category === "facial" && !service.isAddon)
+    .filter(
+      (service) =>
+        service.category === "facial" &&
+        !service.isAddon &&
+        !isWeeklySpecial(service.id),
+    )
     .flatMap((service) =>
       (service.priceOptions ?? []).flatMap((option, optionIndex) => {
         const price = option.priceClinicare ?? option.priceSingle;

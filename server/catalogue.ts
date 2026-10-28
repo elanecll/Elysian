@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  WEEKLY_SPECIAL,
+  isWeeklySpecial,
+  weeklySpecialDateAllowed,
+} from "../shared/weeklyPromotion.js";
 import { consultationSchema } from "./consultation.js";
 import { SPA_PRODUCTS } from "../src/data/shopData.js";
 import { SPA_SERVICES } from "../src/data/spaData.js";
@@ -51,6 +56,7 @@ export const shopSchema = z
 export const bookingSchema = z
   .object({
     consultation: consultationSchema,
+    firstVisitConfirmed: z.boolean().optional(),
     customer,
     treatments: z
       .array(
@@ -165,7 +171,28 @@ export function shopQuote(input: z.infer<typeof shopSchema>) {
 }
 export function bookingQuote(
   input: Omit<z.infer<typeof bookingSchema>, "consultation">,
+  options: { requireFirstVisitConfirmation?: boolean; now?: Date } = {},
 ) {
+  const special = input.treatments.some((t) => isWeeklySpecial(t.serviceId));
+  if (special) {
+    if (!isWeeklySpecial(input.treatments[0]?.serviceId))
+      throw new Error("Choose the weekly special as your primary treatment.");
+    if (!weeklySpecialDateAllowed(input.date, londonDate(options.now)))
+      throw new Error(
+        "This weekly special is only available for appointments on 1–8 November 2026.",
+      );
+    if (input.isCourse || input.courseSessions)
+      throw new Error(
+        "The first-time special is for one visit and cannot be combined with course offers.",
+      );
+    if (
+      options.requireFirstVisitConfirmation !== false &&
+      input.firstVisitConfirmed !== true
+    )
+      throw new Error(
+        "Confirm that this is your first treatment visit to Elysian to book this offer.",
+      );
+  }
   if (!input.isCourse && input.courseSessions)
     throw new Error("Select a course before choosing course offers.");
   const paidSessions = input.courseSessions ?? (input.isCourse ? 5 : 1);
@@ -298,6 +325,16 @@ export function bookingQuote(
   }
   return {
     items,
+    ...(special && input.firstVisitConfirmed === true
+      ? {
+          promotion: {
+            id: WEEKLY_SPECIAL.id,
+            startsOn: WEEKLY_SPECIAL.startsOn,
+            endsOn: WEEKLY_SPECIAL.endsOn,
+            firstVisitConfirmed: true as const,
+          },
+        }
+      : {}),
     courseSessions: paidSessions === 1 ? undefined : paidSessions,
     ...bookingTotals(items, paidSessions),
   };

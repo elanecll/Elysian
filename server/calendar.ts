@@ -399,16 +399,19 @@ export function durationForSelection(
   input: z.infer<typeof availabilitySchema>,
 ) {
   return treatmentMinutes(
-    bookingQuote({
-      ...input,
-      time: "12:00",
-      customer: {
-        name: "Availability",
-        email: "availability@example.com",
-        phone: "00000000",
-        notes: "",
+    bookingQuote(
+      {
+        ...input,
+        time: "12:00",
+        customer: {
+          name: "Availability",
+          email: "availability@example.com",
+          phone: "00000000",
+          notes: "",
+        },
       },
-    }).items,
+      { requireFirstVisitConfirmation: false },
+    ).items,
   );
 }
 export async function migrateDiary(store: Store) {

@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Navbar } from "./components/Navbar";
 import { HeroBanner } from "./components/HeroBanner";
+import { WeeklySpecial } from "./components/WeeklySpecial";
 import { ServiceHighlights } from "./components/ServiceHighlights";
 import { HotStoneBodyMassageSection } from "./components/HotStoneBodyMassageSection";
 import { ExperienceSection } from "./components/ExperienceSection";
@@ -309,6 +310,8 @@ export default function App() {
                 onOpenBooking={handleOpenBooking}
                 onExploreTreatments={handleExploreTreatments}
               />
+
+              <WeeklySpecial onBook={handleOpenBooking} />
 
               {/* 3 Pillars Deep Dive: Facial Aesthetics, Body Massage, Hot Stone Therapy */}
               <ServiceHighlights

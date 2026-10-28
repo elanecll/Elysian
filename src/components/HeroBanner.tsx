@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Calendar, Clock, Pause, Play } from "lucide-react";
 import { SPA_SERVICES } from "../data/spaData";
+import { isWeeklySpecial } from "../../shared/weeklyPromotion";
+const heroServices = SPA_SERVICES.filter((service) => !isWeeklySpecial(service.id));
 import type { Treatment } from "../types";
 
 interface HeroBannerProps {
@@ -41,8 +43,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   const [pageVisible, setPageVisible] = useState(true);
   const [headerHeight, setHeaderHeight] = useState(140);
   const reduceMotion = useReducedMotion();
-  const slideIndex = activeIndex % SPA_SERVICES.length;
-  const treatment = SPA_SERVICES[slideIndex];
+  const slideIndex = activeIndex % heroServices.length;
+  const treatment = heroServices[slideIndex];
   const rotating = playing && pageVisible;
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   useEffect(() => {
     if (!rotating) return;
     const timer = window.setInterval(
-      () => setActiveIndex((index) => (index + 1) % SPA_SERVICES.length),
+      () => setActiveIndex((index) => (index + 1) % heroServices.length),
       5000,
     );
     return () => window.clearInterval(timer);
@@ -120,7 +122,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               key={treatment.id}
               role="group"
               aria-roledescription="slide"
-              aria-label={`${slideIndex + 1} of ${SPA_SERVICES.length}: ${treatment.title}`}
+              aria-label={`${slideIndex + 1} of ${heroServices.length}: ${treatment.title}`}
               initial={reduceMotion ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.35 }}
@@ -199,7 +201,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               className="px-2 text-xs tabular-nums text-[#5C4A45]"
               aria-hidden="true"
             >
-              {String(slideIndex + 1).padStart(2, "0")} / {SPA_SERVICES.length}
+              {String(slideIndex + 1).padStart(2, "0")} / {heroServices.length}
             </span>
             <button
               type="button"

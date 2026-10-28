@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SPA_SERVICES } from '../data/spaData';
+import { isWeeklySpecial } from '../../shared/weeklyPromotion';
 import { FACIAL_BUNDLE_ID } from '../../shared/facialBundle';
 import { FacialIcon, LotusIcon, HotStoneIcon, PackagesIcon } from './SpaIcons';
 import { Clock, Sparkles, Check, ArrowRight, PlusCircle, Gift } from 'lucide-react';
@@ -50,6 +51,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
   ];
 
   const filteredTreatments = SPA_SERVICES.filter((treatment) => {
+    if (isWeeklySpecial(treatment.id)) return false;
     if (activeTab !== 'all' && treatment.category !== activeTab && !(activeTab === 'addons' && treatment.canBeAddon)) {
       return false;
     }

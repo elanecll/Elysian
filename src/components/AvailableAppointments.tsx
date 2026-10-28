@@ -17,6 +17,8 @@ export function AvailableAppointments({
   time,
   onDate,
   onTime,
+  minDate,
+  maxDate,
 }: {
   selection: Pick<
     BookingRequest,
@@ -26,6 +28,8 @@ export function AvailableAppointments({
     | "courseSessions"
     | "bundleProducts"
   >;
+  minDate?: string;
+  maxDate?: string;
   date: string;
   time: string;
   onDate: (value: string) => void;
@@ -88,8 +92,8 @@ export function AvailableAppointments({
             className={inputClass}
             type="date"
             required
-            min={londonDate()}
-            max={shiftDate(londonDate(), BOOKING_DAYS)}
+            min={minDate || londonDate()}
+            max={maxDate || shiftDate(londonDate(), BOOKING_DAYS)}
             value={date}
             onChange={(e) => {
               onTime("");

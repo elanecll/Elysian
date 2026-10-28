@@ -1,4 +1,11 @@
 import { PaymentOptions } from "./PaymentOptions";
+import {
+  WEEKLY_SPECIAL,
+  isWeeklySpecial,
+  weeklySpecialVisible,
+  weeklySpecialDateAllowed,
+} from "../../shared/weeklyPromotion";
+import { useLondonDate } from "../data/useLondonDate";
 import React, { useEffect, useRef, useState } from "react";
 import { AvailableAppointments } from "./AvailableAppointments";
 import { HealthScreening } from "./HealthScreening";
@@ -49,9 +56,12 @@ interface BookingModalProps {
   onOpenTerms?: () => void;
 }
 function BookingForm(props: BookingModalProps) {
+  const today = useLondonDate();
   const defaultService = SPA_SERVICES.find((s) => !s.isAddon && !s.comingSoon)!;
   const initialService = SPA_SERVICES.find(
-    (s) => s.id === props.preselectedServiceId,
+    (s) =>
+      s.id === props.preselectedServiceId &&
+      (!isWeeklySpecial(s.id) || weeklySpecialVisible(today)),
   );
   const [serviceId, setServiceId] = useState(
     initialService &&
@@ -74,8 +84,10 @@ function BookingForm(props: BookingModalProps) {
       ? preferred
       : Math.max(0, service.priceOptions?.findIndex((p) => !p.comingSoon) ?? 0);
   });
+  const isPromotion = isWeeklySpecial(serviceId);
+  const [firstVisitConfirmed, setFirstVisitConfirmed] = useState(false);
   const [paidSessions, setPaidSessions] = useState<1 | 5 | 10>(
-    props.initialIsCourse ? 5 : 1,
+    props.initialIsCourse && !isPromotion ? 5 : 1,
   );
   const isCourse = paidSessions !== 1;
   const [addons, setAddons] = useState<string[]>(
@@ -99,7 +111,13 @@ function BookingForm(props: BookingModalProps) {
   const isStandalone = isStandaloneTreatment(
     selectedTreatment?.id ?? serviceId,
   );
-  const [date, setDate] = useState(londonDate());
+  const [date, setDate] = useState(
+    isPromotion
+      ? today < WEEKLY_SPECIAL.startsOn
+        ? WEEKLY_SPECIAL.startsOn
+        : today
+      : today,
+  );
   const [time, setTime] = useState("");
   const [customer, setCustomer] = useState({
     name: "",
@@ -198,6 +216,15 @@ function BookingForm(props: BookingModalProps) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy || !time || !option) return;
+    if (
+      isPromotion &&
+      (!firstVisitConfirmed || !weeklySpecialDateAllowed(date, today))
+    ) {
+      setError(
+        "Confirm your first visit and choose an appointment on 1–8 November 2026.",
+      );
+      return;
+    }
     if (isBundle && !bundleProducts.length) {
       setError("Choose at least one skincare product for your bundle.");
       return;
@@ -206,6 +233,7 @@ function BookingForm(props: BookingModalProps) {
     setError("");
     const body: BookingRequest = {
       consultation,
+      ...(isPromotion ? { firstVisitConfirmed } : {}),
       customer,
       treatments: [
         { serviceId, optionIndex },
@@ -285,6 +313,15 @@ function BookingForm(props: BookingModalProps) {
               value={serviceId}
               onChange={(e) => {
                 setServiceId(e.target.value);
+                setFirstVisitConfirmed(false);
+                if (isWeeklySpecial(e.target.value)) {
+                  setPaidSessions(1);
+                  setDate(
+                    today < WEEKLY_SPECIAL.startsOn
+                      ? WEEKLY_SPECIAL.startsOn
+                      : today,
+                  );
+                }
                 setOptionIndex(
                   [FACIAL_BUNDLE_ID, FRIEND_PACKAGE_ID].includes(e.target.value)
                     ? -1
@@ -353,38 +390,71 @@ function BookingForm(props: BookingModalProps) {
             onChange={setBundleProducts}
           />
         )}
-        <fieldset className="space-y-2">
-          <legend className="mb-2 font-semibold">Course offers</legend>
-          {(
-            [
-              { sessions: 1, label: "Single session" },
-              { sessions: 5, label: FIVE_SESSION_OFFER },
-              { sessions: 10, label: TEN_SESSION_OFFER },
-            ] as const
-          ).map((offer) => (
-            <label
-              key={offer.sessions}
-              className="flex items-start gap-3 rounded-xl border border-[#E8BAC0]/50 p-3 text-sm"
-            >
-              <input
-                type="radio"
-                name="course-offer"
-                className="mt-1"
-                checked={paidSessions === offer.sessions}
-                onChange={() => {
-                  setPaidSessions(offer.sessions);
-                }}
-              />
-              <span>{offer.label}</span>
-            </label>
-          ))}
-          {isCourse && (
-            <p className="text-xs text-[#7A5852]">
-              Your course discount is included in the total. Later visits are
-              arranged separately with the owner.
+        {isPromotion && (
+          <div className="rounded-xl border border-[#E8BAC0]/50 bg-[#FAF0F2] p-4 text-sm">
+            <p className="font-semibold">
+              First-time client offer · £50, usually £70 ·{" "}
+              {WEEKLY_SPECIAL.datesLabel}
             </p>
-          )}
-        </fieldset>
+            <p className="mt-2">
+              One promotional visit per client. Cannot be combined with course
+              or package offers. Add any eligible extras below at their
+              displayed prices.
+            </p>
+            <label className="mt-3 flex items-start gap-3">
+              <input
+                type="checkbox"
+                required
+                checked={firstVisitConfirmed}
+                onChange={(e) => setFirstVisitConfirmed(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                I confirm this is my first treatment visit to Elysian Beauty
+                Spa.
+              </span>
+            </label>
+            {!weeklySpecialVisible(today) && (
+              <p role="alert" className="mt-3 text-red-700">
+                This offer has ended. Please choose another treatment.
+              </p>
+            )}
+          </div>
+        )}
+        {!isPromotion && (
+          <fieldset className="space-y-2">
+            <legend className="mb-2 font-semibold">Course offers</legend>
+            {(
+              [
+                { sessions: 1, label: "Single session" },
+                { sessions: 5, label: FIVE_SESSION_OFFER },
+                { sessions: 10, label: TEN_SESSION_OFFER },
+              ] as const
+            ).map((offer) => (
+              <label
+                key={offer.sessions}
+                className="flex items-start gap-3 rounded-xl border border-[#E8BAC0]/50 p-3 text-sm"
+              >
+                <input
+                  type="radio"
+                  name="course-offer"
+                  className="mt-1"
+                  checked={paidSessions === offer.sessions}
+                  onChange={() => {
+                    setPaidSessions(offer.sessions);
+                  }}
+                />
+                <span>{offer.label}</span>
+              </label>
+            ))}
+            {isCourse && (
+              <p className="text-xs text-[#7A5852]">
+                Your course discount is included in the total. Later visits are
+                arranged separately with the owner.
+              </p>
+            )}
+          </fieldset>
+        )}
         <section aria-labelledby="ritual-addons-heading">
           <h3 id="ritual-addons-heading" className="mb-3 font-display text-xl">
             Add to your ritual
@@ -456,6 +526,14 @@ function BookingForm(props: BookingModalProps) {
               courseSessions: paidSessions === 1 ? undefined : paidSessions,
               ...(isBundle ? { bundleProducts } : {}),
             }}
+            minDate={
+              isPromotion
+                ? today > WEEKLY_SPECIAL.startsOn
+                  ? today
+                  : WEEKLY_SPECIAL.startsOn
+                : undefined
+            }
+            maxDate={isPromotion ? WEEKLY_SPECIAL.endsOn : undefined}
             date={date}
             time={time}
             onDate={setDate}
@@ -664,7 +742,12 @@ function BookingForm(props: BookingModalProps) {
           type="submit"
           className={`${buttonClass} flex items-center gap-2`}
           disabled={
-            busy || !option || !time || (isBundle && !bundleProducts.length)
+            busy ||
+            !option ||
+            !time ||
+            (isBundle && !bundleProducts.length) ||
+            (isPromotion &&
+              (!firstVisitConfirmed || !weeklySpecialDateAllowed(date, today)))
           }
         >
           <Calendar size={16} />

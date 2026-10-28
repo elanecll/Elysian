@@ -31,6 +31,7 @@ export interface BookingRequest {
   isCourse: boolean;
   courseSessions?: 5 | 10;
   bundleProducts?: BundleProductSelection[];
+  firstVisitConfirmed?: boolean;
 }
 export interface ShopRequest {
   customer: Customer;
@@ -66,6 +67,12 @@ export type RecordStatus =
   | "dispatched"
   | "expired";
 export interface PaymentRecord {
+  promotion?: {
+    id: string;
+    startsOn: string;
+    endsOn: string;
+    firstVisitConfirmed: true;
+  };
   bundlePricing?: BundlePricing;
   consultationStatus?: ConsultationStatus;
   id: string;

@@ -1,4 +1,9 @@
 import React from "react";
+import {
+  isWeeklySpecial,
+  weeklySpecialVisible,
+} from "../../shared/weeklyPromotion";
+import { useLondonDate } from "../data/useLondonDate";
 import { SPA_SERVICES } from "../data/spaData";
 import type { Treatment } from "../types";
 import { FACIAL_BUNDLE_ID } from "../../shared/facialBundle";
@@ -19,8 +24,17 @@ function alphabetical(a: string, b: string) {
   return a.localeCompare(b, "en-GB", { sensitivity: "base", numeric: true });
 }
 
-export function PrimaryTreatmentOptions() {
-  const services = SPA_SERVICES.filter((s) => !s.isAddon && !s.comingSoon);
+export function PrimaryTreatmentOptions({
+  includePromotion = true,
+}: { includePromotion?: boolean } = {}) {
+  const today = useLondonDate();
+  const services = SPA_SERVICES.filter(
+    (s) =>
+      !s.isAddon &&
+      !s.comingSoon &&
+      (!isWeeklySpecial(s.id) ||
+        (includePromotion && weeklySpecialVisible(today))),
+  );
   return (
     <>
       {groups.map((group) => (
