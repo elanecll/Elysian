@@ -28,8 +28,19 @@ const customer = z
       .max(30)
       .regex(/^[+\d\s().-]+$/),
     notes: z.string().trim().max(2000).default(""),
+    whatsappUpdates: z.boolean().optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (value) =>
+      !value.whatsappUpdates ||
+      /^\+[1-9]\d{7,14}$/.test(value.phone.replace(/[\s().-]/g, "")),
+    {
+      path: ["phone"],
+      message:
+        "Include your country code for WhatsApp updates, for example +447700900123.",
+    },
+  );
 export const shopSchema = z
   .object({
     customer,

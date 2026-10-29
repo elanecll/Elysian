@@ -11,6 +11,7 @@ export interface Customer {
   email: string;
   phone: string;
   notes: string;
+  whatsappUpdates?: boolean;
 }
 
 export interface TreatmentSelection {

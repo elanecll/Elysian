@@ -1,3 +1,4 @@
+import { NotificationPreferences } from "./NotificationPreferences";
 import { PaymentOptions } from "./PaymentOptions";
 import {
   WEEKLY_SPECIAL,
@@ -124,6 +125,7 @@ function BookingForm(props: BookingModalProps) {
     email: "",
     phone: "",
     notes: "",
+    whatsappUpdates: false,
   });
   const [busy, setBusy] = useState(false);
   const [consultation, setConsultation] = useState(blankConsultation);
@@ -597,6 +599,12 @@ function BookingForm(props: BookingModalProps) {
             />
           </Field>
         </div>
+        <NotificationPreferences
+          checked={customer.whatsappUpdates}
+          onChange={(whatsappUpdates) =>
+            setCustomer({ ...customer, whatsappUpdates })
+          }
+        />
         <HealthScreening
           serviceIds={[
             serviceId,

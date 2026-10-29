@@ -1894,3 +1894,100 @@ test("custom checkout configuration requires keys in the selected payment mode",
     });
   }
 });
+
+test("verified product payments email buyer and owner once through webhooks and receipt catch-up", async () => {
+  const sent: NotificationJob[] = [];
+  const f = setup(
+    ":memory:",
+    {
+      enabled: true,
+      ownerEmail: "owner@example.com",
+      ownerWhatsapp: "+447700900123",
+      resendApiKey: "re_fixture",
+      emailFrom: "Elysian <orders@spa.example>",
+    },
+    {
+      send: async (job) => {
+        sent.push(job);
+        return job.id;
+      },
+    },
+  );
+  const created = await f.createShop();
+  const record = f.store.byReceipt(created.receiptToken)!;
+  assert.equal(sent.length, 0);
+  f.pay(record.stripeSessionId!);
+  assert.equal(
+    (
+      await f.webhook("checkout.session.completed", {
+        id: record.stripeSessionId!,
+      })
+    ).status,
+    200,
+  );
+  assert.equal(
+    (
+      await f.webhook("checkout.session.completed", {
+        id: record.stripeSessionId!,
+      })
+    ).status,
+    200,
+  );
+  await request(f.app).get(`/api/receipts/${created.receiptToken}`).expect(200);
+  assert.equal(sent.length, 2);
+  assert.ok(
+    sent.every(
+      (job) => job.event === "order_confirmed" && job.channel === "email",
+    ),
+  );
+  const cookie = await f.login();
+  const feed = await f
+    .post(`/api/owner/records/${record.id}/notifications`)
+    .set("Cookie", cookie)
+    .send({})
+    .expect(200);
+  assert.equal(sent.length, 2);
+  assert.ok(
+    feed.body.notifications.some(
+      (job: NotificationJob) =>
+        job.audience === "customer" && job.status === "accepted",
+    ),
+  );
+  const older = await f.createShop();
+  const oldRecord = f.store.byReceipt(older.receiptToken)!;
+  f.store.save({
+    ...oldRecord,
+    status: "confirmed",
+    paymentStatus: "paid",
+    paidPence: oldRecord.amountDuePence,
+  });
+  await request(f.app).get(`/api/receipts/${older.receiptToken}`).expect(200);
+  await request(f.app).get(`/api/receipts/${older.receiptToken}`).expect(200);
+  assert.equal(sent.length, 4);
+});
+
+test("WhatsApp opt-in is explicit and needs an international phone number", () => {
+  assert.equal(shopSchema.parse(shop).customer.whatsappUpdates, undefined);
+  assert.equal(
+    shopSchema.parse({
+      ...shop,
+      customer: { ...customer, whatsappUpdates: true },
+    }).customer.whatsappUpdates,
+    true,
+  );
+  assert.throws(
+    () =>
+      shopSchema.parse({
+        ...shop,
+        customer: { ...customer, phone: "07700900123", whatsappUpdates: true },
+      }),
+    /country code/,
+  );
+  assert.equal(
+    shopSchema.parse({
+      ...shop,
+      customer: { ...customer, phone: "07700900123", whatsappUpdates: false },
+    }).customer.whatsappUpdates,
+    false,
+  );
+});

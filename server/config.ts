@@ -25,6 +25,7 @@ export interface Config {
     twilioAuthToken?: string;
     whatsappFrom?: string;
     whatsappTemplateSid?: string;
+    whatsappCustomerTemplateSid?: string;
     retrySecret?: string;
   };
 }
@@ -105,6 +106,8 @@ export function loadConfig(): Config {
       twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
       whatsappFrom: process.env.TWILIO_WHATSAPP_FROM,
       whatsappTemplateSid: process.env.TWILIO_WHATSAPP_TEMPLATE_SID,
+      whatsappCustomerTemplateSid:
+        process.env.TWILIO_CUSTOMER_WHATSAPP_TEMPLATE_SID,
       retrySecret: process.env.NOTIFICATION_RETRY_SECRET,
     },
   };

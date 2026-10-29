@@ -10,6 +10,7 @@ import {
   notificationFeed,
   notificationTransport,
   queueBookingNotice,
+  queueOrderNotice,
   recordEmailDelivery,
   type NotificationJob,
 } from "../server/notifications";
@@ -412,5 +413,240 @@ test("notification jobs roll back with booking changes and accepted sends surviv
   } finally {
     store.close();
     rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("paid product orders notify buyer and owner once with exact totals and no private notes", async () => {
+  const { store, booking: sale } = setup();
+  const sent: NotificationJob[] = [];
+  const transport = {
+    send: async (job: NotificationJob) => {
+      sent.push(job);
+      return job.id;
+    },
+  };
+  try {
+    Object.assign(sale, {
+      type: "sale",
+      date: undefined,
+      time: undefined,
+      status: "awaiting_payment",
+      totalPence: 1000,
+      amountDuePence: 1000,
+      items: [
+        {
+          id: "mask",
+          name: "Carbon Mask",
+          kind: "product",
+          quantity: 1,
+          unitPricePence: 1000,
+        },
+      ],
+      deliveryOption: "collection",
+    });
+    store.save(sale);
+    await queueOrderNotice(store, config, sale);
+    await dispatchNotifications(store, config, transport);
+    assert.equal(sent.length, 0);
+    Object.assign(sale, {
+      status: "confirmed",
+      paymentStatus: "paid",
+      paidPence: 1000,
+    });
+    store.save(sale);
+    await queueOrderNotice(store, config, sale);
+    await queueOrderNotice(store, config, sale);
+    await Promise.all([
+      dispatchNotifications(store, config, transport),
+      dispatchNotifications(store, config, transport),
+    ]);
+    assert.equal(sent.length, 3);
+    const buyer = sent.find((job) => job.audience === "customer")!;
+    assert.match(buyer.text, /1× Carbon Mask — £10.00/);
+    assert.match(buyer.text, /Payment received: £10.00/);
+    assert.match(buyer.text, /Collection/);
+    assert.doesNotMatch(
+      JSON.stringify(sent),
+      /PRIVATE|appointment confirmed|deposit/,
+    );
+    assert.ok(
+      sent
+        .filter((job) => job.audience === "owner")
+        .every((job) => !job.text.includes("private-receipt")),
+    );
+    sale.status = "dispatched";
+    store.save(sale);
+    await queueOrderNotice(store, config, sale);
+    await dispatchNotifications(store, config, transport);
+    assert.equal(sent.length, 3);
+    const feed = await notificationFeed(store, config, transport, sale.id);
+    assert.ok(
+      feed.notifications.every(
+        (job) => job.event === "order_confirmed" && job.status === "accepted",
+      ),
+    );
+  } finally {
+    store.close();
+  }
+});
+
+test("queued product confirmations are skipped after cancellation or refund", async () => {
+  for (const status of ["cancelled", "refund"]) {
+    const { store, booking: sale } = setup();
+    try {
+      Object.assign(sale, {
+        type: "sale",
+        status: "confirmed",
+        paymentStatus: "paid",
+        paidPence: 10500,
+        amountDuePence: 10500,
+      });
+      store.save(sale);
+      await queueOrderNotice(store, config, sale);
+      if (status === "refund") {
+        sale.refundedPence = 10500;
+        sale.paymentStatus = "refunded";
+      } else sale.status = "cancelled";
+      store.save(sale);
+      let sends = 0;
+      const transport = {
+        send: async () => {
+          sends++;
+          return "not-sent";
+        },
+      };
+      await dispatchNotifications(store, config, transport);
+      assert.equal(sends, 0);
+      assert.ok(
+        (
+          await notificationFeed(store, config, transport, sale.id)
+        ).notifications.every((job) => job.status === "skipped"),
+      );
+    } finally {
+      store.close();
+    }
+  }
+});
+
+test("customer WhatsApp requires opt-in and its own approved template; all four notices are dispatched", async (t) => {
+  const { store, booking } = setup();
+  try {
+    booking.status = "confirmed";
+    booking.paymentStatus = "paid";
+    booking.paidPence = 5250;
+    booking.customer.whatsappUpdates = true;
+    store.save(booking);
+    const connected = {
+      ...config,
+      notifications: {
+        ...config.notifications!,
+        whatsappCustomerTemplateSid: "HXcustomer",
+      },
+    };
+    await queueBookingNotice(store, connected, booking, "booking_confirmed");
+    const calls: { url: string; init: RequestInit }[] = [];
+    const fetcher = (async (url: string | URL | Request, init: RequestInit) => {
+      calls.push({ url: String(url), init });
+      return new Response(
+        JSON.stringify({ id: "email-id", sid: "SMfixture" }),
+        { status: 200 },
+      );
+    }) as typeof fetch;
+    t.mock.method(globalThis, "fetch", fetcher);
+    await dispatchNotifications(
+      store,
+      connected,
+      notificationTransport(connected, fetcher),
+    );
+    assert.equal(calls.length, 4);
+    const forms = calls
+      .filter((call) => call.url.includes("twilio.com"))
+      .map((call) => new URLSearchParams(call.init.body as string));
+    const customer = forms.find(
+      (form) => form.get("To") === "whatsapp:+447700900125",
+    )!;
+    assert.equal(customer.get("ContentSid"), "HXcustomer");
+    assert.match(
+      JSON.parse(customer.get("ContentVariables")!)["6"],
+      /receipt=/,
+    );
+    assert.ok(
+      forms
+        .find((form) => form.get("To") === "whatsapp:+447700900123")
+        ?.get("ContentSid") === "HXfixture",
+    );
+  } finally {
+    store.close();
+  }
+});
+
+test("product receipt emails bypass appointment templates and preserve discounts and delivery totals", async (t) => {
+  const { store, booking: sale } = setup();
+  try {
+    Object.assign(sale, {
+      type: "sale",
+      status: "confirmed",
+      paymentStatus: "paid",
+      paidPence: 3455,
+      amountDuePence: 3455,
+      totalPence: 3455,
+      discountPence: 340,
+      shippingPence: 395,
+      deliveryOption: "delivery",
+      items: [
+        {
+          id: "kit",
+          name: "Skincare kit",
+          quantity: 1,
+          unitPricePence: 3400,
+          kind: "product",
+        },
+      ],
+    });
+    store.save(sale);
+    const calls: RequestInit[] = [];
+    t.mock.method(
+      globalThis,
+      "fetch",
+      async (_url: unknown, init: RequestInit) => {
+        calls.push(init);
+        return new Response(JSON.stringify({ id: "email-order" }), {
+          status: 200,
+        });
+      },
+    );
+    const connected = {
+      ...config,
+      notifications: {
+        ...config.notifications!,
+        resendTemplates: {
+          owner: "owner-appointment-template",
+          booking_confirmed: "client-appointment-template",
+        },
+      },
+    };
+    await queueOrderNotice(store, connected, sale);
+    await dispatchNotifications(
+      store,
+      {
+        ...connected,
+        notifications: {
+          ...connected.notifications,
+          whatsappTemplateSid: undefined,
+        },
+      },
+      notificationTransport(connected),
+    );
+    assert.equal(calls.length, 2);
+    for (const call of calls) {
+      const body = JSON.parse(call.body as string);
+      assert.equal(body.template, undefined);
+      assert.match(body.text, /Discount: -£3.40/);
+      assert.match(body.text, /Delivery: £3.95/);
+      assert.match(body.text, /Total: £34.55/);
+      assert.doesNotMatch(body.text, /PRIVATE/);
+    }
+  } finally {
+    store.close();
   }
 });

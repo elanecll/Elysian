@@ -50,6 +50,7 @@ import { exclusive } from "./storage.js";
 import type { Config } from "./config.js";
 import {
   queueBookingNotice,
+  queueOrderNotice,
   dispatchNotifications,
   notificationFeed,
   notificationReadiness,
@@ -244,6 +245,8 @@ export function createApp(
               record,
               "booking_confirmed",
             );
+          if (record.type === "sale")
+            await queueOrderNotice(store, config, record);
         } else if (
           session.status === "expired" &&
           record.status !== "cancelled" &&
@@ -1198,6 +1201,11 @@ export function createApp(
       // Server retrieval also confirms payment when the webhook is delayed; the URL alone never does.
       if (record.stripeSessionId && record.paidPence === 0)
         record = await reconcile(record.stripeSessionId);
+      // Catch up a previously verified product payment that predates order emails.
+      if (record.type === "sale" && record.paidPence > 0) {
+        await store.transaction(() => queueOrderNotice(store, config, record));
+        await sendNotices(record.id);
+      }
       res.json({
         receipt: receipt(record),
         checkoutUrl: record.paidPence ? undefined : record.checkoutUrl,
@@ -1287,11 +1295,12 @@ export function createApp(
     authenticate,
     route(async (req, res) => {
       const record = await store.get(req.params.id);
-      if (!record || record.type !== "booking")
-        throw new HttpError(404, "Booking not found.");
-      // Explicit catch-up for existing bookings such as Amanda's. Never invent
+      if (!record) throw new HttpError(404, "Record not found.");
+      // Explicit catch-up for existing records. Never invent
       // an approval or payment; send only the event matching current state.
       await store.transaction(async () => {
+        if (record.type === "sale")
+          return queueOrderNotice(store, config, record);
         await queueBookingNotice(
           store,
           config,
@@ -1312,7 +1321,7 @@ export function createApp(
     authenticate,
     route(async (req, res) => {
       const record = await store.get(req.params.id);
-      if (!record) throw new HttpError(404, "Booking not found.");
+      if (!record) throw new HttpError(404, "Record not found.");
       await sendNotices(record.id);
       res.json(await notificationFeed(store, config, messenger, record.id));
     }),

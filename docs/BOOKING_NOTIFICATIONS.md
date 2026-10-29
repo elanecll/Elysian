@@ -1,8 +1,8 @@
-# Booking notification activation
+# Booking and product notification activation
 
 The integration sends only when the corresponding service is configured and
 `NOTIFICATIONS_ENABLED=true`. Resend setup uses the verified notifications subdomain
-and four published templates; WhatsApp still needs a business messaging sender. A Hotmail address and a normal WhatsApp profile are recipients,
+and four published appointment templates; paid product orders use dedicated plain-text receipts. WhatsApp still needs a business messaging sender. A Hotmail address and a normal WhatsApp profile are recipients,
 not automatic sending services. No provider account, subscription or paid sender
 has been purchased by this change.
 
@@ -14,7 +14,20 @@ has been purchased by this change.
 | Owner approves consultation, availability and quote | Email with the exact Stripe deposit link, amount due and expiry | Approval remains in CRM              |
 | Stripe verifies the deposit                         | Email confirming appointment, amount paid and remaining balance | WhatsApp confirmation and email copy |
 
-Clients receive email; this implementation does not send clients WhatsApp messages.
+Clients receive email. Customers can additionally opt into WhatsApp updates when a separate approved customer utility template and Business sender are configured. The opt-in is unchecked by default, requires an international-format number, and stays hidden while that service is unavailable.
+
+Verified product purchases send an itemised order/payment confirmation to the buyer and an email copy to the owner. Owner WhatsApp alerts are queued separately when connected. Product receipts include item quantities, subtotal item prices, any discount, delivery charge, total and amount paid; appointment templates are never used for product orders. No receipt is sent for an unpaid, cancelled or refunded order. Repeated Stripe webhooks or receipt refreshes reuse one durable notification ID per recipient/channel, so accepted messages are not sent twice.
+
+The existing paid product order can catch up when its receipt is refreshed, or through **Customer notifications → Send pending messages** in the CRM. This queues only a currently valid payment confirmation; it does not create, repeat or change a payment. Delivery state remains separate from payment state.
+
+Customer utility template configuration: `TWILIO_CUSTOMER_WHATSAPP_TEMPLATE_SID`.
+Use a separate approved template with this exact variable order:
+
+```text
+Elysian update: {{1}}. Hello {{2}}. Details: {{3}}. Reference: {{4}}. {{5}} View: {{6}}.
+```
+
+Variables: update title, customer name, appointment/date or product-order delivery mode, reference, payment detail, and the customer's status/payment URL. Owner links must never be placed in customer templates. No marketing or private health/owner notes are sent.
 The approval email explicitly says payment is required before confirmation.
 The server calculates the amount: for an ordinary £105 booking, the deposit is
 £52.50. Facial/product bundles also collect the discounted products in full.

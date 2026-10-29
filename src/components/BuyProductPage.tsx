@@ -1,3 +1,4 @@
+import { NotificationPreferences } from "./NotificationPreferences";
 import { PaymentOptions } from "./PaymentOptions";
 import React, { useRef, useState } from "react";
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
@@ -26,6 +27,7 @@ export function BuyProductPage({
     email: "",
     phone: "",
     notes: "",
+    whatsappUpdates: false,
   });
   const [deliveryOption, setDeliveryOption] = useState<
     "collection" | "delivery"
@@ -198,6 +200,12 @@ export function BuyProductPage({
               />
             </Field>
           </div>
+          <NotificationPreferences
+            checked={customer.whatsappUpdates}
+            onChange={(whatsappUpdates) =>
+              setCustomer({ ...customer, whatsappUpdates })
+            }
+          />
           <Field label="Delivery">
             <select
               className={inputClass}

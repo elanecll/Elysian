@@ -1,5 +1,8 @@
 export type BookingNotice =
-  "request_received" | "deposit_ready" | "booking_confirmed";
+  | "request_received"
+  | "deposit_ready"
+  | "booking_confirmed"
+  | "order_confirmed";
 export type NotificationStatus =
   | "pending"
   | "not_configured"
@@ -21,5 +24,6 @@ export interface NotificationSummary {
 export interface NotificationFeed {
   emailConfigured: boolean;
   whatsappConfigured: boolean;
+  customerWhatsappConfigured?: boolean;
   notifications: NotificationSummary[];
 }

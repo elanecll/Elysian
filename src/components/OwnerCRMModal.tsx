@@ -346,7 +346,10 @@ function RecordDetails({
         </p>
       )}
       {record.promotion?.firstVisitConfirmed && (
-        <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">Weekly special: client confirmed their first treatment visit. Check eligibility during consultation. Offer dates: 1–8 November 2026.</p>
+        <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
+          Weekly special: client confirmed their first treatment visit. Check
+          eligibility during consultation. Offer dates: 1–8 November 2026.
+        </p>
       )}
       {record.deliveryOption && (
         <p className="text-sm">
@@ -488,9 +491,7 @@ function RecordDetails({
           </button>
         </div>
       )}
-      {record.type === "booking" && (
-        <BookingNotifications recordId={record.id} onAuthError={onAuthError} />
-      )}
+      <BookingNotifications recordId={record.id} onAuthError={onAuthError} />
       <Field label="Owner notes">
         <textarea
           className={inputClass}
@@ -541,8 +542,8 @@ function RecordDetails({
         )}
       </div>
       <p className="text-xs text-[#7A5852]">
-        Check Booking notifications for message status. Refunds are initiated in
-        the Stripe dashboard and synced when its refund event arrives.
+        Check Customer notifications for message status. Refunds are initiated
+        in the Stripe dashboard and synced when its refund event arrives.
       </p>
       <ErrorMessage error={error} />
       {message && (

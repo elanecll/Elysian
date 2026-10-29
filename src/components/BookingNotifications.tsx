@@ -11,6 +11,7 @@ const eventNames: Record<BookingNotice, string> = {
   request_received: "Request received",
   deposit_ready: "Approval and payment link",
   booking_confirmed: "Payment and booking confirmation",
+  order_confirmed: "Product payment and order confirmation",
 };
 const statusNames: Record<NotificationStatus, string> = {
   pending: "Waiting to send",
@@ -81,9 +82,9 @@ export function BookingNotifications({
   return (
     <section
       className="space-y-3 rounded-xl border border-[#E8BAC0] bg-[#FAF0F2] p-4"
-      aria-label="Booking notifications"
+      aria-label="Customer notifications"
     >
-      <h4 className="font-semibold">Booking notifications</h4>
+      <h4 className="font-semibold">Customer notifications</h4>
       {feed && (
         <>
           <p className="text-sm">
@@ -92,11 +93,17 @@ export function BookingNotifications({
             WhatsApp alerts:{" "}
             {feed.whatsappConfigured ? "Connected" : "Setup required"}
           </p>
-          {(!feed.emailConfigured || !feed.whatsappConfigured) && (
+          {!feed.emailConfigured && (
             <p className="text-sm">
-              Automatic sending needs an email service and a WhatsApp Business
-              sender. Your contact address and WhatsApp app alone do not
-              activate it. Until connected, send the checkout link manually.
+              Email sending needs setup. Until connected, share the payment link
+              manually.
+            </p>
+          )}
+          {(!feed.whatsappConfigured || !feed.customerWhatsappConfigured) && (
+            <p className="text-sm">
+              WhatsApp sending needs an approved WhatsApp Business sender and
+              message templates. Email works independently. Clients receive
+              WhatsApp only when they choose it.
             </p>
           )}
           {feed.notifications.length ? (
@@ -115,7 +122,7 @@ export function BookingNotifications({
             </ul>
           ) : (
             <p className="text-sm">
-              No automatic messages have been recorded for this booking.
+              No automatic messages have been recorded for this record.
             </p>
           )}
           <div className="flex flex-wrap gap-3">
