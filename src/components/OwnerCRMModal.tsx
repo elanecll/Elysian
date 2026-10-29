@@ -562,7 +562,7 @@ function Dashboard() {
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState("current");
   const [error, setError] = useState("");
   const [manual, setManual] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
@@ -629,12 +629,19 @@ function Dashboard() {
   const filtered = records.filter(
     (r) =>
       (filter === "all" || r.type === filter) &&
-      (status === "all" || r.paymentStatus === status) &&
+      (status === "current"
+        ? !(
+            r.type === "sale" &&
+            (r.status === "expired" || r.paymentStatus === "expired") &&
+            r.paidPence === 0 &&
+            r.refundedPence === 0
+          )
+        : status === "all" || r.paymentStatus === status) &&
       `${r.id} ${r.customer.name} ${r.customer.email} ${r.customer.phone}`
         .toLowerCase()
         .includes(query.toLowerCase()),
   );
-  const active = records.find((r) => r.id === selected);
+  const active = filtered.find((r) => r.id === selected);
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap gap-3">
@@ -760,6 +767,7 @@ function Dashboard() {
               onChange={(e) => setStatus(e.target.value)}
             >
               {[
+                "current",
                 "all",
                 "unpaid",
                 "paid",
@@ -769,7 +777,11 @@ function Dashboard() {
                 "refunded",
               ].map((s) => (
                 <option key={s} value={s}>
-                  {s.replaceAll("_", " ")}
+                  {s === "current"
+                    ? "Hide expired purchases"
+                    : s === "all"
+                      ? "All payment statuses"
+                      : s.replaceAll("_", " ")}
                 </option>
               ))}
             </select>
