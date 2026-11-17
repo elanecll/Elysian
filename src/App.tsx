@@ -277,7 +277,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9F9] text-[#3D2B27] flex flex-col selection:bg-[#E8BAC0] selection:text-[#3D2B27]">
+    <div className="min-h-screen bg-[#FAF7F1] text-[#493A2D] flex flex-col selection:bg-[#D6C3A3] selection:text-[#493A2D]">
 
       {/* Header Navigation with Multi-Page Tabs */}
       <Navbar
@@ -322,17 +322,17 @@ export default function App() {
               <HotStoneBodyMassageSection onOpenBooking={handleOpenBooking} />
 
               {/* Quick Sanctuary Experience Teaser */}
-              <section className="py-16 bg-[#FAF3F3] border-y border-[#E8BAC0]/30">
+              <section className="py-16 bg-[#F4EFE6] border-y border-[#D6C3A3]/30">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-                  <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E8BAC0]/50 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8">
+                  <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#D6C3A3]/50 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8">
                     <div className="max-w-2xl text-center lg:text-left">
-                      <span className="text-[11px] tracking-[0.3em] uppercase text-[#BE757C] font-semibold font-sans-clean">
+                      <span className="text-[11px] tracking-[0.3em] uppercase text-[#806035] font-semibold font-sans-clean">
                         THE ELYSIAN PROMISE
                       </span>
-                      <h3 className="text-2xl sm:text-3xl lg:text-4xl font-display text-[#3D2B27] mt-2 mb-3">
+                      <h3 className="text-2xl sm:text-3xl lg:text-4xl font-display text-[#493A2D] mt-2 mb-3">
                         Experience Our Dedicated Sanctuary
                       </h3>
-                      <p className="text-sm sm:text-base font-serif-luxury italic text-[#5C4A45] leading-relaxed">
+                      <p className="text-sm sm:text-base font-serif-luxury italic text-[#71604E] leading-relaxed">
                         Immerse in private sound-insulated acoustic suites,
                         heated memory foam beds, organic botanical oils, and
                         complimentary tea lounge relaxation.
@@ -342,13 +342,13 @@ export default function App() {
                     <div className="flex flex-wrap items-center justify-center gap-3">
                       <button
                         onClick={() => handleNavigate("reviews")}
-                        className="px-6 py-3 rounded-full border border-[#BE757C]/50 hover:border-[#BE757C] text-[#3D2B27] hover:text-[#BE757C] bg-[#FFF9F9] font-medium text-xs tracking-widest uppercase transition-all cursor-pointer"
+                        className="px-6 py-3 rounded-full border border-[#806035]/50 hover:border-[#806035] text-[#493A2D] hover:text-[#806035] bg-[#FAF7F1] font-medium text-xs tracking-widest uppercase transition-all cursor-pointer"
                       >
                         Our Philosophy
                       </button>
                       <button
                         onClick={() => handleNavigate("treatments")}
-                        className="px-6 py-3 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-xs tracking-widest uppercase transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center gap-2"
+                        className="px-6 py-3 rounded-full bg-[#806035] hover:bg-[#684B2A] text-white font-medium text-xs tracking-widest uppercase transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center gap-2"
                       >
                         <span>View Treatment Menu</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -359,23 +359,23 @@ export default function App() {
               </section>
 
               {/* Quick Reviews Preview Bar */}
-              <section className="py-14 bg-[#FFF9F9]">
+              <section className="py-14 bg-[#FAF7F1]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 text-center">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFF0F2] text-[#BE757C] text-xs font-semibold uppercase tracking-wider mb-4 border border-[#BE757C]/20">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F1EADC] text-[#806035] text-xs font-semibold uppercase tracking-wider mb-4 border border-[#806035]/20">
                     <Star className="w-3.5 h-3.5 fill-current" />
                     <span>5.0 Star Guest Rated Sanctuary in Blackpool</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-display text-[#3D2B27] mb-2">
+                  <h3 className="text-xl sm:text-2xl font-display text-[#493A2D] mb-2">
                     Loved for Tailored Care &amp; Deep Radiance
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#5C4A45] font-serif-luxury italic max-w-xl mx-auto mb-6">
+                  <p className="text-xs sm:text-sm text-[#71604E] font-serif-luxury italic max-w-xl mx-auto mb-6">
                     "From the moment you walk in, the tension leaves your
                     shoulders. The hot stones and facial left my skin glowing
                     for weeks."
                   </p>
                   <button
                     onClick={() => handleNavigate("reviews")}
-                    className="inline-flex items-center gap-1.5 text-xs text-[#BE757C] hover:text-[#9F5158] font-bold uppercase tracking-widest cursor-pointer underline underline-offset-4"
+                    className="inline-flex items-center gap-1.5 text-xs text-[#806035] hover:text-[#6E4F2B] font-bold uppercase tracking-widest cursor-pointer underline underline-offset-4"
                   >
                     <span>Read Guest Reviews</span>
                     <ArrowRight className="w-3.5 h-3.5" />

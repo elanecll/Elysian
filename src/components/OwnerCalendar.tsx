@@ -25,7 +25,7 @@ const colours = {
   request: "border-amber-300 bg-amber-50",
   payment: "border-blue-200 bg-blue-50",
   confirmed: "border-green-200 bg-green-50",
-  manual: "border-[#E8BAC0] bg-[#FAF0F2]",
+  manual: "border-[#D6C3A3] bg-[#F4EFE5]",
   block: "border-gray-300 bg-gray-100",
 };
 export function OwnerCalendar({
@@ -262,7 +262,7 @@ export function OwnerCalendar({
       {showForm && (
         <form
           onSubmit={save}
-          className="rounded-xl border border-[#E8BAC0] bg-white p-4 space-y-3"
+          className="rounded-xl border border-[#D6C3A3] bg-white p-4 space-y-3"
         >
           <h4 className="font-display text-xl">Add to your diary</h4>
           <p className="text-xs">
@@ -383,7 +383,7 @@ export function OwnerCalendar({
       {showHours && feed && (
         <form
           onSubmit={saveHours}
-          className="space-y-3 rounded-xl border border-[#E8BAC0] bg-white p-4"
+          className="space-y-3 rounded-xl border border-[#D6C3A3] bg-white p-4"
         >
           <h4 className="font-display text-xl">Weekly opening hours</h4>
           <p className="text-xs">
@@ -457,7 +457,7 @@ export function OwnerCalendar({
             return (
               <section
                 key={day}
-                className="rounded-xl border border-[#E8BAC0]/50 bg-white p-3 space-y-2"
+                className="rounded-xl border border-[#D6C3A3]/50 bg-white p-3 space-y-2"
               >
                 <h4 className="font-semibold text-sm">
                   {new Date(`${day}T12:00:00Z`).toLocaleDateString("en-GB", {
@@ -468,7 +468,7 @@ export function OwnerCalendar({
                   })}
                 </h4>
                 {!dayEntries.length && (
-                  <p className="text-xs text-[#7A5852]">
+                  <p className="text-xs text-[#7C674D]">
                     No appointments or blocked time.
                   </p>
                 )}

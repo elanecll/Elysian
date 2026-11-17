@@ -81,7 +81,7 @@ export function BookingNotifications({
   }
   return (
     <section
-      className="space-y-3 rounded-xl border border-[#E8BAC0] bg-[#FAF0F2] p-4"
+      className="space-y-3 rounded-xl border border-[#D6C3A3] bg-[#F4EFE5] p-4"
       aria-label="Customer notifications"
     >
       <h4 className="font-semibold">Customer notifications</h4>

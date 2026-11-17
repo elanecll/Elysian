@@ -22,7 +22,7 @@ export function FacialBundleProducts({
   );
   return (
     <section
-      className="space-y-3 rounded-2xl border border-[#E8BAC0]/60 bg-[#FFF9F9] p-4"
+      className="space-y-3 rounded-2xl border border-[#D6C3A3]/60 bg-[#FAF7F1] p-4"
       aria-label="Bundle skincare products"
     >
       <h3 className="font-display text-xl">
@@ -93,7 +93,7 @@ export function FacialBundleProducts({
           return (
             <li
               key={item.productId}
-              className="rounded-xl border border-[#E8BAC0]/40 bg-white p-3"
+              className="rounded-xl border border-[#D6C3A3]/40 bg-white p-3"
             >
               <p className="font-semibold text-sm">{product.name}</p>
               <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
@@ -124,7 +124,7 @@ export function FacialBundleProducts({
                   />
                 </Field>
                 <div className="text-sm">
-                  <s className="text-[#7A5852]">
+                  <s className="text-[#7C674D]">
                     {money(
                       Math.round(product.numericPrice * 100) * item.quantity,
                     )}

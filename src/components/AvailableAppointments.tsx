@@ -122,7 +122,7 @@ export function AvailableAppointments({
         </Field>
       </div>
       {feed && (
-        <p className="text-xs text-[#7A5852]" role="status">
+        <p className="text-xs text-[#7C674D]" role="status">
           {feed.closed
             ? "The spa is closed on this day. Please choose another date."
             : !feed.slots.length
@@ -143,7 +143,7 @@ export function AvailableAppointments({
           separately with the owner.
         </p>
       )}
-      <p className="text-xs text-[#7A5852]">
+      <p className="text-xs text-[#7C674D]">
         Times are in UK local time. Requests hold your slot for up to 24 hours
         while awaiting owner approval. Deposit payment confirms your
         appointment.

@@ -212,7 +212,7 @@ export function StripeCheckout({
     [data],
   );
   return (
-    <div className="space-y-4 rounded-2xl border border-[#E8BAC0] bg-white p-5 sm:p-6">
+    <div className="space-y-4 rounded-2xl border border-[#D6C3A3] bg-white p-5 sm:p-6">
       <h2 className="text-xl font-semibold">Choose how to pay</h2>
       <p>
         Pay now: <strong>{money(amount)}</strong>

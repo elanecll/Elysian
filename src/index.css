@@ -35,14 +35,14 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #fdf5f5;
+  background: #F7F2E8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e2b4b9;
+  background: #CFB991;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #be757c;
+  background: #806035;
 }
 
 /* Subtle ambient pulse */
@@ -60,179 +60,154 @@
   animation: floatSlow 6s ease-in-out infinite;
 }
 
-/* The homepage banner stays within the first screen, including navigation. */
-.treatment-hero {
-  max-width: 1280px;
-  margin-inline: auto;
-  height: min(528px, calc(100svh - var(--site-header-height, 140px)));
-  container: treatment-hero / size;
+.elysian-home-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #332a20;
 }
 
-.treatment-hero-image {
-  top: 0;
-  right: 0;
-  width: 50%;
+.elysian-home-hero-photo,
+.elysian-home-hero-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  /* Every source image fills the same frame without stretching or letterboxing. */
+}
+
+.elysian-home-hero-photo {
   object-fit: cover;
-  object-position: center;
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 22%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 22%);
+  object-position: 51% 42%;
 }
 
-.treatment-hero-content {
-  width: 50%;
-  height: 100%;
-  padding-block: 24px;
-  background: #fff7f7;
-  overflow-y: auto;
-  /* Keep overflowing text accessible without a coloured bar beside the photo. */
-  scrollbar-width: none;
-  justify-content: safe center;
+.elysian-home-hero-shade {
+  pointer-events: none;
+  background:
+    linear-gradient(0deg, #201a13ef 0%, #201a1388 33%, #201a1300 78%),
+    linear-gradient(90deg, #201a1340, #201a1300 72%);
 }
-.treatment-hero-content::-webkit-scrollbar {
-  display: none;
+
+.elysian-home-hero-inner {
+  position: relative;
+  max-width: 1280px;
+  min-height: 640px;
+  margin-inline: auto;
+  display: flex;
+  align-items: flex-end;
+  padding: 250px 54px 48px;
 }
-.treatment-hero-category {
-  margin-bottom: 12px;
+
+.elysian-home-hero-copy {
+  max-width: 520px;
 }
-.treatment-hero-title {
-  margin-bottom: 16px;
-  font-size: clamp(1.25rem, 2.5vw, 2.25rem);
-  line-height: 1.16;
-  min-height: 3lh;
-  text-wrap: balance;
-}
-.treatment-hero-description {
-  margin-bottom: 16px;
-}
-.treatment-hero-details {
+
+.elysian-home-hero-location {
   margin-bottom: 20px;
-}
-.treatment-hero-actions {
-  margin-bottom: 10px;
-}
-.treatment-hero-policy {
-  margin-bottom: 16px;
-}
-
-@container treatment-hero (max-height: 480px) {
-  .treatment-hero-content {
-    padding-block: 16px;
-  }
-  .treatment-hero-title {
-    font-size: clamp(1.375rem, 3vw, 2rem);
-    margin-bottom: 12px;
-  }
-  .treatment-hero-policy {
-    display: none;
-  }
-  .treatment-hero-description {
-    margin-bottom: 10px;
-    font-size: 0.875rem;
-    line-height: 1.35;
-  }
-  .treatment-hero-details {
-    margin-bottom: 16px;
-  }
-  .treatment-hero-actions {
-    margin-bottom: 16px;
-  }
+  color: #e7d5b5;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.23em;
+  text-transform: uppercase;
 }
 
-@container treatment-hero (max-height: 320px) {
-  .treatment-hero-content {
-    padding-block: 8px;
-  }
-  .treatment-hero-category {
-    display: none;
-  }
-  .treatment-hero-title {
-    font-size: 1.25rem;
-  }
-  .treatment-hero-details,
-  .treatment-hero-actions {
-    margin-bottom: 8px;
-  }
+.elysian-home-hero h1 {
+  color: #fff8eb;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(3rem, 5vw, 4.25rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
 }
 
-@container treatment-hero (max-height: 240px) {
-  .treatment-hero-details {
-    display: none;
-  }
-  .treatment-hero-title {
-    min-height: 0;
-    margin-bottom: 8px;
-    font-size: 1rem;
-  }
+.elysian-home-hero h1 em {
+  color: #e0c697;
+}
+
+.elysian-home-hero-description {
+  max-width: 320px;
+  margin-block: 19px 29px;
+  color: #eee2cf;
+  font-size: 0.8125rem;
+  line-height: 1.8;
+}
+
+.elysian-home-hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+}
+
+.elysian-home-book,
+.elysian-home-treatments {
+  min-height: 48px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.elysian-home-book {
+  padding: 16px 23px;
+  border: 1px solid #ddc69e;
+  border-radius: 3px;
+  background: #ddc69e;
+  color: #33271a;
+}
+
+.elysian-home-book:hover {
+  background: #eddbba;
+}
+
+.elysian-home-treatments {
+  padding: 10px 0;
+  border-bottom: 1px solid #bca989;
+  color: #fff4e0;
+}
+
+.elysian-home-treatments:hover {
+  color: #e0c697;
+}
+
+.elysian-home-hero button:focus-visible {
+  outline: 2px solid #fff4e0;
+  outline-offset: 5px;
 }
 
 @media (max-width: 767px) {
-  .treatment-hero {
-    height: min(600px, calc(100svh - var(--site-header-height, 140px)));
-  }
-  .treatment-hero-image {
-    width: 100%;
-    height: 38%;
-    -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
-  }
-  .treatment-hero-content {
-    top: 38%;
-    width: 100%;
-    height: 62%;
-    padding-block: 12px;
-  }
-  .treatment-hero-category {
-    margin-bottom: 6px;
-  }
-  .treatment-hero-title {
-    margin-bottom: 8px;
-    font-size: 1.25rem;
-    min-height: 2lh;
-  }
-  .treatment-hero-policy {
-    display: none;
-  }
-  .treatment-hero-description {
-    margin-bottom: 8px;
-    font-size: 0.875rem;
-    line-height: 1.35;
-  }
-  .treatment-hero-details,
-  .treatment-hero-actions {
-    margin-bottom: 8px;
+  .elysian-home-hero-inner {
+    min-height: 620px;
+    padding: 300px 25px 36px;
   }
 
-  @container treatment-hero (max-height: 480px) {
-    .treatment-hero-category,
-    .treatment-hero-details {
-      display: none;
-    }
-    .treatment-hero-image {
-      height: 32%;
-    }
-    .treatment-hero-content {
-      top: 32%;
-      height: 68%;
-    }
+  .elysian-home-hero-location {
+    margin-bottom: 18px;
+    font-size: 0.5625rem;
+    letter-spacing: 0.18em;
   }
 
-  @container treatment-hero (max-height: 380px) {
-    .treatment-hero-image {
-      height: 30%;
-    }
-    .treatment-hero-content {
-      top: 30%;
-      height: 70%;
-      padding-block: 8px;
-    }
-    .treatment-hero-category,
-    .treatment-hero-details {
-      display: none;
-    }
-    .treatment-hero-title {
-      font-size: 1rem;
-    }
+  .elysian-home-hero h1 {
+    font-size: clamp(2.625rem, 11.5vw, 3.25rem);
+  }
+
+  .elysian-home-hero-description {
+    max-width: 285px;
+    margin-block: 18px 25px;
+    font-size: 0.75rem;
+  }
+
+  .elysian-home-hero-actions {
+    gap: 12px 20px;
+  }
+
+  .elysian-home-book,
+  .elysian-home-treatments {
+    font-size: 0.625rem;
+  }
+
+  .elysian-home-book {
+    padding-inline: 14px;
   }
 }
+

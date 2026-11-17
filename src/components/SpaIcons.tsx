@@ -217,10 +217,10 @@ export const PackagesIcon: React.FC<{ className?: string }> = ({ className = "w-
 );
 
 // Small decorative delicate heart with subtle wings/lines
-export const SpaHeartDivider: React.FC<{ className?: string }> = ({ className = "text-[#BE757C]" }) => (
+export const SpaHeartDivider: React.FC<{ className?: string }> = ({ className = "text-[#806035]" }) => (
   <div className={`flex items-center justify-center gap-3 w-full my-2 ${className}`}>
-    <span className="h-[1px] w-12 sm:w-20 bg-gradient-to-r from-transparent to-[#BE757C]/60"></span>
-    <span className="text-xs text-[#BE757C] select-none font-serif">♡</span>
-    <span className="h-[1px] w-12 sm:w-20 bg-gradient-to-l from-transparent to-[#BE757C]/60"></span>
+    <span className="h-[1px] w-12 sm:w-20 bg-gradient-to-r from-transparent to-[#806035]/60"></span>
+    <span className="text-xs text-[#806035] select-none font-serif">♡</span>
+    <span className="h-[1px] w-12 sm:w-20 bg-gradient-to-l from-transparent to-[#806035]/60"></span>
   </div>
 );

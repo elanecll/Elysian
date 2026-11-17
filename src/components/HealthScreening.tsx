@@ -56,7 +56,7 @@ export function HealthScreening({
     });
   return (
     <section
-      className="space-y-4 rounded-2xl border border-[#E8BAC0] bg-white p-4 sm:p-5"
+      className="space-y-4 rounded-2xl border border-[#D6C3A3] bg-white p-4 sm:p-5"
       aria-label="Pre-treatment health screening"
     >
       <h3 className="font-display text-xl">
@@ -68,12 +68,12 @@ export function HealthScreening({
         deposit link is issued. Yes or Unsure answers need discussion; they do
         not automatically exclude you.
       </p>
-      <p className="text-xs text-[#7A5852]">
+      <p className="text-xs text-[#7C674D]">
         This questionnaire supports a consultation. Tell us if your health or
         medication changes before each visit. Do not stop prescribed medication
         to receive a treatment.
       </p>
-      <details className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
+      <details className="rounded-xl bg-[#F4EFE5] p-3 text-sm">
         <summary className="cursor-pointer font-medium">
           How we use your health information
         </summary>
@@ -93,7 +93,7 @@ export function HealthScreening({
         return (
           <fieldset
             key={index}
-            className="space-y-4 border-t border-[#E8BAC0]/40 pt-4"
+            className="space-y-4 border-t border-[#D6C3A3]/40 pt-4"
           >
             <legend className="font-medium">
               {count === 2

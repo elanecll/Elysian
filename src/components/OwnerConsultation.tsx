@@ -94,7 +94,7 @@ export function OwnerConsultation({
     ).map((q) => [q.id, q.label]),
   );
   return (
-    <section className="space-y-3 rounded-xl border border-[#E8BAC0] bg-[#FAF0F2]/60 p-4">
+    <section className="space-y-3 rounded-xl border border-[#D6C3A3] bg-[#F4EFE5]/60 p-4">
       <p className="font-medium">
         Health consultation:{" "}
         {CONSULTATION_LABELS[record.consultationStatus ?? "awaiting_review"]}
@@ -271,7 +271,7 @@ export function OwnerConsultation({
               {new Date(consultation.reviewedAt).toLocaleString("en-GB")}.
             </p>
           )}
-          <div className="space-y-3 border-t border-[#E8BAC0] pt-4">
+          <div className="space-y-3 border-t border-[#D6C3A3] pt-4">
             <h4 className="font-medium">Day-of-treatment check</h4>
             <label className="flex items-start gap-2 text-sm">
               <input

@@ -82,7 +82,7 @@ export function BuyProductPage({
   if (!cart.length)
     return (
       <section className="px-5 py-20 text-center">
-        <ShoppingBag className="mx-auto mb-4 text-[#BE757C]" size={40} />
+        <ShoppingBag className="mx-auto mb-4 text-[#806035]" size={40} />
         <h2 className="mb-5 font-display text-3xl">Your basket is empty</h2>
         <button className={buttonClass} onClick={() => onNavigate("shop")}>
           Explore the boutique
@@ -96,7 +96,7 @@ export function BuyProductPage({
         {cart.map((item) => (
           <article
             key={item.product.id}
-            className="flex gap-4 rounded-2xl border border-[#E8BAC0]/50 bg-white p-4"
+            className="flex gap-4 rounded-2xl border border-[#D6C3A3]/50 bg-white p-4"
           >
             <img
               className="h-24 w-20 rounded-xl object-contain"
@@ -154,7 +154,7 @@ export function BuyProductPage({
       </div>
       <form
         onSubmit={pay}
-        className="space-y-5 rounded-3xl border border-[#E8BAC0]/50 bg-[#FAF0F2] p-5 sm:p-8"
+        className="space-y-5 rounded-3xl border border-[#D6C3A3]/50 bg-[#F4EFE5] p-5 sm:p-8"
       >
         <h2 className="font-display text-2xl">Checkout</h2>
         <fieldset disabled={busy} className="space-y-4">
@@ -272,7 +272,7 @@ export function BuyProductPage({
             <span>Delivery</span>
             <span>{money(shipping)}</span>
           </div>
-          <div className="flex justify-between border-t border-[#E8BAC0]/50 pt-3 font-bold">
+          <div className="flex justify-between border-t border-[#D6C3A3]/50 pt-3 font-bold">
             <span>Total</span>
             <span>{money(subtotal - discount + shipping)}</span>
           </div>

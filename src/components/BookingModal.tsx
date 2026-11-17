@@ -263,7 +263,7 @@ function BookingForm(props: BookingModalProps) {
   if (submitted)
     return (
       <div className="space-y-5 text-center">
-        <CheckCircle2 className="mx-auto h-12 w-12 text-[#BE757C]" />
+        <CheckCircle2 className="mx-auto h-12 w-12 text-[#806035]" />
         <h3 className="font-display text-2xl">Appointment request received</h3>
         <p className="text-sm">
           Your slot is temporarily reserved. The owner will review your health
@@ -272,7 +272,7 @@ function BookingForm(props: BookingModalProps) {
           appointment is confirmed after payment.
         </p>
         {submitted.receipt.isCourse && (
-          <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
+          <p className="rounded-xl bg-[#F4EFE5] p-3 text-sm">
             {courseOfferDescription(submitted.receipt)}. Later course visits are
             arranged separately with the owner.
           </p>
@@ -297,7 +297,7 @@ function BookingForm(props: BookingModalProps) {
     );
   return (
     <form onSubmit={submit} className="space-y-6">
-      <p className="rounded-xl bg-[#FAF0F2] p-4 text-sm">
+      <p className="rounded-xl bg-[#F4EFE5] p-4 text-sm">
         Choose an available appointment. No payment is taken today. After
         reviewing your health questionnaire and approving your request, the
         owner will send a Stripe checkout link for your 50%{" "}
@@ -373,14 +373,14 @@ function BookingForm(props: BookingModalProps) {
           </Field>
         </div>
         {isFriend && (
-          <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
+          <p className="rounded-xl bg-[#F4EFE5] p-3 text-sm">
             Choose the treatment both guests would like. Each price is the total
             for two people, with 10% off already included. Treatments take place
             one after the other.
           </p>
         )}
         {isBundle && (
-          <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
+          <p className="rounded-xl bg-[#F4EFE5] p-3 text-sm">
             First choose your facial treatment above, then choose your skincare
             products below. The facial keeps its normal price; your selected
             products receive 10% off.
@@ -393,7 +393,7 @@ function BookingForm(props: BookingModalProps) {
           />
         )}
         {isPromotion && (
-          <div className="rounded-xl border border-[#E8BAC0]/50 bg-[#FAF0F2] p-4 text-sm">
+          <div className="rounded-xl border border-[#D6C3A3]/50 bg-[#F4EFE5] p-4 text-sm">
             <p className="font-semibold">
               First-time client offer · £50, usually £70 ·{" "}
               {WEEKLY_SPECIAL.datesLabel}
@@ -435,7 +435,7 @@ function BookingForm(props: BookingModalProps) {
             ).map((offer) => (
               <label
                 key={offer.sessions}
-                className="flex items-start gap-3 rounded-xl border border-[#E8BAC0]/50 p-3 text-sm"
+                className="flex items-start gap-3 rounded-xl border border-[#D6C3A3]/50 p-3 text-sm"
               >
                 <input
                   type="radio"
@@ -450,7 +450,7 @@ function BookingForm(props: BookingModalProps) {
               </label>
             ))}
             {isCourse && (
-              <p className="text-xs text-[#7A5852]">
+              <p className="text-xs text-[#7C674D]">
                 Your course discount is included in the total. Later visits are
                 arranged separately with the owner.
               </p>
@@ -464,7 +464,7 @@ function BookingForm(props: BookingModalProps) {
           {isStandalone && (
             <p
               id="ritual-addons-explanation"
-              className="mb-3 rounded-xl bg-[#FAF0F2] p-3 text-sm"
+              className="mb-3 rounded-xl bg-[#F4EFE5] p-3 text-sm"
             >
               Chemical peeling and carboxytherapy are booked on their own.
               Choose another primary treatment to select extras below, or book
@@ -482,7 +482,7 @@ function BookingForm(props: BookingModalProps) {
             {addonOptions.map((addon) => (
               <label
                 key={addon.id}
-                className="flex items-start gap-2 rounded-xl border border-[#E8BAC0]/50 p-3 text-xs"
+                className="flex items-start gap-2 rounded-xl border border-[#D6C3A3]/50 p-3 text-xs"
               >
                 <input
                   className="mt-0.5"
@@ -505,7 +505,7 @@ function BookingForm(props: BookingModalProps) {
                   {addon.duration} · {money(addon.pricePence)}
                   {(addon.id === serviceId ||
                     addon.id === selectedTreatment?.id) && (
-                    <span className="mt-1 block text-[#7A5852]">
+                    <span className="mt-1 block text-[#7C674D]">
                       Already selected as your primary treatment
                     </span>
                   )}
@@ -542,7 +542,7 @@ function BookingForm(props: BookingModalProps) {
             onTime={setTime}
           />
         ) : (
-          <p className="text-sm text-[#7A5852]">
+          <p className="text-sm text-[#7C674D]">
             Choose a treatment above to see available appointment dates and
             times.
           </p>
@@ -618,21 +618,21 @@ function BookingForm(props: BookingModalProps) {
       {option && (
         <section
           aria-labelledby="booking-price-breakdown"
-          className="rounded-xl border border-[#E8BAC0]/50 bg-white p-4 sm:p-5 text-sm"
+          className="rounded-xl border border-[#D6C3A3]/50 bg-white p-4 sm:p-5 text-sm"
         >
           <h3
             id="booking-price-breakdown"
-            className="font-display text-xl text-[#3D2B27] mb-3"
+            className="font-display text-xl text-[#493A2D] mb-3"
           >
             Booking summary
           </h3>
           {isCourse && (
-            <p className="rounded-lg bg-[#FAF0F2] p-3 mb-4 text-[#5C4A45] leading-relaxed">
+            <p className="rounded-lg bg-[#F4EFE5] p-3 mb-4 text-[#71604E] leading-relaxed">
               {paidSessions === 5 ? FIVE_SESSION_OFFER : TEN_SESSION_OFFER}.
             </p>
           )}
           <ul
-            className="divide-y divide-[#E8BAC0]/30"
+            className="divide-y divide-[#D6C3A3]/30"
             aria-label="Selected treatments and prices"
           >
             {priceItems.map((item) => (
@@ -641,30 +641,30 @@ function BookingForm(props: BookingModalProps) {
                 className="flex flex-wrap justify-between items-start gap-x-4 gap-y-2 py-3 first:pt-0"
               >
                 <div className="min-w-0 flex-1 basis-48">
-                  <p className="font-semibold text-[#3D2B27] break-words">
+                  <p className="font-semibold text-[#493A2D] break-words">
                     {item.name}
                   </p>
-                  <p className="mt-1 text-xs text-[#7A5852]">
+                  <p className="mt-1 text-xs text-[#7C674D]">
                     {item.kind === "product"
                       ? `${item.quantity} × product · 10% off`
                       : `${item.duration} per session`}
                   </p>
                   {item.unitPricePence === null && (
-                    <p className="mt-1 text-[#5C4A45]">
+                    <p className="mt-1 text-[#71604E]">
                       Price awaiting owner quotation
                     </p>
                   )}
                 </div>
                 {(!isCourse || item.kind === "product") &&
                   item.unitPricePence !== null && (
-                    <strong className="shrink-0 text-[#3D2B27]">
+                    <strong className="shrink-0 text-[#493A2D]">
                       {money(itemTotal(item))}
                     </strong>
                   )}
               </li>
             ))}
           </ul>
-          <dl className="space-y-2 border-t border-[#E8BAC0]/50 pt-4 mt-1 text-[#3D2B27]">
+          <dl className="space-y-2 border-t border-[#D6C3A3]/50 pt-4 mt-1 text-[#493A2D]">
             {totals.bundlePricing && (
               <>
                 <div className="flex justify-between gap-4">
@@ -722,13 +722,13 @@ function BookingForm(props: BookingModalProps) {
             </p>
           )}
           {hasUnquotedTreatments && (
-            <p className="mt-3 text-xs text-[#7A5852] leading-relaxed">
+            <p className="mt-3 text-xs text-[#7C674D] leading-relaxed">
               Treatments awaiting quotation are excluded from these amounts. The
               owner will confirm your final total, deposit and remaining balance
               before payment.
             </p>
           )}
-          <p className="mt-2 text-xs text-[#7A5852]">
+          <p className="mt-2 text-xs text-[#7C674D]">
             Once your treatment booking is confirmed, the 50% treatment deposit
             is non-refundable, subject to your statutory cancellation and refund
             rights.

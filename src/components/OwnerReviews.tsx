@@ -91,12 +91,12 @@ export function OwnerReviews({ onAuthError }: { onAuthError: () => void }) {
       {reviews.map((review) => (
         <article
           key={review.id}
-          className="space-y-2 rounded-xl border border-[#E8BAC0]/50 bg-white p-4"
+          className="space-y-2 rounded-xl border border-[#D6C3A3]/50 bg-white p-4"
         >
           <div className="flex justify-between gap-3">
             <strong className="text-sm break-words">{review.author}</strong>
             <span
-              className={`text-xs rounded-full px-3 py-1 ${review.status === "pending" ? "bg-amber-50 text-amber-900" : "bg-[#FFF0F2] text-[#87464D]"}`}
+              className={`text-xs rounded-full px-3 py-1 ${review.status === "pending" ? "bg-amber-50 text-amber-900" : "bg-[#F1EADC] text-[#72512F]"}`}
             >
               {review.status === "pending"
                 ? "Awaiting approval"
@@ -106,7 +106,7 @@ export function OwnerReviews({ onAuthError }: { onAuthError: () => void }) {
               · {review.rating}/5
             </span>
           </div>
-          <p className="text-xs text-[#7A5852]">
+          <p className="text-xs text-[#7C674D]">
             {review.service} ·{" "}
             {new Date(review.createdAt).toLocaleDateString("en-GB", {
               timeZone: "Europe/London",
@@ -119,7 +119,7 @@ export function OwnerReviews({ onAuthError }: { onAuthError: () => void }) {
             {review.status !== "published" && (
               <button
                 type="button"
-                className="min-h-12 rounded-full bg-[#87464D] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                className="min-h-12 rounded-full bg-[#72512F] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
                 disabled={!!busy}
                 onClick={() => void moderate(review, "published")}
               >
@@ -129,7 +129,7 @@ export function OwnerReviews({ onAuthError }: { onAuthError: () => void }) {
             {review.status !== "hidden" && (
               <button
                 type="button"
-                className="min-h-12 rounded-full border border-[#E8BAC0]/50 px-5 py-3 text-sm font-semibold disabled:opacity-50"
+                className="min-h-12 rounded-full border border-[#D6C3A3]/50 px-5 py-3 text-sm font-semibold disabled:opacity-50"
                 disabled={!!busy}
                 onClick={() => void moderate(review, "hidden")}
               >

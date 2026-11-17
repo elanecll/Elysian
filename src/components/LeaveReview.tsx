@@ -52,7 +52,7 @@ export function LeaveReview({ onPublished }: { onPublished: () => void }) {
     <>
       <button
         type="button"
-        className="inline-flex w-full sm:w-auto min-h-12 items-center justify-center gap-2 rounded-full bg-[#87464D] hover:bg-[#71383F] px-6 py-3 text-sm font-semibold text-white shadow-xs hover:shadow-md transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#87464D]"
+        className="inline-flex w-full sm:w-auto min-h-12 items-center justify-center gap-2 rounded-full bg-[#72512F] hover:bg-[#5D4024] px-6 py-3 text-sm font-semibold text-white shadow-xs hover:shadow-md transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#72512F]"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
       >
@@ -70,14 +70,14 @@ export function LeaveReview({ onPublished }: { onPublished: () => void }) {
           {sent ? (
             <div className="space-y-4 text-center">
               <h3
-                className="font-display text-2xl text-[#3D2B27]"
+                className="font-display text-2xl text-[#493A2D]"
                 role="status"
               >
                 {submittedStatus === "published"
                   ? "Thank you! Your review is published."
                   : "Thank you! Your review has been submitted."}
               </h3>
-              <p className="text-sm text-[#5C4A45]">
+              <p className="text-sm text-[#71604E]">
                 {submittedStatus === "published"
                   ? "You can find it in All Reviews and its treatment category."
                   : submittedStatus === "pending"
@@ -94,7 +94,7 @@ export function LeaveReview({ onPublished }: { onPublished: () => void }) {
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-5 max-w-2xl mx-auto">
-              <p className="text-sm text-[#5C4A45]">
+              <p className="text-sm text-[#71604E]">
                 Share your experience at Elysian. Your display name, treatment,
                 star rating and review will appear publicly only after owner
                 approval.
@@ -165,7 +165,7 @@ export function LeaveReview({ onPublished }: { onPublished: () => void }) {
                     placeholder="Tell us about your treatment and experience…"
                   />
                 </Field>
-                <p className="text-xs text-[#7A5852]">
+                <p className="text-xs text-[#7C674D]">
                   20–2,000 characters. Please leave out phone numbers, email
                   addresses and private health details.
                 </p>
@@ -182,10 +182,10 @@ export function LeaveReview({ onPublished }: { onPublished: () => void }) {
                     />
                   </label>
                 </div>
-                <label className="flex items-start gap-3 text-sm text-[#5C4A45]">
+                <label className="flex items-start gap-3 text-sm text-[#71604E]">
                   <input
                     type="checkbox"
-                    className="mt-1 accent-[#BE757C]"
+                    className="mt-1 accent-[#806035]"
                     required
                     checked={input.consent}
                     onChange={(e) =>

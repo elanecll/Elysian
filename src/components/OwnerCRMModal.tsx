@@ -333,7 +333,7 @@ function RecordDetails({
   }
   const netPaid = record.paidPence - record.refundedPence;
   return (
-    <div className="space-y-4 rounded-2xl border border-[#E8BAC0] bg-white p-4 sm:p-6">
+    <div className="space-y-4 rounded-2xl border border-[#D6C3A3] bg-white p-4 sm:p-6">
       <h3 className="font-display text-xl">{record.customer.name}</h3>
       <p className="break-all text-xs">{record.id}</p>
       <p className="text-sm">
@@ -346,7 +346,7 @@ function RecordDetails({
         </p>
       )}
       {record.promotion?.firstVisitConfirmed && (
-        <p className="rounded-xl bg-[#FAF0F2] p-3 text-sm">
+        <p className="rounded-xl bg-[#F4EFE5] p-3 text-sm">
           Weekly special: client confirmed their first treatment visit. Check
           eligibility during consultation. Offer dates: 1–8 November 2026.
         </p>
@@ -371,7 +371,7 @@ function RecordDetails({
         </div>
       ))}
       {record.bundlePricing && (
-        <div className="rounded-xl bg-[#FAF0F2] p-3 text-sm space-y-1">
+        <div className="rounded-xl bg-[#F4EFE5] p-3 text-sm space-y-1">
           <p>
             Product saving (10%):{" "}
             {money(record.bundlePricing.productsDiscountPence)}
@@ -387,7 +387,7 @@ function RecordDetails({
           </p>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#FAF0F2] p-3 text-sm">
+      <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#F4EFE5] p-3 text-sm">
         <span>Total: {money(record.totalPence)}</span>
         <span>Payment: {record.paymentStatus.replaceAll("_", " ")}</span>
         <span>Received: {money(record.paidPence)}</span>
@@ -468,7 +468,7 @@ function RecordDetails({
           </form>
         )}
       {record.checkoutUrl && !record.paidPence && (
-        <div className="space-y-2 rounded-xl bg-[#FAF0F2] p-3">
+        <div className="space-y-2 rounded-xl bg-[#F4EFE5] p-3">
           <p className="text-xs">
             Customer payment link. If automatic email is not connected or
             delivery fails, send this link manually. It expires{" "}
@@ -541,7 +541,7 @@ function RecordDetails({
           </button>
         )}
       </div>
-      <p className="text-xs text-[#7A5852]">
+      <p className="text-xs text-[#7C674D]">
         Check Customer notifications for message status. Refunds are initiated
         in the Stripe dashboard and synced when its refund event arrives.
       </p>
@@ -681,7 +681,7 @@ function Dashboard() {
           Sign out
         </button>
       </div>
-      <div className="flex flex-wrap gap-3 border-b border-[#E8BAC0]/40 pb-3">
+      <div className="flex flex-wrap gap-3 border-b border-[#D6C3A3]/40 pb-3">
         <button
           type="button"
           className="text-sm underline"
@@ -801,7 +801,7 @@ function Dashboard() {
                 type="button"
                 key={r.id}
                 onClick={() => setSelected(r.id)}
-                className={`flex w-full flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-left ${selected === r.id ? "border-[#BE757C] bg-[#FAF0F2]" : "border-[#E8BAC0]/50 bg-white"}`}
+                className={`flex w-full flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-left ${selected === r.id ? "border-[#806035] bg-[#F4EFE5]" : "border-[#D6C3A3]/50 bg-white"}`}
               >
                 <span>
                   <strong className="text-sm">{r.customer.name}</strong>
@@ -811,7 +811,7 @@ function Dashboard() {
                       : "Shop order"}
                   </span>
                   {r.type === "booking" && (
-                    <span className="block mt-1 text-xs text-[#7A5852]">
+                    <span className="block mt-1 text-xs text-[#7C674D]">
                       {
                         CONSULTATION_LABELS[
                           r.consultationStatus ?? "awaiting_review"

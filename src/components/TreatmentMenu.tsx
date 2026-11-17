@@ -17,7 +17,7 @@ interface TreatmentMenuProps {
   selectedCategory?: string;
 }
 
-const panelClass = 'rounded-2xl border border-[#E8BAC0]/40 bg-white p-5 sm:p-6 shadow-xs';
+const panelClass = 'rounded-2xl border border-[#D6C3A3]/40 bg-white p-5 sm:p-6 shadow-xs';
 const menuGroups = [
   { id: 'facials', title: 'Facial Treatments', categories: ['facial'] },
   { id: 'massages', title: 'Body Massage, Hot Stone & Add-ons', categories: ['hot-stone', 'body-massage', 'addons'] },
@@ -26,9 +26,9 @@ const menuGroups = [
 const formatTreatmentPrice = (price: number | string | undefined) =>
   typeof price === 'number' ? `£${price.toFixed(2).replace('.00', '')}` : price || 'Price on approval';
 const filterButtonClass = (active: boolean) =>
-  `inline-flex min-h-12 items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm sm:text-base font-semibold transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#87464D] ${active
-    ? 'border-[#87464D] bg-[#87464D] text-white'
-    : 'border-[#E8BAC0]/40 bg-white text-[#5C4A45] hover:bg-[#FFF0F2] hover:border-[#BE757C]'}`;
+  `inline-flex min-h-12 items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm sm:text-base font-semibold transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#72512F] ${active
+    ? 'border-[#72512F] bg-[#72512F] text-white'
+    : 'border-[#D6C3A3]/40 bg-white text-[#71604E] hover:bg-[#F1EADC] hover:border-[#806035]'}`;
 
 export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, selectedCategory = 'all' }) => {
   const [activeTab, setActiveTab] = useState<string>(selectedCategory || 'all');
@@ -97,7 +97,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
   };
 
   return (
-    <section id="menu" className="py-8 sm:py-12 bg-[#FFF9F9] relative">
+    <section id="menu" className="py-8 sm:py-12 bg-[#FAF7F1] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         
         {/* Filter Tabs / Treatment Packages Bar */}
@@ -113,10 +113,10 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                 aria-pressed={isActive}
                 className={`${filterButtonClass(isActive)} flex-wrap font-sans-clean`}
               >
-                {tab.icon && <span className={isActive ? 'text-white' : 'text-[#BE757C]'}>{tab.icon}</span>}
+                {tab.icon && <span className={isActive ? 'text-white' : 'text-[#806035]'}>{tab.icon}</span>}
                 <span className="font-medium">{tab.label}</span>
                 {isPackageTab && !isActive && (
-                  <span className="ml-1 px-1.5 py-0.5 rounded-full bg-[#BE757C] text-white text-[9px] font-bold tracking-normal normal-case">
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full bg-[#806035] text-white text-[9px] font-bold tracking-normal normal-case">
                     Save
                   </span>
                 )}
@@ -130,20 +130,20 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
           <div className={`${panelClass} mb-6`}>
             <div className="text-center mb-3">
               <div className="inline-flex items-center justify-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-[#BE757C]" />
-                <span className="text-xs sm:text-sm uppercase tracking-widest text-[#3D2B27] font-bold font-sans-clean">
+                <Sparkles className="w-4 h-4 text-[#806035]" />
+                <span className="text-xs sm:text-sm uppercase tracking-widest text-[#493A2D] font-bold font-sans-clean">
                   Facial Aesthetics — 🔬 CLINICARE Cosmeceuticals
                 </span>
               </div>
-              <p className="text-xs text-[#5C4A45] max-w-2xl mx-auto">
+              <p className="text-xs text-[#71604E] max-w-2xl mx-auto">
                 Formulated exclusively with medical-grade <strong className="text-[#8C3F48] font-semibold">🔬 CLINICARE Swedish cosmeceuticals</strong> (low-molecular hyaluronic acid &amp; biomimetic peptides). Choose from 30-min express and 60-min luxury rituals.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#F0D5D8]">
-              <div className="flex items-center gap-2 text-xs text-[#5C4A45]">
-                <Clock className="w-4 h-4 text-[#BE757C]" />
-                <span className="font-semibold text-[#3D2B27]">Filter By Duration:</span>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#E4D5BA]">
+              <div className="flex items-center gap-2 text-xs text-[#71604E]">
+                <Clock className="w-4 h-4 text-[#806035]" />
+                <span className="font-semibold text-[#493A2D]">Filter By Duration:</span>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
                 <button
@@ -194,11 +194,11 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
         )}
 
         <div className={`${panelClass} mb-6`}>
-          <h2 className="text-sm font-semibold text-[#3D2B27] mb-2">50% Deposit Policy</h2>
-          <p className="text-xs sm:text-sm text-[#5C4A45] leading-relaxed">
+          <h2 className="text-sm font-semibold text-[#493A2D] mb-2">50% Deposit Policy</h2>
+          <p className="text-xs sm:text-sm text-[#71604E] leading-relaxed">
             A 50% deposit confirms your treatment booking. Once confirmed, the deposit is non-refundable, subject to your statutory cancellation and refund rights. The remaining balance is due upon arrival.
           </p>
-          <p className="mt-2 text-xs text-[#7A5852]">Contact us to discuss rescheduling.</p>
+          <p className="mt-2 text-xs text-[#7C674D]">Contact us to discuss rescheduling.</p>
         </div>
 
         {/* Treatments Grid */}
@@ -230,7 +230,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                   <div>
                     {badge && (
                       <div className="mb-4">
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E8BAC0]/40 bg-[#FFF0F2] px-3 py-1 text-xs font-semibold text-[#87464D]">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D6C3A3]/40 bg-[#F1EADC] px-3 py-1 text-xs font-semibold text-[#72512F]">
                           {treatment.category === 'packages' ? <Gift className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
                           {badge}
                         </span>
@@ -238,21 +238,21 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                     )}
                     <div className={`mb-4 grid items-start gap-4 ${treatment.image ? 'grid-cols-[minmax(0,1fr)_6rem] sm:grid-cols-[minmax(0,1fr)_8rem]' : 'grid-cols-1'}`}>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold tracking-wide text-[#87464D] uppercase font-sans-clean mb-2 leading-relaxed">
+                        <p className="text-xs font-semibold tracking-wide text-[#72512F] uppercase font-sans-clean mb-2 leading-relaxed">
                           {treatment.tagline}
                         </p>
-                        <h3 id={`treatment-title-${treatment.id}`} className="text-xl sm:text-2xl font-display text-[#3D2B27] group-hover:text-[#BE757C] transition-colors leading-snug break-words">
+                        <h3 id={`treatment-title-${treatment.id}`} className="text-xl sm:text-2xl font-display text-[#493A2D] group-hover:text-[#806035] transition-colors leading-snug break-words">
                           {treatment.title}
                         </h3>
                       </div>
                       {treatment.image && (
-                        <div className="aspect-square w-full rounded-xl overflow-hidden border border-[#E8BAC0]/40 bg-[#FFF9F9]">
+                        <div className="aspect-square w-full rounded-xl overflow-hidden border border-[#D6C3A3]/40 bg-[#FAF7F1]">
                           <img src={treatment.image} alt={treatment.title} className="block h-full w-full object-cover object-center" loading="lazy" />
                         </div>
                       )}
                     </div>
 
-                    <p data-treatment-description className="text-sm sm:text-base text-[#5C4A45] leading-relaxed mb-5 font-sans-clean">
+                    <p data-treatment-description className="text-sm sm:text-base text-[#71604E] leading-relaxed mb-5 font-sans-clean">
                       {treatment.description}
                     </p>
 
@@ -261,7 +261,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                       <div className="mb-5 space-y-3">
                         {/* Interactive Duration Selector on Card */}
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-sm font-semibold text-[#5C4A45] font-sans-clean">
+                          <span className="text-sm font-semibold text-[#71604E] font-sans-clean">
                             Select Duration:
                           </span>
                           <div className="inline-flex flex-wrap items-center gap-2">
@@ -285,32 +285,32 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                         </div>
 
                         {/* 🔬 CLINICARE TREATMENT BOX */}
-                        <div className="rounded-xl p-3.5 border border-[#E8BAC0]/40 bg-[#FFF9F9]">
+                        <div className="rounded-xl p-3.5 border border-[#D6C3A3]/40 bg-[#FAF7F1]">
                           <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8C3F48] tracking-wide">
                               <span>🔬</span> CLINICARE Cosmeceuticals
                             </span>
-                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#FBE8EB] text-[#8C3F48] font-sans-clean">
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#F1E6D2] text-[#8C3F48] font-sans-clean">
                               Active Peptides &amp; HA
                             </span>
                           </div>
 
-                          <p className="text-sm text-[#5C4A45] mb-3 leading-relaxed">
+                          <p className="text-sm text-[#71604E] mb-3 leading-relaxed">
                             Advanced Swedish medical-grade low-molecular hyaluronic acid and biomimetic peptide complex.
                           </p>
 
-                          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#F0D0D5]/70">
+                          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E3D0AF]/70">
                             <div className="flex flex-wrap items-center gap-2 text-xs">
-                              <span className="text-[#3D2B27] font-medium">
+                              <span className="text-[#493A2D] font-medium">
                                 {activeCardDur === '30' ? '30m Express:' : '60m Full:'}
                               </span>
-                              <span className="text-base font-bold text-[#BE757C] font-display">
+                              <span className="text-base font-bold text-[#806035] font-display">
                                 {formatTreatmentPrice(activePrice)}
                               </span>
-                              <span className="text-[10px] text-[#8C3F48] font-semibold bg-[#FCE8EB] px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] text-[#8C3F48] font-semibold bg-[#F3E9D7] px-1.5 py-0.5 rounded">
                                 {activeDeposit ? `50% dep: ${activeDeposit}` : 'Deposit confirmed on approval'}
                               </span>
-                              <span className="text-[10px] text-[#7A5852]">
+                              <span className="text-[10px] text-[#7C674D]">
                                 {activeCardDur === '30' ? `(60m: ${formatTreatmentPrice(opt60?.priceClinicare ?? opt60?.priceSingle)})` : `(30m: ${formatTreatmentPrice(opt30?.priceClinicare ?? opt30?.priceSingle)})`}
                               </span>
                             </div>
@@ -318,7 +318,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                             <button
                               type="button"
                               onClick={() => onBookTreatment(treatment.id, 'clinicare', activeCardDur)}
-                              className="min-h-12 text-sm sm:text-base font-semibold px-5 py-3 rounded-full bg-[#87464D] hover:bg-[#71383F] text-white transition-colors cursor-pointer shadow-xs shrink-0"
+                              className="min-h-12 text-sm sm:text-base font-semibold px-5 py-3 rounded-full bg-[#72512F] hover:bg-[#5D4024] text-white transition-colors cursor-pointer shadow-xs shrink-0"
                             >
                               Book Ritual
                             </button>
@@ -328,29 +328,29 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                     )}
 
                     {treatment.id === FACIAL_BUNDLE_ID && (
-                      <div className="bg-[#FFF9F9] rounded-xl p-3.5 border border-[#E8BAC0]/40 mb-4 space-y-2 text-sm">
-                        <p className="font-bold text-[#87464D]">Build your Facial + Product Bundle</p>
+                      <div className="bg-[#FAF7F1] rounded-xl p-3.5 border border-[#D6C3A3]/40 mb-4 space-y-2 text-sm">
+                        <p className="font-bold text-[#72512F]">Build your Facial + Product Bundle</p>
                         <p>Choose your CLINICARE facial at its usual price and duration, then choose skincare products with 10% off.</p>
                         <p>After approval, pay a 50% facial deposit plus the full discounted product price. Collect your products at your appointment.</p>
                       </div>
                     )}
                     {treatment.id !== FACIAL_BUNDLE_ID && !hasDurationChoice && treatment.priceOptions && treatment.priceOptions.length > 0 && (
-                      <div className="bg-[#FFF9F9] rounded-xl p-3.5 border border-[#E8BAC0]/40 mb-4 space-y-2">
-                        <p className="text-xs tracking-wide uppercase font-bold text-[#87464D] font-sans-clean">
+                      <div className="bg-[#FAF7F1] rounded-xl p-3.5 border border-[#D6C3A3]/40 mb-4 space-y-2">
+                        <p className="text-xs tracking-wide uppercase font-bold text-[#72512F] font-sans-clean">
                           Pricing &amp; Duration Breakdown:
                         </p>
                         <div className="space-y-2 text-sm">
                           {treatment.priceOptions.map((opt, oIdx) => (
                             <div
                               key={oIdx}
-                              className="flex flex-wrap items-center justify-between gap-1 py-1 border-b border-[#F5E6E8] last:border-0"
+                              className="flex flex-wrap items-center justify-between gap-1 py-1 border-b border-[#EDE4D4] last:border-0"
                             >
-                              <span className="font-medium text-[#3D2B27]">
+                              <span className="font-medium text-[#493A2D]">
                                 {activeTab === 'addons' && treatment.addonDuration ? treatment.addonDuration : opt.label ? opt.label : opt.duration}
                               </span>
                               <div className="flex items-center gap-3">
                                 {(opt.priceClinicare !== undefined || opt.priceSingle !== undefined) && (
-                                  <span className="font-bold text-[#BE757C]">
+                                  <span className="font-bold text-[#806035]">
                                     {formatTreatmentPrice(activeTab === 'addons' && treatment.addonPrice !== undefined ? treatment.addonPrice : opt.priceClinicare ?? opt.priceSingle)}
                                   </span>
                                 )}
@@ -362,10 +362,10 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                     )}
 
                     {/* Benefit highlights */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 pt-4 border-t border-[#F5E6E8]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 pt-4 border-t border-[#EDE4D4]">
                       {treatment.benefits.map((benefit, bIdx) => (
-                        <div key={bIdx} className="flex items-start gap-2 text-sm text-[#4A352F]">
-                          <Check className="w-3.5 h-3.5 text-[#BE757C] shrink-0 mt-0.5" />
+                        <div key={bIdx} className="flex items-start gap-2 text-sm text-[#5C4937]">
+                          <Check className="w-3.5 h-3.5 text-[#806035] shrink-0 mt-0.5" />
                           <span className="leading-relaxed">{benefit}</span>
                         </div>
                       ))}
@@ -373,10 +373,10 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                   </div>
 
                   {/* Footer with Price and Book Button */}
-                  <div className="pt-3 border-t border-[#F5E6E8] flex flex-wrap items-center justify-between gap-2 mt-auto">
+                  <div className="pt-3 border-t border-[#EDE4D4] flex flex-wrap items-center justify-between gap-2 mt-auto">
                     <div>
-                      <div className="flex items-center gap-1.5 text-xs text-[#5C4A45]">
-                        <Clock className="w-3.5 h-3.5 text-[#BE757C]" />
+                      <div className="flex items-center gap-1.5 text-xs text-[#71604E]">
+                        <Clock className="w-3.5 h-3.5 text-[#806035]" />
                         <span>
                           {hasDurationChoice
                             ? activeCardDur === '30'
@@ -385,13 +385,13 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                             : activeTab === 'addons' && treatment.addonDuration ? treatment.addonDuration : treatment.duration}
                         </span>
                       </div>
-                      <div className="text-base sm:text-lg font-display font-medium text-[#3D2B27] mt-0.5">
+                      <div className="text-base sm:text-lg font-display font-medium text-[#493A2D] mt-0.5">
                         {hasDurationChoice ? (
                           <span>
-                            <span className="font-bold text-[#BE757C]">
+                            <span className="font-bold text-[#806035]">
                               {formatTreatmentPrice(activePrice)}
                             </span>{' '}
-                            <span className="text-xs text-[#5C4A45] font-sans-clean font-normal">
+                            <span className="text-xs text-[#71604E] font-sans-clean font-normal">
                               (🔬 CLINICARE)
                             </span>
                           </span>
@@ -401,7 +401,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                             : treatment.priceDisplay
                         )}
                       </div>
-                      <span className="inline-block text-[10px] text-[#BE757C] font-semibold mt-0.5">
+                      <span className="inline-block text-[10px] text-[#806035] font-semibold mt-0.5">
                         {treatment.id === FACIAL_BUNDLE_ID ? '💳 50% facial deposit + discounted products paid in full' : '💳 50% deposit to secure booking'}
                       </span>
                     </div>
@@ -417,9 +417,9 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                         false,
                         activeTab === 'addons' && treatment.addonPrice !== undefined
                       )}
-                      className="inline-flex min-h-12 items-center gap-2 px-5 py-3 rounded-full bg-[#87464D] hover:bg-[#71383F] text-white font-semibold text-sm sm:text-base tracking-wide uppercase transition-colors shadow-xs hover:shadow-md cursor-pointer shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="inline-flex min-h-12 items-center gap-2 px-5 py-3 rounded-full bg-[#72512F] hover:bg-[#5D4024] text-white font-semibold text-sm sm:text-base tracking-wide uppercase transition-colors shadow-xs hover:shadow-md cursor-pointer shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-[#FFDDE2]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#EDDEC3]" />
                       <span>{treatment.comingSoon ? 'COMING SOON' : activeTab === 'addons' && treatment.addonPrice !== undefined ? 'Add to booking' : 'Book Treatment'}</span>
                     </button>
                   </div>
@@ -436,7 +436,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
                   transition={{ duration: 0.3 }}
-                  className={`${panelClass} hover:border-[#BE757C]/60 hover:shadow-md transition-all duration-300 flex flex-col justify-between relative group`}
+                  className={`${panelClass} hover:border-[#806035]/60 hover:shadow-md transition-all duration-300 flex flex-col justify-between relative group`}
                 >
                   {contentBlock}
                 </motion.div>
@@ -448,7 +448,7 @@ export const TreatmentMenu: React.FC<TreatmentMenuProps> = ({ onBookTreatment, s
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="col-span-full pt-4 first:pt-0 font-display text-2xl sm:text-3xl text-[#3D2B27]"
+                  className="col-span-full pt-4 first:pt-0 font-display text-2xl sm:text-3xl text-[#493A2D]"
                 >
                   {heading}
                 </motion.h2>,

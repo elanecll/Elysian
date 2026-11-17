@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 export const inputClass =
-  "w-full rounded-xl border border-[#E8BAC0] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#BE757C]/40";
+  "w-full rounded-xl border border-[#D6C3A3] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#806035]/40";
 export const buttonClass =
-  "rounded-full bg-[#BE757C] px-6 py-3 text-sm font-semibold text-white hover:bg-[#A9636A] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
+  "rounded-full bg-[#806035] px-6 py-3 text-sm font-semibold text-white hover:bg-[#684B2A] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 export function Field({
   label,
   children,
@@ -14,7 +14,7 @@ export function Field({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-xs font-semibold text-[#5C4A45]">{label}</span>
+      <span className="text-xs font-semibold text-[#71604E]">{label}</span>
       {children}
     </label>
   );
@@ -99,9 +99,9 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-[#FFF9F9] shadow-2xl outline-none"
+        className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-[#FAF7F1] shadow-2xl outline-none"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-[#5C423E] px-5 py-4 text-white">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-[#5D4933] px-5 py-4 text-white">
           <h2 className="font-display text-xl">{title}</h2>
           <button
             type="button"

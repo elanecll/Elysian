@@ -31,23 +31,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#FFF9F9]/98 backdrop-blur-md border-b border-[#E8BAC0]/30 transition-all shadow-xs">
+    <header className="sticky top-0 z-40 w-full bg-[#FAF7F1]/98 backdrop-blur-md border-b border-[#D6C3A3]/30 transition-all shadow-xs">
       {/* Top Banner Ribbon */}
-      <div hidden className="bg-[#5C423E] text-[#FFF0F2] text-[11px] sm:text-xs py-1.5 px-4 text-center tracking-widest uppercase font-medium hidden items-center justify-center gap-2 sm:gap-4 flex-wrap">
+      <div hidden className="bg-[#5D4933] text-[#F1EADC] text-[11px] sm:text-xs py-1.5 px-4 text-center tracking-widest uppercase font-medium hidden items-center justify-center gap-2 sm:gap-4 flex-wrap">
         <span className="flex items-center gap-1.5">
-          <Sparkles className="w-3 h-3 text-[#E8BAC0]" />
+          <Sparkles className="w-3 h-3 text-[#D6C3A3]" />
           Complimentary with Botanical Flowers Tea
         </span>
-        <span className="hidden md:inline text-[#E8BAC0]/50">•</span>
+        <span className="hidden md:inline text-[#D6C3A3]/50">•</span>
         <button
           onClick={() => handleNavClick('terms')}
-          className="text-[#E8BAC0] hover:text-white font-semibold transition-colors underline decoration-dotted underline-offset-2 cursor-pointer"
+          className="text-[#D6C3A3] hover:text-white font-semibold transition-colors underline decoration-dotted underline-offset-2 cursor-pointer"
           title="View our 50% Deposit Policy & Booking Terms"
         >
           💳 50% Deposit Policy
         </button>
-        <span className="hidden md:inline text-[#E8BAC0]/50">•</span>
-        <a href="tel:+447707328060" className="hidden md:inline-flex items-center gap-1 text-[#E8BAC0] hover:text-white transition-colors">
+        <span className="hidden md:inline text-[#D6C3A3]/50">•</span>
+        <a href="tel:+447707328060" className="hidden md:inline-flex items-center gap-1 text-[#D6C3A3] hover:text-white transition-colors">
           <Phone className="w-3 h-3" /> +44 7707 32 8060
         </a>
       </div>
@@ -61,10 +61,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <img
             id="nav-logo-image"
-            src="https://assets.cdn.filesafe.space/WEYoHbUCjTA2dAYTZxNr/media/6a82f6cffe4291bd1018aed4.jpeg"
-            alt="Elysian Spa & Wellness"
-            className="h-20 sm:h-24 md:h-26 w-auto max-w-[40vw] sm:max-w-[260px] lg:max-w-[240px] xl:max-w-[320px] object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
-            referrerPolicy="no-referrer"
+            src="/images/brand/elysian-gold-logo.jpg"
+            alt="Elysian Beauty Spa"
+            width={1000}
+            height={333}
+            className="h-20 sm:h-24 w-[180px] sm:w-[228px] max-w-[48vw] object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
           />
         </button>
 
@@ -78,10 +79,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => handleNavClick(item.id)}
                 className={`text-[10px] xl:text-[11px] tracking-[0.1em] whitespace-nowrap uppercase font-medium transition-all relative py-1.5 cursor-pointer ${
                   isActive
-                    ? 'text-[#BE757C] font-bold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#BE757C]'
+                    ? 'text-[#806035] font-bold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#806035]'
                     : item.isShop
-                    ? 'text-[#BE757C] hover:text-[#9F5158] font-semibold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#BE757C] hover:after:w-full after:transition-all after:duration-300'
-                    : 'text-[#4A352F] hover:text-[#BE757C] after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#BE757C] hover:after:w-full after:transition-all after:duration-300'
+                    ? 'text-[#806035] hover:text-[#6E4F2B] font-semibold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#806035] hover:after:w-full after:transition-all after:duration-300'
+                    : 'text-[#5C4937] hover:text-[#806035] after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#806035] hover:after:w-full after:transition-all after:duration-300'
                 }`}
               >
                 <span>{item.name}</span>
@@ -99,14 +100,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="View Shopping Basket"
             className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full border text-[11px] tracking-[0.08em] whitespace-nowrap uppercase font-medium transition-all duration-300 shadow-2xs cursor-pointer relative ${
               currentPage === 'basket'
-                ? 'bg-[#BE757C] text-white border-[#BE757C]'
-                : 'border-[#E8BAC0] text-[#5C423E] hover:border-[#BE757C] hover:text-[#BE757C] bg-white/90 hover:bg-[#FFF0F2]'
+                ? 'bg-[#806035] text-white border-[#806035]'
+                : 'border-[#D6C3A3] text-[#5D4933] hover:border-[#806035] hover:text-[#806035] bg-white/90 hover:bg-[#F1EADC]'
             }`}
           >
-            <ShoppingBag className={`w-3.5 h-3.5 ${currentPage === 'basket' ? 'text-white' : 'text-[#BE757C]'}`} />
+            <ShoppingBag className={`w-3.5 h-3.5 ${currentPage === 'basket' ? 'text-white' : 'text-[#806035]'}`} />
             <span>Basket</span>
             {cartCount > 0 && (
-              <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#BE757C] text-white leading-none">
+              <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#806035] text-white leading-none">
                 {cartCount}
               </span>
             )}
@@ -118,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-book-btn"
             onClick={onOpenBooking}
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-[11px] tracking-[0.1em] whitespace-nowrap uppercase transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#806035] hover:bg-[#684B2A] text-white font-medium text-[11px] tracking-[0.1em] whitespace-nowrap uppercase transition-all duration-300 shadow-xs hover:shadow-md cursor-pointer"
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>Book Now</span>
@@ -131,14 +132,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => handleNavClick(cartCount > 0 ? 'basket' : 'shop')}
             className={`sm:hidden p-2 rounded-full border relative ${
               currentPage === 'basket' || currentPage === 'shop'
-                ? 'bg-[#BE757C] text-white border-[#BE757C]'
-                : 'border-[#BE757C]/40 text-[#BE757C] bg-white/60'
+                ? 'bg-[#806035] text-white border-[#806035]'
+                : 'border-[#806035]/40 text-[#806035] bg-white/60'
             }`}
             aria-label="Shop Basket"
           >
             <ShoppingBag className="w-4 h-4" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#3D2B27] text-white text-[9px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#493A2D] text-white text-[9px] font-bold flex items-center justify-center">
                 {cartCount}
               </span>
             )}
@@ -149,7 +150,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-[#3D2B27] hover:text-[#BE757C] hover:bg-[#BE757C]/10 transition-colors"
+            className="p-2 rounded-lg text-[#493A2D] hover:text-[#806035] hover:bg-[#806035]/10 transition-colors"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -159,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#FFF9F9] border-b border-[#E8BAC0]/40 px-6 py-6 space-y-4 shadow-lg animate-in slide-in-from-top-4 duration-300">
+        <div className="lg:hidden bg-[#FAF7F1] border-b border-[#D6C3A3]/40 px-6 py-6 space-y-4 shadow-lg animate-in slide-in-from-top-4 duration-300">
           <nav className="flex flex-col space-y-2">
             {navItems.map((item) => {
               const isActive = currentPage === item.id || (item.id === 'location' && currentPage === 'terms');
@@ -167,14 +168,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`text-[13px] tracking-[0.1em] uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#E8BAC0]/20 flex items-center justify-between text-left transition-all ${
+                  className={`text-[13px] tracking-[0.1em] uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#D6C3A3]/20 flex items-center justify-between text-left transition-all ${
                     isActive
-                      ? 'bg-[#FFF0F2] text-[#BE757C] font-bold border-l-4 border-l-[#BE757C]'
-                      : 'text-[#4A352F] hover:text-[#BE757C] hover:bg-[#FFF0F2]/50'
+                      ? 'bg-[#F1EADC] text-[#806035] font-bold border-l-4 border-l-[#806035]'
+                      : 'text-[#5C4937] hover:text-[#806035] hover:bg-[#F1EADC]/50'
                   }`}
                 >
                   <span>{item.name}</span>
-                  {item.isShop && <ShoppingBag className="w-4 h-4 text-[#BE757C]" />}
+                  {item.isShop && <ShoppingBag className="w-4 h-4 text-[#806035]" />}
                 </button>
               );
             })}
@@ -182,18 +183,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile Basket Item */}
             <button
               onClick={() => handleNavClick('basket')}
-              className={`text-[13px] tracking-[0.1em] uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#E8BAC0]/20 flex items-center justify-between text-left transition-all ${
+              className={`text-[13px] tracking-[0.1em] uppercase font-medium py-2.5 px-3 rounded-lg border-b border-[#D6C3A3]/20 flex items-center justify-between text-left transition-all ${
                 currentPage === 'basket'
-                  ? 'bg-[#FFF0F2] text-[#BE757C] font-bold border-l-4 border-l-[#BE757C]'
-                  : 'text-[#4A352F] hover:text-[#BE757C] hover:bg-[#FFF0F2]/50'
+                  ? 'bg-[#F1EADC] text-[#806035] font-bold border-l-4 border-l-[#806035]'
+                  : 'text-[#5C4937] hover:text-[#806035] hover:bg-[#F1EADC]/50'
               }`}
             >
               <div className="flex items-center gap-2">
-                <ShoppingBag className="w-4 h-4 text-[#BE757C]" />
+                <ShoppingBag className="w-4 h-4 text-[#806035]" />
                 <span>Shopping Basket</span>
               </div>
               {cartCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-[#BE757C] text-white text-xs font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-[#806035] text-white text-xs font-bold">
                   {cartCount}
                 </span>
               )}
@@ -206,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
                 onOpenBooking();
               }}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#BE757C] text-white font-medium text-xs tracking-widest uppercase shadow-md cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#806035] text-white font-medium text-xs tracking-widest uppercase shadow-md cursor-pointer"
             >
               <Calendar className="w-4 h-4" />
               <span>Book Appointment</span>
@@ -214,7 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <a
               href="tel:+447707328060"
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full border border-[#BE757C]/50 text-[#BE757C] text-xs tracking-widest uppercase"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full border border-[#806035]/50 text-[#806035] text-xs tracking-widest uppercase"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Call +44 7707 32 8060</span>

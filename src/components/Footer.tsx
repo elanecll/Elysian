@@ -16,19 +16,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
   };
 
   return (
-    <footer className="bg-[#422F2B] text-[#F3DFE2] pt-16 pb-12 border-t border-[#BE757C]/30 relative overflow-hidden">
+    <footer className="bg-[#332A20] text-[#E9DECA] pt-16 pb-12 border-t border-[#806035]/30 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         
         {/* Top Newsletter / Concierge section */}
-        <div className="bg-[#533B36] rounded-2xl p-8 sm:p-10 border border-[#BE757C]/30 mb-16 flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="bg-[#493C2C] rounded-2xl p-8 sm:p-10 border border-[#806035]/30 mb-16 flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="max-w-md text-center lg:text-left">
-            <span className="text-[10px] tracking-[0.3em] uppercase text-[#E8BAC0] font-semibold font-sans-clean">
+            <span className="text-[10px] tracking-[0.3em] uppercase text-[#D6C3A3] font-semibold font-sans-clean">
               SANCTUARY PRIVILEGES
             </span>
             <h3 className="text-2xl sm:text-3xl font-display text-white mt-1">
               Join Our Elysian Circle
             </h3>
-            <p className="text-xs sm:text-sm text-[#E2C7CA] mt-2 font-serif-luxury italic">
+            <p className="text-xs sm:text-sm text-[#DFD0B5] mt-2 font-serif-luxury italic">
               Receive seasonal wellness invitations, complimentary aromatherapy upgrades, and priority reservation slots.
             </p>
           </div>
@@ -37,11 +37,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
             <input
               type="email"
               placeholder="Your email address"
-              className="px-5 py-3 rounded-full bg-[#3D2B27] border border-[#BE757C]/40 text-xs sm:text-sm text-white placeholder-[#B89FA3] focus:outline-hidden focus:border-[#E8BAC0] min-w-[240px]"
+              className="px-5 py-3 rounded-full bg-[#493A2D] border border-[#806035]/40 text-xs sm:text-sm text-white placeholder-[#B5A488] focus:outline-hidden focus:border-[#D6C3A3] min-w-[240px]"
             />
             <button
               type="submit"
-              className="px-6 py-3 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white text-xs tracking-widest uppercase font-semibold transition-all shadow-md cursor-pointer whitespace-nowrap"
+              className="px-6 py-3 rounded-full bg-[#806035] hover:bg-[#684B2A] text-white text-xs tracking-widest uppercase font-semibold transition-all shadow-md cursor-pointer whitespace-nowrap"
             >
               Subscribe
             </button>
@@ -49,24 +49,24 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
         </div>
 
         {/* Footer Navigation Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#BE757C]/20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#806035]/20">
           
           {/* Brand Column */}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-[#BE757C]/20 border border-[#BE757C] flex items-center justify-center text-[#E8BAC0]">
+              <div className="w-8 h-8 rounded-full bg-[#806035]/20 border border-[#806035] flex items-center justify-center text-[#D6C3A3]">
                 <span className="font-display text-base">E</span>
               </div>
               <div>
                 <span className="font-display text-xl tracking-[0.16em] text-white uppercase block">
                   ELYSIAN
                 </span>
-                <span className="text-[9px] tracking-[0.3em] text-[#E8BAC0] uppercase font-sans-clean block">
+                <span className="text-[9px] tracking-[0.3em] text-[#D6C3A3] uppercase font-sans-clean block">
                   Beauty Spa
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#D8BFC2] leading-relaxed font-sans-clean">
+            <p className="text-xs text-[#D7C9B1] leading-relaxed font-sans-clean">
               A bespoke wellness haven specializing in restorative facials, therapeutic body massage, and volcanic hot stone rituals.
             </p>
             <div className="flex items-center gap-3 pt-2">
@@ -75,7 +75,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram Profile"
-                className="w-8 h-8 rounded-full bg-[#533B36] hover:bg-[#BE757C] text-[#E8BAC0] hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full bg-[#493C2C] hover:bg-[#806035] text-[#D6C3A3] hover:text-white flex items-center justify-center transition-colors"
               >
                 <Instagram className="w-4 h-4" />
               </a>
@@ -84,7 +84,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook Page"
-                className="w-8 h-8 rounded-full bg-[#533B36] hover:bg-[#BE757C] text-[#E8BAC0] hover:text-white flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-full bg-[#493C2C] hover:bg-[#806035] text-[#D6C3A3] hover:text-white flex items-center justify-center transition-colors"
               >
                 <Facebook className="w-4 h-4" />
               </a>
@@ -96,7 +96,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
             <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-white mb-4 font-sans-clean">
               Signature Rituals
             </h4>
-            <ul className="space-y-2.5 text-xs text-[#D8BFC2]">
+            <ul className="space-y-2.5 text-xs text-[#D7C9B1]">
               <li>
                 <button onClick={() => handleNav('treatments', 'facial')} className="hover:text-white transition-colors text-left cursor-pointer">
                   Hydro-Facial &amp; Aesthetics
@@ -135,7 +135,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
             <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-white mb-4 font-sans-clean">
               Sanctuary
             </h4>
-            <ul className="space-y-2.5 text-xs text-[#D8BFC2]">
+            <ul className="space-y-2.5 text-xs text-[#D7C9B1]">
               <li>
                 <button onClick={() => handleNav('reviews')} className="hover:text-white transition-colors text-left cursor-pointer">
                   Reviews &amp; Experience
@@ -169,23 +169,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
             <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-white mb-4 font-sans-clean">
               Sanctuary Inquiries
             </h4>
-            <div className="space-y-3 text-xs text-[#D8BFC2]">
+            <div className="space-y-3 text-xs text-[#D7C9B1]">
               <p className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#BE757C] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#806035] shrink-0 mt-0.5" />
                 <span>5, St Michael's Close, FY3 7GX, Blackpool</span>
               </p>
               <p className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#BE757C] shrink-0" />
+                <Phone className="w-4 h-4 text-[#806035] shrink-0" />
                 <a href="tel:+447707328060" className="hover:text-white">+44 7707 32 8060</a>
               </p>
               <p className="flex items-center gap-2.5">
-                <MessageCircle className="w-4 h-4 text-[#BE757C] shrink-0" />
+                <MessageCircle className="w-4 h-4 text-[#806035] shrink-0" />
                 <a href="https://wa.me/447707328060" target="_blank" rel="noopener noreferrer" className="hover:text-white">
                   Whatsapp : Elaine Chong
                 </a>
               </p>
               <p className="flex items-center gap-2.5">
-                <Facebook className="w-4 h-4 text-[#BE757C] shrink-0" />
+                <Facebook className="w-4 h-4 text-[#806035] shrink-0" />
                 <a
                   href="https://www.facebook.com/profile.php?id=61590445207420&sk=about"
                   target="_blank"
@@ -196,7 +196,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
                 </a>
               </p>
               <p className="flex items-center gap-2.5">
-                <Instagram className="w-4 h-4 text-[#BE757C] shrink-0" />
+                <Instagram className="w-4 h-4 text-[#806035] shrink-0" />
                 <a
                   href="https://www.instagram.com/elysian.beauty.spa"
                   target="_blank"
@@ -206,7 +206,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
                   Instagram Elysian.beauty.spa
                 </a>
               </p>
-              <p className="text-[11px] text-[#E8BAC0] pt-2">
+              <p className="text-[11px] text-[#D6C3A3] pt-2">
                 Valet parking available at private courtyard entrance.
               </p>
             </div>
@@ -215,7 +215,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
         </div>
 
         {/* Bottom copyright line */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#B89FA3] gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#B5A488] gap-4">
           <p>© {new Date().getFullYear()} Elysian Spa &amp; Wellness Sanctuary. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <button onClick={() => handleNav('home')} className="hover:text-white transition-colors cursor-pointer">Home</button>
@@ -224,7 +224,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenCRM }) => {
             {onOpenCRM && (
               <button
                 onClick={onOpenCRM}
-                className="text-[#B89FA3]/50 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-normal text-[10px]"
+                className="text-[#B5A488]/50 hover:text-white transition-colors flex items-center gap-1 cursor-pointer font-normal text-[10px]"
                 title="Management Portal (Shortcut: Ctrl+Shift+A)"
               >
                 <Lock className="w-2.5 h-2.5" />

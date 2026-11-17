@@ -14,22 +14,22 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
 }) => {
   const experiences = [
     {
-      icon: <Leaf className="w-6 h-6 text-[#BE757C]" />,
+      icon: <Leaf className="w-6 h-6 text-[#806035]" />,
       title: 'Pure Organic Botanicals',
       desc: 'Formulated with fresh cold-pressed rosehip, damask rose essence, soothing calendula, and therapeutic grade arnica with zero synthetic additives.'
     },
     {
-      icon: <Flame className="w-6 h-6 text-[#BE757C]" />,
+      icon: <Flame className="w-6 h-6 text-[#806035]" />,
       title: 'Heated Basalt & Salt Stones',
       desc: 'Naturally smooth, energy-conductive volcanic stones and hand-cut Himalayan pink crystals warmed precisely to 125°F for profound thermal relief.'
     },
     {
-      icon: <ShieldCheck className="w-6 h-6 text-[#BE757C]" />,
+      icon: <ShieldCheck className="w-6 h-6 text-[#806035]" />,
       title: 'Licensed Master Therapists',
       desc: 'Each aesthetician and bodywork specialist possesses extensive dedicated practice across aesthetic dermatology and neuromuscular therapy.'
     },
     {
-      icon: <Moon className="w-6 h-6 text-[#BE757C]" />,
+      icon: <Moon className="w-6 h-6 text-[#806035]" />,
       title: 'Private Acoustic Suites',
       desc: 'Sound-insulated treatment sanctuaries fitted with ergonomic memory foam heated tables, ambient candlelight, and custom botanical aroma diffusion.'
     }
@@ -59,7 +59,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
   ];
 
   return (
-    <section id="experience" className="py-16 lg:py-24 bg-[#FAF3F3] relative overflow-hidden">
+    <section id="experience" className="py-16 lg:py-24 bg-[#F4EFE6] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         
         {/* Main Grid: Story + Feature Cards */}
@@ -67,44 +67,44 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
           
           {/* Left Text / Sanctuary Story */}
           <div className="lg:col-span-6">
-            <p className="text-xs sm:text-sm tracking-[0.3em] text-[#BE757C] uppercase font-semibold font-sans-clean">
+            <p className="text-xs sm:text-sm tracking-[0.3em] text-[#806035] uppercase font-semibold font-sans-clean">
               THE ELYSIAN PHILOSOPHY
             </p>
             <div className="w-32 my-2">
               <SpaHeartDivider className="justify-start" />
             </div>
             
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-[#3D2B27] mt-3 mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-[#493A2D] mt-3 mb-6 leading-tight">
               An Oasis of Serenity Designed for Deep Restoration
             </h2>
 
-            <p className="text-base sm:text-lg font-serif-luxury italic text-[#5C4A45] leading-relaxed mb-6">
+            <p className="text-base sm:text-lg font-serif-luxury italic text-[#71604E] leading-relaxed mb-6">
               "We believe that authentic rejuvenation occurs when the senses are gently stilled, allowing the mind and body to recalibrate in harmony."
             </p>
 
-            <p className="text-sm text-[#4A352F]/90 leading-relaxed font-sans-clean mb-8">
+            <p className="text-sm text-[#5C4937]/90 leading-relaxed font-sans-clean mb-8">
               From the moment you step into our Blackpool sanctuary, your bespoke journey commences. Unwind in our serene botanical courtyard lounge with complimentary flower tea, complete a tailored consultation, and surrender to skilled restorative hands.
             </p>
 
             {/* Quality Badges */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E8BAC0]/40">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#D6C3A3]/40">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#FFF0F2] flex items-center justify-center text-[#BE757C] border border-[#BE757C]/20">
+                <div className="w-10 h-10 rounded-full bg-[#F1EADC] flex items-center justify-center text-[#806035] border border-[#806035]/20">
                   <Flower2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27]">100% Medical-Grade</h4>
-                  <p className="text-[11px] text-[#5C4A45]">🔬 CLINICARE Active Formulas</p>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#493A2D]">100% Medical-Grade</h4>
+                  <p className="text-[11px] text-[#71604E]">🔬 CLINICARE Active Formulas</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#FFF0F2] flex items-center justify-center text-[#BE757C] border border-[#BE757C]/20">
+                <div className="w-10 h-10 rounded-full bg-[#F1EADC] flex items-center justify-center text-[#806035] border border-[#806035]/20">
                   <HeartHandshake className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D2B27]">Tailored Care</h4>
-                  <p className="text-[11px] text-[#5C4A45]">Bespoke Pressure &amp; Rhythm</p>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#493A2D]">Tailored Care</h4>
+                  <p className="text-[11px] text-[#71604E]">Bespoke Pressure &amp; Rhythm</p>
                 </div>
               </div>
             </div>
@@ -120,15 +120,15 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white/95 backdrop-blur-xs p-6 rounded-2xl border border-[#E8BAC0]/40 hover:border-[#BE757C]/60 shadow-xs hover:shadow-md transition-all group"
+                className="bg-white/95 backdrop-blur-xs p-6 rounded-2xl border border-[#D6C3A3]/40 hover:border-[#806035]/60 shadow-xs hover:shadow-md transition-all group"
               >
-                <div className="w-12 h-12 rounded-xl bg-[#FFF2F4] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#F6F0E4] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                   {exp.icon}
                 </div>
-                <h3 className="text-base font-display text-[#3D2B27] uppercase tracking-wide mb-2 group-hover:text-[#BE757C] transition-colors">
+                <h3 className="text-base font-display text-[#493A2D] uppercase tracking-wide mb-2 group-hover:text-[#806035] transition-colors">
                   {exp.title}
                 </h3>
-                <p className="text-xs text-[#5C4A45] leading-relaxed font-sans-clean">
+                <p className="text-xs text-[#71604E] leading-relaxed font-sans-clean">
                   {exp.desc}
                 </p>
               </motion.div>
@@ -138,18 +138,18 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
         </div>
 
         {/* The 4-Step Guest Journey Breakdown */}
-        <div className="pt-12 border-t border-[#E8BAC0]/50">
+        <div className="pt-12 border-t border-[#D6C3A3]/50">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="text-xs sm:text-sm tracking-[0.3em] text-[#BE757C] uppercase font-semibold font-sans-clean">
+            <p className="text-xs sm:text-sm tracking-[0.3em] text-[#806035] uppercase font-semibold font-sans-clean">
               YOUR TIME WITH US
             </p>
             <div className="max-w-xs mx-auto my-2">
               <SpaHeartDivider />
             </div>
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-display text-[#3D2B27] mt-2 mb-3">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-display text-[#493A2D] mt-2 mb-3">
               The 4-Step Sanctuary Ritual
             </h3>
-            <p className="text-sm sm:text-base font-serif-luxury italic text-[#5C4A45]">
+            <p className="text-sm sm:text-base font-serif-luxury italic text-[#71604E]">
               Every appointment is a seamless flow of attentive care and unhurried peace.
             </p>
           </div>
@@ -158,16 +158,16 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
             {ritualSteps.map((step, idx) => (
               <div
                 key={idx}
-                className="bg-white p-6 rounded-2xl border border-[#E8BAC0]/40 shadow-xs flex flex-col justify-between relative group hover:border-[#BE757C]/60 transition-all"
+                className="bg-white p-6 rounded-2xl border border-[#D6C3A3]/40 shadow-xs flex flex-col justify-between relative group hover:border-[#806035]/60 transition-all"
               >
                 <div>
-                  <span className="text-3xl font-display text-[#E8BAC0] group-hover:text-[#BE757C] transition-colors font-light block mb-2">
+                  <span className="text-3xl font-display text-[#D6C3A3] group-hover:text-[#806035] transition-colors font-light block mb-2">
                     {step.step}
                   </span>
-                  <h4 className="text-base font-display text-[#3D2B27] mb-2 uppercase tracking-wide">
+                  <h4 className="text-base font-display text-[#493A2D] mb-2 uppercase tracking-wide">
                     {step.title}
                   </h4>
-                  <p className="text-xs text-[#5C4A45] leading-relaxed font-sans-clean">
+                  <p className="text-xs text-[#71604E] leading-relaxed font-sans-clean">
                     {step.desc}
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
               {onOpenBooking && (
                 <button
                   onClick={onOpenBooking}
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#BE757C] hover:bg-[#A9636A] text-white font-medium text-xs sm:text-sm tracking-widest uppercase transition-all shadow-md hover:shadow-lg cursor-pointer"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#806035] hover:bg-[#684B2A] text-white font-medium text-xs sm:text-sm tracking-widest uppercase transition-all shadow-md hover:shadow-lg cursor-pointer"
                 >
                   <Calendar className="w-4 h-4" />
                   <span>Book Your Experience</span>
@@ -190,7 +190,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
               {onExploreTreatments && (
                 <button
                   onClick={onExploreTreatments}
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-[#BE757C]/50 hover:border-[#BE757C] text-[#3D2B27] hover:text-[#BE757C] bg-white font-medium text-xs sm:text-sm tracking-widest uppercase transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-[#806035]/50 hover:border-[#806035] text-[#493A2D] hover:text-[#806035] bg-white font-medium text-xs sm:text-sm tracking-widest uppercase transition-all cursor-pointer"
                 >
                   <span>View Treatment Tariff</span>
                   <ArrowRight className="w-4 h-4" />

@@ -47,7 +47,7 @@ const treatmentComparisons = [
   })),
 ];
 
-const reviewCardClass = "rounded-2xl border border-[#E8BAC0]/40 bg-white p-6 shadow-xs";
+const reviewCardClass = "rounded-2xl border border-[#D6C3A3]/40 bg-white p-6 shadow-xs";
 
 export const Testimonials: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<
@@ -176,7 +176,7 @@ export const Testimonials: React.FC = () => {
     <section
       id="reviews"
       aria-label="Guest reviews and treatment comparisons"
-      className="pt-10 sm:pt-12 pb-20 lg:pb-28 bg-[#FAF2F3] relative overflow-hidden"
+      className="pt-10 sm:pt-12 pb-20 lg:pb-28 bg-[#F5F0E7] relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
         {treatmentComparisons.length > 0 && (
@@ -187,11 +187,11 @@ export const Testimonials: React.FC = () => {
             <div className="text-center mb-6">
               <h3
                 id="review-comparisons-heading"
-                className="text-2xl sm:text-3xl font-display text-[#3D2B27]"
+                className="text-2xl sm:text-3xl font-display text-[#493A2D]"
               >
                 Before &amp; After
               </h3>
-              <p className="mt-2 text-sm text-[#5C4A45]">
+              <p className="mt-2 text-sm text-[#71604E]">
                 Explore comparison images for our CLINICARE facial treatments.
               </p>
             </div>
@@ -199,13 +199,13 @@ export const Testimonials: React.FC = () => {
               {treatmentComparisons.map((comparison) => (
                 <figure
                   key={comparison.id}
-                  className="overflow-hidden rounded-2xl border border-[#E8BAC0]/50 bg-white shadow-xs"
+                  className="overflow-hidden rounded-2xl border border-[#D6C3A3]/50 bg-white shadow-xs"
                 >
                   <button
                     type="button"
                     onClick={() => setSelectedComparison(comparison)}
                     aria-label={`Enlarge before and after comparison for ${comparison.title}`}
-                    className="block w-full aspect-[4/3] bg-[#FFF9F9] p-3 sm:p-4 cursor-pointer hover:bg-[#FFF0F2] transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#BE757C]"
+                    className="block w-full aspect-[4/3] bg-[#FAF7F1] p-3 sm:p-4 cursor-pointer hover:bg-[#F1EADC] transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#806035]"
                   >
                     <img
                       src={comparison.image}
@@ -214,11 +214,11 @@ export const Testimonials: React.FC = () => {
                       loading="lazy"
                     />
                   </button>
-                  <figcaption className="border-t border-[#E8BAC0]/30 px-5 py-4">
-                    <h4 className="font-display text-lg text-[#3D2B27]">
+                  <figcaption className="border-t border-[#D6C3A3]/30 px-5 py-4">
+                    <h4 className="font-display text-lg text-[#493A2D]">
                       {comparison.title}
                     </h4>
-                    <p className="mt-1 text-xs text-[#7A5852]">
+                    <p className="mt-1 text-xs text-[#7C674D]">
                       Select the image to view it larger.
                     </p>
                   </figcaption>
@@ -241,8 +241,8 @@ export const Testimonials: React.FC = () => {
               onClick={() => setActiveCategory(tab.id as any)}
               className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wider transition-all cursor-pointer ${
                 activeCategory === tab.id
-                  ? "bg-[#BE757C] text-white shadow-xs"
-                  : "bg-white text-[#5C4A45] hover:bg-[#FFF0F2] border border-[#E8BAC0]/40"
+                  ? "bg-[#806035] text-white shadow-xs"
+                  : "bg-white text-[#71604E] hover:bg-[#F1EADC] border border-[#D6C3A3]/40"
               }`}
             >
               {tab.label}
@@ -255,17 +255,17 @@ export const Testimonials: React.FC = () => {
           className={`${reviewCardClass} mb-6`}
         >
           <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-            <div className="w-12 h-12 shrink-0 rounded-xl bg-[#FFF0F2] text-[#BE757C] flex items-center justify-center" aria-hidden="true">
+            <div className="w-12 h-12 shrink-0 rounded-xl bg-[#F1EADC] text-[#806035] flex items-center justify-center" aria-hidden="true">
               <MessageCircle className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h2 id="leave-review-heading" className="font-display text-2xl text-[#3D2B27] mb-2">
+              <h2 id="leave-review-heading" className="font-display text-2xl text-[#493A2D] mb-2">
                 Leave a review
               </h2>
-              <p className="text-sm text-[#5C4A45] leading-relaxed">
+              <p className="text-sm text-[#71604E] leading-relaxed">
                 Visited Elysian? Share your treatment experience and help others plan their visit.
               </p>
-              <p className="mt-2 text-xs text-[#5C4A45]">
+              <p className="mt-2 text-xs text-[#71604E]">
                 All reviews require owner approval before appearing on this page.
               </p>
             </div>
@@ -283,11 +283,11 @@ export const Testimonials: React.FC = () => {
         {/* Rating Summary Bar */}
         <div className={`${reviewCardClass} mb-6 flex flex-wrap items-center justify-around gap-4 text-center`}>
           <div className="flex items-center gap-3">
-            <div className="text-3xl font-display text-[#BE757C]">
+            <div className="text-3xl font-display text-[#806035]">
               {averageRating.toFixed(1)}
             </div>
             <div className="text-left">
-              <div className="flex items-center gap-1 text-[#BE757C]">
+              <div className="flex items-center gap-1 text-[#806035]">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
@@ -295,22 +295,22 @@ export const Testimonials: React.FC = () => {
                   />
                 ))}
               </div>
-              <p className="text-[11px] font-bold text-[#3D2B27] uppercase tracking-wider">
+              <p className="text-[11px] font-bold text-[#493A2D] uppercase tracking-wider">
                 Overall Guest Rating · {reviewCount} reviews
               </p>
             </div>
           </div>
-          <div className="h-8 w-px bg-[#E8BAC0]/40 hidden sm:block"></div>
+          <div className="h-8 w-px bg-[#D6C3A3]/40 hidden sm:block"></div>
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-[#BE757C]" />
-            <span className="text-xs font-semibold text-[#5C4A45]">
+            <CheckCircle className="w-4 h-4 text-[#806035]" />
+            <span className="text-xs font-semibold text-[#71604E]">
               Guest Feedback
             </span>
           </div>
-          <div className="h-8 w-px bg-[#E8BAC0]/40 hidden sm:block"></div>
+          <div className="h-8 w-px bg-[#D6C3A3]/40 hidden sm:block"></div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#BE757C]" />
-            <span className="text-xs font-semibold text-[#5C4A45]">
+            <Sparkles className="w-4 h-4 text-[#806035]" />
+            <span className="text-xs font-semibold text-[#71604E]">
               CLINICARE Certified Aesthetics
             </span>
           </div>
@@ -319,7 +319,7 @@ export const Testimonials: React.FC = () => {
         {/* Reviews Grid */}
         <div className="max-w-2xl mx-auto mb-5 space-y-3">
           {reviewLoading && (
-            <p role="status" className="text-center text-sm text-[#5C4A45]">
+            <p role="status" className="text-center text-sm text-[#71604E]">
               Loading client reviews…
             </p>
           )}
@@ -327,7 +327,7 @@ export const Testimonials: React.FC = () => {
           {reviewError && (
             <button
               type="button"
-              className="block mx-auto text-sm underline text-[#5C4A45]"
+              className="block mx-auto text-sm underline text-[#71604E]"
               onClick={() => void loadLatest()}
             >
               Retry loading reviews
@@ -350,40 +350,40 @@ export const Testimonials: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className={`${reviewCardClass} flex flex-col justify-between hover:border-[#BE757C]/60 hover:shadow-md transition-all`}
+                className={`${reviewCardClass} flex flex-col justify-between hover:border-[#806035]/60 hover:shadow-md transition-all`}
               >
                 <div>
                   {/* Rating stars & quote mark */}
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-1 text-[#BE757C]">
+                    <div className="flex items-center gap-1 text-[#806035]">
                       {[...Array(review.rating)].map((_, i) => (
                         <Star key={i} className="w-3.5 h-3.5 fill-current" />
                       ))}
                     </div>
-                    <Quote className="w-5 h-5 text-[#E8BAC0]/60" />
+                    <Quote className="w-5 h-5 text-[#D6C3A3]/60" />
                   </div>
 
                   {/* Treatment badge */}
-                  <span className="inline-block text-[10px] font-semibold tracking-wider text-[#BE757C] uppercase bg-[#FFF0F2] px-2.5 py-1 rounded-md mb-3">
+                  <span className="inline-block text-[10px] font-semibold tracking-wider text-[#806035] uppercase bg-[#F1EADC] px-2.5 py-1 rounded-md mb-3">
                     {review.service}
                   </span>
 
                   {/* Comment */}
-                  <p className="text-xs sm:text-sm text-[#4A352F] leading-relaxed italic font-serif-luxury mb-6 whitespace-pre-wrap break-words">
+                  <p className="text-xs sm:text-sm text-[#5C4937] leading-relaxed italic font-serif-luxury mb-6 whitespace-pre-wrap break-words">
                     "{review.comment}"
                   </p>
                 </div>
 
                 {/* Author */}
-                <div className="flex items-center gap-3 pt-4 border-t border-[#F5E6E8]">
-                  <div className="w-8 h-8 rounded-full bg-[#BE757C] text-white flex items-center justify-center text-xs font-bold font-sans-clean">
+                <div className="flex items-center gap-3 pt-4 border-t border-[#EDE4D4]">
+                  <div className="w-8 h-8 rounded-full bg-[#806035] text-white flex items-center justify-center text-xs font-bold font-sans-clean">
                     {review.avatarText}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-[#3D2B27] break-words">
+                    <h4 className="text-xs font-bold text-[#493A2D] break-words">
                       {review.author}
                     </h4>
-                    <p className="text-[10px] text-[#5C4A45]/70">
+                    <p className="text-[10px] text-[#71604E]/70">
                       {review.date}
                     </p>
                   </div>
@@ -396,7 +396,7 @@ export const Testimonials: React.FC = () => {
           <div className="mt-8 text-center">
             <button
               type="button"
-              className="rounded-full border border-[#BE757C] px-6 py-3 text-sm text-[#5C4A45] disabled:opacity-50"
+              className="rounded-full border border-[#806035] px-6 py-3 text-sm text-[#71604E] disabled:opacity-50"
               disabled={loadingMore}
               onClick={() => void loadMore()}
             >

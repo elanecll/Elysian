@@ -113,9 +113,9 @@ export function PaymentReturnPage({
         Back
       </button>
       {paid && record?.status !== "cancelled" ? (
-        <CheckCircle2 className="mx-auto text-[#BE757C]" size={48} />
+        <CheckCircle2 className="mx-auto text-[#806035]" size={48} />
       ) : (
-        <Clock className="mx-auto text-[#BE757C]" size={48} />
+        <Clock className="mx-auto text-[#806035]" size={48} />
       )}
       <h1 className="font-display text-3xl" aria-live="polite">
         {title}
@@ -158,7 +158,7 @@ export function PaymentReturnPage({
       )}
       <ErrorMessage error={error} />
       {record && (
-        <div className="space-y-3 rounded-2xl border border-[#E8BAC0] bg-white p-5 text-left text-sm">
+        <div className="space-y-3 rounded-2xl border border-[#D6C3A3] bg-white p-5 text-left text-sm">
           <p className="break-all text-xs">Reference: {record.id}</p>
           {record.date && (
             <p>
@@ -182,7 +182,7 @@ export function PaymentReturnPage({
               )}
             </div>
           ))}
-          <div className="border-t border-[#E8BAC0]/50 pt-3">
+          <div className="border-t border-[#D6C3A3]/50 pt-3">
             {record.bundlePricing && (
               <>
                 <p>
@@ -244,7 +244,7 @@ export function PaymentReturnPage({
           </a>
         )}
         <button
-          className="flex items-center gap-2 rounded-full border border-[#BE757C] px-5 py-3 text-sm"
+          className="flex items-center gap-2 rounded-full border border-[#806035] px-5 py-3 text-sm"
           onClick={() => setRefresh((r) => r + 1)}
         >
           <RefreshCw size={16} />
