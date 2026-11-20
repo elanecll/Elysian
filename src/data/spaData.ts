@@ -371,6 +371,25 @@ export const SPA_SERVICES: Treatment[] = [
     ],
   },
 
+  {
+    id: 'led-light-treatment-addon',
+    category: 'addons',
+    title: 'LED Light Treatment (Add-on Only)',
+    tagline: 'LED LIGHT THERAPY • TREATMENT ADD-ON',
+    image: '/images/treatments/elysian-radiance-revival-facial.png',
+    duration: '15-20 mins',
+    priceDisplay: '£10',
+    priceOptions: [
+      { duration: '15-20 mins', priceSingle: 10 }
+    ],
+    description: 'A 15–20 minute LED light session to complement your chosen treatment, tailored following consultation.',
+    benefits: [
+      '15–20 minute LED light session',
+      'Available alongside a primary treatment'
+    ],
+    isAddon: true,
+  },
+
   // 13. Shoulder & Neck Massage
   {
     id: 'shoulder-neck-massage',
