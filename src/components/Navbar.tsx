@@ -61,11 +61,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <img
             id="nav-logo-image"
-            src="/images/brand/elysian-gold-logo.jpg"
+            src="/images/brand/elysian-gold-logo-transparent.png"
             alt="Elysian Beauty Spa"
             width={1000}
-            height={333}
-            className="h-20 sm:h-24 w-[180px] sm:w-[228px] max-w-[48vw] object-contain brightness-[1.06] contrast-[1.2] mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+            height={334}
+            className="h-20 sm:h-24 w-[180px] sm:w-[228px] max-w-[48vw] object-contain transition-transform duration-300 group-hover:scale-105"
           />
         </button>
 
